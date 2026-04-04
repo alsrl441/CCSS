@@ -328,8 +328,7 @@ const consoleLog = document.getElementById('console-log');
 function logToConsole(msg, type = 'info') {
     const entry = document.createElement('div');
     entry.className = `log-entry log-${type}`;
-    const time = new Date().toLocaleTimeString('ko-KR', { hour12: false });
-    entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-msg">${msg}</span>`;
+    entry.innerHTML = `<span class="log-time">></span> <span class="log-msg">${msg}</span>`;
     consoleLog.appendChild(entry);
     consoleLog.scrollTop = consoleLog.scrollHeight;
 }
