@@ -303,10 +303,30 @@ function showHistoryDetail(shipIdx, historyIdx) {
 
 function renderShips() {
     const results = document.getElementById('ship-results');
-    const filtered = shipData.filter(s => selectedTags.every(t => s.name === t || s.tonnage === t || s.type === t || s.number === t || s.tags.includes(t)));
-    if (selectedTags.length === 0) { results.innerHTML = ''; return; }
-    const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    if (filtered.length === 0) { results.innerHTML = '<div class="text-center py-5"><p class="text-secondary">검색 결과가 없습니다.</p></div>'; return; }
+    const paginationContainer = document.getElementById('pagination-container');
+    
+    // 필터링 로직: 선택된 태그가 없으면 전체 표시, 있으면 AND 조건으로 필터링
+    const filtered = shipData.filter(s => {
+        if (selectedTags.length === 0) return true;
+        return selectedTags.every(t => 
+            (s.name && s.name.includes(t)) || 
+            (s.tonnage && s.tonnage.includes(t)) || 
+            (s.type && s.type.includes(t)) || 
+            (s.number && s.number.includes(t)) || 
+            (s.tags && s.tags.includes(t))
+        );
+    });
+
+    const totalItems = filtered.length;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paged = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+    if (totalItems === 0) {
+        results.innerHTML = '<div class="text-center py-5"><p class="text-secondary">검색 결과가 없습니다.</p></div>';
+        if (paginationContainer) paginationContainer.innerHTML = '';
+        return;
+    }
+
     results.innerHTML = paged.map(ship => {
         const shipIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
         const currentImgIdx = shipSliderState[shipIdx] || 0;
@@ -324,7 +344,7 @@ function renderShips() {
                     </div>
                     <div class="ship-info-tags">
                         <div class="ship-tags">
-                            ${ship.tags.map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
+                            ${(ship.tags || []).map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="event.stopPropagation(); deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
                             ${editingTagsShipIdx === shipIdx ? 
                                 `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" placeholder="엔터로 추가..." onkeydown="addTagInline(event, ${shipIdx})" autofocus>
                                  <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
@@ -334,15 +354,15 @@ function renderShips() {
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
                         <div class="slider-track" style="transform: translateX(-${currentImgIdx * 100}%);">
-                            ${ship.history.length > 0 ? ship.history.map(h => `<img src="${h.shipImage}" class="slider-img">`).join('') : `<img src="Images/no-image.jpg" class="slider-img">`}
+                            ${(ship.history && ship.history.length > 0) ? ship.history.map(h => `<img src="${h.shipImage}" class="slider-img">`).join('') : `<img src="Images/no-image.jpg" class="slider-img">`}
                         </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
-                        <div class="slider-dots">${ship.history.map((_, i) => `<div class="dot ${i === currentImgIdx ? 'active' : ''}"></div>`).join('')}</div>
+                        <div class="slider-dots">${(ship.history || []).map((_, i) => `<div class="dot ${i === currentImgIdx ? 'active' : ''}"></div>`).join('')}</div>
                     </div>
                 </div>
                 <div class="ship-card-expanded">
                     <div class="history-date-list">
-                        ${ship.history.map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
+                        ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
                         <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 식별날짜 추가</div>
                     </div>
                     <div class="history-detail-view"></div>
@@ -350,6 +370,43 @@ function renderShips() {
                 </div>
             </div>`;
     }).join('');
+
+    // 페이지네이션 렌더링 호출 추가
+    renderPagination(totalItems);
+}
+
+// 누락된 renderPagination 함수 복구
+function renderPagination(totalItems) {
+    const container = document.getElementById('pagination-container');
+    if (!container) return;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+    container.innerHTML = '';
+
+    const createBtn = (text, page, isActive = false, isDisabled = false) => {
+        const btn = document.createElement('button');
+        btn.innerText = text;
+        btn.classList.add('page-btn');
+        if (isActive) btn.classList.add('active');
+        if (isDisabled) btn.disabled = true;
+        btn.onclick = () => {
+            currentPage = page;
+            renderShips();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        return btn;
+    };
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+    if (totalPages > 1) {
+        container.appendChild(createBtn('<', Math.max(1, currentPage - 1), false, currentPage === 1));
+        for (let i = startPage; i <= endPage; i++) {
+            container.appendChild(createBtn(i, i, i === currentPage));
+        }
+        container.appendChild(createBtn('>', Math.min(totalPages, currentPage + 1), false, currentPage === totalPages));
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initShipSearch);

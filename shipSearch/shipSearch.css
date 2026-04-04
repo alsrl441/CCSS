@@ -163,8 +163,9 @@
 }
 
 /* 태그 편집 모드 */
-.tag-badge.edit-mode { border-color: #0d6efd; background: #fff; }
-.tag-delete-btn { color: #dc3545; cursor: pointer; font-weight: bold; margin-left: 4px; }
+.tag-badge.edit-mode { border-color: #0d6efd; background: #fff; padding-right: 8px; }
+.tag-delete-btn { display: none; color: #dc3545; cursor: pointer; font-weight: bold; margin-left: 6px; font-size: 1rem; }
+.tag-badge.edit-mode .tag-delete-btn { display: inline-block; }
 .inline-tag-input { border: 1px solid #0d6efd; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; width: 90px; outline: none; }
 
 /* 슬라이더 */
