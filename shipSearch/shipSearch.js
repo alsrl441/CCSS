@@ -130,8 +130,8 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <textarea id="edit-handover">${h.handover}</textarea>
             </div>
             <div class="form-actions">
-                <button class="btn btn-sm btn-outline-secondary" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
-                <button class="btn btn-sm btn-primary" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
+                <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
+                <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
             </div>
         </div>
     `;
@@ -305,8 +305,8 @@ function showHistoryDetail(shipIdx, historyIdx) {
         <div class="history-info-group fade-in">
             <div class="h-item full-width"><label>인수인계</label><span>${h.handover || '데이터 없음'}</span></div>
             <div class="history-actions">
-                <button class="btn btn-sm btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
-                <button class="btn btn-sm btn-outline-danger btn-delete-history" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
+                <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
+                <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
             </div>
         </div>
     `;
@@ -341,9 +341,8 @@ function renderShips() {
                             ${ship.tags.map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
                             ${editingTagsShipIdx === shipIdx ? 
                                 `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" placeholder="엔터로 추가..." onkeydown="addTagInline(event, ${shipIdx})" autofocus>
-                                 <button class="btn btn-sm btn-primary py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
-                                `<button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
-                        </div>
+                                <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
+                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}                        </div>
                     </div>
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
