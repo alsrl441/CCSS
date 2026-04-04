@@ -1,6 +1,6 @@
 let selectedTags = [];
 let currentPage = 1;
-const itemsPerPage = 1; 
+const itemsPerPage = 4; 
 let currentFocus = -1; 
 let shipData = []; 
 let shipSliderState = {};
