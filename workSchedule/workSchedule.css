@@ -59,7 +59,7 @@
 
 /* 은은한 행 구분 (월간용) */
 .monthly-table tbody tr:nth-child(even) {
-    background-color: #f0f0f0;
+    /* background-color: #f0f0f0; */
 }
 
 /* ====================================================== */
