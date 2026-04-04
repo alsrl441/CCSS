@@ -9,14 +9,17 @@ async function updateWorkSchedule() {
     // [수정] 특정 키 조회가 실패할 경우를 대비해 전체 검색 방식으로 변경
     function getDaySchedule(dateStr) {
         return new Promise((resolve) => {
-            const request = indexedDB.open("workSchedule"); 
+            const request = indexedDB.open("myDB"); 
             request.onsuccess = (e) => {
                 const db = e.target.result;
+                if (!db.objectStoreNames.contains("workSchedule")) {
+                    resolve(null);
+                    return;
+                }
                 try {
                     const tx = db.transaction("workSchedule", "readonly");
                     const store = tx.objectStore("workSchedule");
                     
-                    // 단순 get(dateStr) 대신 getAll()로 안전하게 찾기
                     const getAllReq = store.getAll();
                     getAllReq.onsuccess = () => {
                         const allData = getAllReq.result || [];
@@ -29,6 +32,10 @@ async function updateWorkSchedule() {
                     resolve(null);
                 }
             };
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("workSchedule")) db.createObjectStore("workSchedule");
+            };
             request.onerror = () => resolve(null);
         });
     }
@@ -36,9 +43,13 @@ async function updateWorkSchedule() {
     // 모든 데이터를 가져오는 함수 (이건 기존 getAll 방식 유지)
     function getAllSchedules() {
         return new Promise((resolve) => {
-            const request = indexedDB.open("workSchedule");
+            const request = indexedDB.open("myDB");
             request.onsuccess = (e) => {
                 const db = e.target.result;
+                if (!db.objectStoreNames.contains("workSchedule")) {
+                    resolve([]);
+                    return;
+                }
                 try {
                     const tx = db.transaction("workSchedule", "readonly");
                     const store = tx.objectStore("workSchedule");
@@ -48,6 +59,10 @@ async function updateWorkSchedule() {
                 } catch (err) {
                     resolve([]);
                 }
+            };
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("workSchedule")) db.createObjectStore("workSchedule");
             };
             request.onerror = () => resolve([]);
         });

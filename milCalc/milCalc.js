@@ -1,12 +1,40 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     
     const selectEl = document.getElementById('memberSelect');
     const displayEl = document.getElementById('resultDisplay');
     const previewEl = document.getElementById('previewDisplay');
-    let timerId = null; // 실시간 업데이트를 위한 타이머
+    let timerId = null; 
+    let members = []; // IndexedDB에서 로드할 데이터
+
+    // IndexedDB에서 데이터 로드
+    async function loadMembersFromDB() {
+        return new Promise((resolve) => {
+            const request = indexedDB.open("myDB");
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("member")) {
+                    console.warn("'member' store not found");
+                    resolve([]);
+                    return;
+                }
+                const tx = db.transaction("member", "readonly");
+                const store = tx.objectStore("member");
+                const getReq = store.getAll();
+                getReq.onsuccess = () => resolve(getReq.result || []);
+                getReq.onerror = () => resolve([]);
+            };
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("member")) db.createObjectStore("member");
+            };
+            request.onerror = () => resolve([]);
+        });
+    }
+
+    members = await loadMembersFromDB();
 
     // 선택 박스 초기화
-    if (typeof members !== 'undefined') {
+    if (members && members.length > 0) {
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
@@ -14,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             selectEl.appendChild(opt);
         });
         renderPreview();
+    } else {
+        previewEl.innerHTML = '<div class="text-center py-5 text-muted">DB에 등록된 인원 정보가 없습니다. (DBM에서 Import 필요)</div>';
     }
 
     selectEl.addEventListener('change', (e) => {

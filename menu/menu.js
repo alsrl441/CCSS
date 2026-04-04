@@ -10,19 +10,25 @@ async function updateMenu() {
     // [Helper] IndexedDB에서 모든 데이터를 가져와 날짜로 찾기
     function getMenuFromDB(dateStr) {
         return new Promise((resolve) => {
-            const request = indexedDB.open("menu");
+            const request = indexedDB.open("myDB");
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                try {
-                    const tx = db.transaction("menu", "readonly");
-                    const store = tx.objectStore("menu");
-                    const getAllReq = store.getAll();
-                    getAllReq.onsuccess = () => {
-                        const allData = getAllReq.result || [];
-                        const found = allData.find(item => item.date === dateStr);
-                        resolve(found || null);
-                    };
-                } catch (err) { resolve(null); }
+                if (!db.objectStoreNames.contains("menu")) {
+                    resolve(null);
+                    return;
+                }
+                const tx = db.transaction("menu", "readonly");
+                const store = tx.objectStore("menu");
+                const getAllReq = store.getAll();
+                getAllReq.onsuccess = () => {
+                    const allData = getAllReq.result || [];
+                    const found = allData.find(item => item.date === dateStr);
+                    resolve(found || null);
+                };
+            };
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("menu")) db.createObjectStore("menu");
             };
             request.onerror = () => resolve(null);
         });

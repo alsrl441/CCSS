@@ -2,29 +2,55 @@ let selectedTags = [];
 let currentPage = 1;
 const itemsPerPage = 1; // 한 페이지에 표시할 선박 수
 let currentFocus = -1; 
+let shipData = []; // IndexedDB에서 로드할 데이터
 
 // 각 선박 카드별 현재 표시 중인 이미지 인덱스를 저장할 객체
 // { shipIndex: historyIndex }
 let shipSliderState = {};
 
-function initShipSearch() {
+async function loadShipsFromDB() {
+    return new Promise((resolve) => {
+        const request = indexedDB.open("myDB");
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("ship")) {
+                console.warn("'ship' store not found");
+                resolve([]);
+                return;
+            }
+            const tx = db.transaction("ship", "readonly");
+            const store = tx.objectStore("ship");
+            const getReq = store.getAll();
+            getReq.onsuccess = () => resolve(getReq.result || []);
+            getReq.onerror = () => resolve([]);
+        };
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("ship")) db.createObjectStore("ship");
+        };
+        request.onerror = () => resolve([]);
+    });
+}
+
+async function initShipSearch() {
+    shipData = await loadShipsFromDB();
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
 
-    // 검색 가능한 모든 용어 수집 (배열/문자열 상관없이 튼튼하게)
+    if (shipData.length === 0) {
+        document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다. (DBM에서 Import 필요)</div>';
+        return;
+    }
+
+    // 검색 가능한 모든 용어 수집
     const termsSet = new Set();
     shipData.forEach(ship => {
-        // 검색에 포함할 필드들
         const fields = ['name', 'tonnage', 'type', 'number', 'tags'];
         fields.forEach(field => {
             const value = ship[field];
             if (Array.isArray(value)) {
-                // 배열이면 각 요소를 추가
-                value.forEach(v => {
-                    if (v) termsSet.add(String(v).trim());
-                });
+                value.forEach(v => { if (v) termsSet.add(String(v).trim()); });
             } else if (value) {
-                // 단일 값이면 바로 추가
                 termsSet.add(String(value).trim());
             }
         });
