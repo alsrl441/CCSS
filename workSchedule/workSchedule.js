@@ -76,12 +76,18 @@ async function updateWorkSchedule() {
             if (!data) return `<div class="no-data">${dateStr} (${label}) 데이터가 없습니다.</div>`;
             
             const formatName = (name) => (name === "-" || !name ? "" : name);
+            
+            // 날짜 색상 로직 추가
+            const d = new Date(dateStr);
+            const isRed = (d.getDay() === 0 || data.isHoliday); // 일요일 또는 공휴일
+            const isBlue = (d.getDay() === 6); // 토요일
+            const dayClass = isRed ? "text-danger" : (isBlue ? "text-primary" : "");
 
             return `
                 <table class="work-table table table-bordered mb-4">
                     <thead>
                         <tr class="table-light-bg">
-                            <th colspan="4" class="table-date-header ${data.isHoliday ? 'text-danger' : ''}">
+                            <th colspan="4" class="table-date-header ${dayClass}">
                                 ${dateStr} (${label}) ${data.isHoliday ? '<span>[공휴일/휴무]</span>' : ''}
                             </th>
                         </tr>
