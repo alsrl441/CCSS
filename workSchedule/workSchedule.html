@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>월간 근무표 - CCSS</title>
+    <title>근무표</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="workSchedule.css">
 </head>
@@ -24,24 +24,26 @@
 
     <main class="container py-4">
         <div class="card mb-5">
-            <div class="card-header bg-white">
-                <h5 class="card-title">근무표</h5>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="display: flex; justify-content: space-between; align-items: center; padding: 15px;">
+                <h5 class="card-title" id="month-title" style="margin: 0; font-weight: bold;">근무표</h5>
+                <div class="month-selector">
+                    <input type="month" id="month-picker" class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit;">
+                </div>
             </div>
             <div class="card-body p-0">
                 <div id="monthly-work-display" class="table-responsive">
-                    데이터를 불러오는 중...
+                    <div class="text-center py-5 text-muted">데이터를 로딩 실패</div>
                 </div>
             </div>
         </div>
 
-        <!-- 새로운 근무 공정표 카드 -->
         <div class="card mb-5">
             <div class="card-header bg-white">
-                <h5 class="card-title">근무 공정표</h5>
+                <h5 class="card-title" style="font-weight: bold;">통계</h5>
             </div>
             <div class="card-body">
                 <div id="stats-display">
-                    데이터 로딩 실패
+                    <div class="text-center py-5 text-muted">데이터 로딩 실패</div>
                 </div>
             </div>
         </div>
@@ -57,7 +59,6 @@
         </div>
     </footer>
 
-    <script src="workScheduleData.js"></script>
     <script src="../script.js"></script>
     <script src="workSchedule.js"></script>
 </body>
