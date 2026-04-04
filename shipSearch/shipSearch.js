@@ -214,7 +214,8 @@ function changeShipImage(shipIdx, delta) {
     currentImgIdx = (currentImgIdx + delta + ship.history.length) % ship.history.length;
     shipSliderState[shipIdx] = currentImgIdx;
 
-    const imgEl = document.querySelector(`.ship-card[data-idx="${shipIdx}"] .slider-img`);
+    const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
+    const imgEl = card.querySelector(`.slider-img`);
     if (imgEl) {
         imgEl.style.opacity = 0;
         setTimeout(() => {
@@ -222,6 +223,13 @@ function changeShipImage(shipIdx, delta) {
             imgEl.style.opacity = 1;
         }, 150);
     }
+
+    // 도트 업데이트
+    const dots = card.querySelectorAll('.dot');
+    dots.forEach((dot, idx) => {
+        if (idx === currentImgIdx) dot.classList.add('active');
+        else dot.classList.remove('active');
+    });
 }
 
 // 카드 확장/축소 토글
@@ -381,6 +389,9 @@ function renderShips() {
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
                         <img src="${mainPhoto}" class="slider-img" alt="${ship.name}">
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
+                        <div class="slider-dots">
+                            ${ship.history.map((_, hIdx) => `<div class="dot ${hIdx === currentImgIdx ? 'active' : ''}"></div>`).join('')}
+                        </div>
                     </div>
                 </div>
 
