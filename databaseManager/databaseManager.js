@@ -13,8 +13,13 @@ window.addEventListener('drop', (e) => { e.preventDefault(); wrapper.classList.r
 
 async function refreshTree() {
     treeRoot.innerHTML = '';
-    const dbs = await indexedDB.databases();
-    dbs.forEach(db => treeRoot.appendChild(createItemUI(db.name, 'db')));
+    try {
+        const dbs = await indexedDB.databases();
+        dbs.forEach(db => treeRoot.appendChild(createItemUI(db.name, 'db')));
+        logToConsole(`Tree refreshed. Found ${dbs.length} databases.`, 'info');
+    } catch (err) {
+        logToConsole(`Failed to refresh tree: ${err.message}`, 'error');
+    }
 }
 
 function createItemUI(text, type) {
@@ -48,32 +53,54 @@ function createItemUI(text, type) {
 async function toggleDB(dbName, wrap) {
     currentDB = dbName;
     const existing = wrap.querySelector('.indent');
-    if (existing) { existing.remove(); return; }
+    if (existing) { 
+        existing.remove(); 
+        logToConsole(`Closed DB view: ${dbName}`, 'info');
+        return; 
+    }
+    logToConsole(`Opening DB: ${dbName}...`, 'info');
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
         const db = e.target.result;
         const container = document.createElement('div');
         container.className = 'indent';
-        Array.from(db.objectStoreNames).forEach(sName => container.appendChild(createItemUI(sName, 'store')));
-        wrap.appendChild(container); db.close();
+        const stores = Array.from(db.objectStoreNames);
+        stores.forEach(sName => container.appendChild(createItemUI(sName, 'store')));
+        wrap.appendChild(container); 
+        db.close();
+        logToConsole(`DB [${dbName}] opened. Stores found: ${stores.length}`, 'success');
     };
+    req.onerror = (e) => logToConsole(`Error opening DB [${dbName}]: ${e.target.error}`, 'error');
 }
 
 async function openStore(dbName, storeName) {
     currentDB = dbName; currentStore = storeName;
     pathDisplay.textContent = `PATH: ${dbName} > ${storeName}`;
     welcome.style.display = 'none'; editor.style.display = 'block';
+    logToConsole(`Loading store [${storeName}] from DB [${dbName}]...`, 'info');
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
         const db = e.target.result;
-        const tx = db.transaction(storeName, 'readonly');
-        const data = {};
-        tx.objectStore(storeName).openCursor().onsuccess = (ev) => {
-            const c = ev.target.result;
-            if (c) { data[c.key] = c.value; c.continue(); }
-            else { editor.value = JSON.stringify(data, null, 4); db.close(); }
-        };
+        try {
+            const tx = db.transaction(storeName, 'readonly');
+            const data = {};
+            tx.objectStore(storeName).openCursor().onsuccess = (ev) => {
+                const c = ev.target.result;
+                if (c) { data[c.key] = c.value; c.continue(); }
+                else { 
+                    editor.value = JSON.stringify(data, null, 4); 
+                    db.close(); 
+                    const count = Object.keys(data).length;
+                    logToConsole(`Store [${storeName}] loaded. Records: ${count}`, 'success');
+                }
+            };
+            tx.onerror = (err) => logToConsole(`Transaction error loading store: ${err.target.error}`, 'error');
+        } catch (err) {
+            logToConsole(`Error creating transaction: ${err.message}`, 'error');
+            db.close();
+        }
     };
+    req.onerror = (e) => logToConsole(`Error opening DB for store loading: ${e.target.error}`, 'error');
 }
 
 async function handleFile(file) {
@@ -81,6 +108,7 @@ async function handleFile(file) {
     const targetDB = prompt("TARGET DATABASE:", currentDB || ""); if (!targetDB) return;
     const targetStore = prompt(`TARGET STORE IN [${targetDB}]:`, currentStore || ""); if (!targetStore) return;
 
+    logToConsole(`Importing file: ${file.name} to [${targetDB}.${targetStore}]...`, 'info');
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
@@ -92,17 +120,30 @@ async function handleFile(file) {
             let data;
             try { data = JSON.parse(content); } catch { data = new Function(`return ${content}`)(); }
 
+            logToConsole(`File parsed successfully. Type: ${Array.isArray(data) ? 'Array' : 'Object'}`, 'info');
             const req = indexedDB.open(targetDB);
             req.onsuccess = (ev) => {
                 const db = ev.target.result;
                 if (!db.objectStoreNames.contains(targetStore)) {
+                    logToConsole(`Store [${targetStore}] doesn't exist. Creating...`, 'warn');
                     const newVer = db.version + 1; db.close();
                     const upReq = indexedDB.open(targetDB, newVer);
                     upReq.onupgradeneeded = (ue) => ue.target.result.createObjectStore(targetStore);
-                    upReq.onsuccess = (ue) => { ue.target.result.close(); executeImport(targetDB, targetStore, data); };
-                } else { db.close(); executeImport(targetDB, targetStore, data); }
+                    upReq.onsuccess = (ue) => { 
+                        ue.target.result.close(); 
+                        logToConsole(`Store [${targetStore}] created. Proceeding with import.`, 'success');
+                        executeImport(targetDB, targetStore, data); 
+                    };
+                } else { 
+                    db.close(); 
+                    executeImport(targetDB, targetStore, data); 
+                }
             };
-        } catch (err) { alert("ERROR: " + err.message); }
+            req.onerror = (ev) => logToConsole(`DB Open error during import: ${ev.target.error}`, 'error');
+        } catch (err) { 
+            logToConsole(`Import failed: ${err.message}`, 'error');
+            alert("ERROR: " + err.message); 
+        }
     };
     reader.readAsText(file);
 }
@@ -117,7 +158,14 @@ function executeImport(dbName, storeName, data) {
             if (Array.isArray(data)) data.forEach((item, i) => store.put(item, item.id || item.key || i.toString()));
             else Object.keys(data).forEach(k => store.put(data[k], k));
         };
-        tx.oncomplete = () => { db.close(); refreshTree(); openStore(dbName, storeName); showStatus("IMPORTED"); };
+        tx.oncomplete = () => { 
+            db.close(); 
+            refreshTree(); 
+            openStore(dbName, storeName); 
+            showStatus("IMPORTED"); 
+            logToConsole(`Import to [${dbName}.${storeName}] completed successfully.`, 'success');
+        };
+        tx.onerror = (err) => logToConsole(`Import transaction error: ${err.target.error}`, 'error');
     };
 }
 
@@ -131,6 +179,8 @@ async function processExport() {
         const tStore = prompt(`SELECT STORE (${stores.join(', ')}):`, currentStore || stores[0]);
         if (!tStore || !stores.includes(tStore)) return;
         const fName = prompt("FILE NAME:", tStore); if (!fName) return;
+        
+        logToConsole(`Exporting store [${tStore}] from DB [${tDB}]...`, 'info');
         const exReq = indexedDB.open(tDB);
         exReq.onsuccess = (ev) => {
             const edb = ev.target.result;
@@ -146,14 +196,18 @@ async function processExport() {
                     a.href = url; a.download = `${fName}.json`;
                     a.click(); URL.revokeObjectURL(url);
                     showStatus("EXPORTED"); edb.close();
+                    logToConsole(`Export of [${tStore}] completed as ${fName}.json`, 'success');
                 }
             };
+            tx.onerror = (err) => logToConsole(`Export transaction error: ${err.target.error}`, 'error');
         };
+        exReq.onerror = (ev) => logToConsole(`DB Open error during export: ${ev.target.error}`, 'error');
     };
 }
 
 async function saveData() {
     if (!currentDB || !currentStore) return;
+    logToConsole(`Saving changes to [${currentDB}.${currentStore}]...`, 'info');
     let newData;
     try {
         const content = editor.value.trim();
@@ -168,7 +222,10 @@ async function saveData() {
         }
 
         const req = indexedDB.open(currentDB);
-        req.onerror = () => alert("DATABASE ERROR");
+        req.onerror = () => {
+            logToConsole(`DB Open error during save: ${req.error}`, 'error');
+            alert("DATABASE ERROR");
+        };
         req.onsuccess = (e) => {
             const db = e.target.result;
             const tx = db.transaction(currentStore, 'readwrite');
@@ -185,10 +242,19 @@ async function saveData() {
                 }
             };
             
-            tx.oncomplete = () => { showStatus("SAVED"); db.close(); };
-            tx.onerror = (err) => { alert("SAVE TRANSACTION ERROR: " + err.target.error); db.close(); };
+            tx.oncomplete = () => { 
+                showStatus("SAVED"); 
+                db.close(); 
+                logToConsole(`Changes to [${currentDB}.${currentStore}] saved successfully.`, 'success');
+            };
+            tx.onerror = (err) => { 
+                logToConsole(`Save transaction error: ${err.target.error}`, 'error');
+                alert("SAVE TRANSACTION ERROR: " + err.target.error); 
+                db.close(); 
+            };
         };
     } catch (e) { 
+        logToConsole(`Parsing error during save: ${e.message}`, 'error');
         alert("PARSING ERROR: " + e.message + "\n\n문법을 확인해주세요. (큰따옴표 사용 권장, 마지막 쉼표 제거 등)"); 
     }
 }
@@ -196,36 +262,60 @@ async function saveData() {
 async function createNewDB() {
     const n = prompt("NEW DB NAME:");
     if (n) {
+        logToConsole(`Creating new DB: ${n}...`, 'info');
         const r = indexedDB.open(n, 1);
         r.onupgradeneeded = (e) => e.target.result.createObjectStore('init_store');
-        r.onsuccess = (e) => { e.target.result.close(); refreshTree(); };
+        r.onsuccess = (e) => { 
+            e.target.result.close(); 
+            refreshTree(); 
+            logToConsole(`DB [${n}] created successfully with 'init_store'.`, 'success');
+        };
+        r.onerror = (e) => logToConsole(`Error creating DB [${n}]: ${e.target.error}`, 'error');
     }
 }
 
 async function createNewStore(dbName) {
     const s = prompt(`NEW STORE IN [${dbName}]:`);
     if (s) {
+        logToConsole(`Creating new store [${s}] in DB [${dbName}]...`, 'info');
         const r = indexedDB.open(dbName);
         r.onsuccess = (e) => {
             const db = e.target.result; const v = db.version; db.close();
             const ur = indexedDB.open(dbName, v + 1);
             ur.onupgradeneeded = (ue) => ue.target.result.createObjectStore(s);
-            ur.onsuccess = () => refreshTree();
+            ur.onsuccess = () => {
+                refreshTree();
+                logToConsole(`Store [${s}] created successfully in DB [${dbName}].`, 'success');
+            };
+            ur.onerror = (e) => logToConsole(`Error creating store [${s}]: ${e.target.error}`, 'error');
         };
+        r.onerror = (e) => logToConsole(`Error opening DB [${dbName}] for store creation: ${e.target.error}`, 'error');
     }
 }
 
 async function deleteTarget(name, type) {
     if (!confirm(`DELETE [${name}]?`)) return;
-    if (type === 'db') indexedDB.deleteDatabase(name).onsuccess = () => refreshTree();
-    else {
+    logToConsole(`Deleting ${type}: ${name}...`, 'warn');
+    if (type === 'db') {
+        const req = indexedDB.deleteDatabase(name);
+        req.onsuccess = () => {
+            refreshTree();
+            logToConsole(`DB [${name}] deleted.`, 'success');
+        };
+        req.onerror = (e) => logToConsole(`Error deleting DB [${name}]: ${e.target.error}`, 'error');
+    } else {
         const r = indexedDB.open(currentDB);
         r.onsuccess = (e) => {
             const db = e.target.result; const v = db.version; db.close();
             const ur = indexedDB.open(currentDB, v + 1);
             ur.onupgradeneeded = (ue) => ue.target.result.deleteObjectStore(name);
-            ur.onsuccess = () => refreshTree();
+            ur.onsuccess = () => {
+                refreshTree();
+                logToConsole(`Store [${name}] deleted from DB [${currentDB}].`, 'success');
+            };
+            ur.onerror = (e) => logToConsole(`Error deleting store [${name}]: ${e.target.error}`, 'error');
         };
+        r.onerror = (e) => logToConsole(`Error opening DB [${currentDB}] for store deletion: ${e.target.error}`, 'error');
     }
 }
 
@@ -234,4 +324,20 @@ function showStatus(msg) {
     setTimeout(() => statusMsg.textContent = '', 2000);
 }
 
+const consoleLog = document.getElementById('console-log');
+function logToConsole(msg, type = 'info') {
+    const entry = document.createElement('div');
+    entry.className = `log-entry log-${type}`;
+    const time = new Date().toLocaleTimeString('ko-KR', { hour12: false });
+    entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-msg">${msg}</span>`;
+    consoleLog.appendChild(entry);
+    consoleLog.scrollTop = consoleLog.scrollHeight;
+}
+
+function clearConsole() {
+    consoleLog.innerHTML = '';
+    logToConsole("Console cleared.", "info");
+}
+
+logToConsole("DBM Explorer v3.9 initialized.", "success");
 refreshTree();
