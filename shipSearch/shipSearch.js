@@ -169,9 +169,15 @@ async function saveHistoryData(shipIdx, historyIdx) {
     else ship.history.push(newHistory);
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     await updateShipInDB(ship._dbKey, ship);
+    
+    // 리스트 전체 정렬 후 렌더링
+    sortShipData();
     renderShips();
-    toggleCard(shipIdx);
-    showHistoryDetail(shipIdx, 0);
+    
+    // 정렬 후 shipIdx가 바뀌었을 수 있으므로 _dbKey로 다시 찾아서 열어줌
+    const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
+    toggleCard(newIdx);
+    showHistoryDetail(newIdx, 0);
 }
 
 function addHistory(shipIdx) {
@@ -187,13 +193,29 @@ async function deleteHistory(shipIdx, historyIdx) {
     if (confirm(`${ship.history[historyIdx].date} 기록을 삭제하시겠습니까?`)) {
         ship.history.splice(historyIdx, 1);
         await updateShipInDB(ship._dbKey, ship);
+        
+        // 리스트 전체 정렬 후 렌더링
+        sortShipData();
         renderShips();
-        toggleCard(shipIdx);
+        
+        // 정렬 후 shipIdx가 바뀌었을 수 있으므로 _dbKey로 다시 찾음
+        const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
+        if (newIdx !== -1) toggleCard(newIdx);
     }
+}
+
+function sortShipData() {
+    shipData.sort((a, b) => {
+        const latestA = (a.history && a.history.length > 0) ? a.history[0].date : "0000-00-00";
+        const latestB = (b.history && b.history.length > 0) ? b.history[0].date : "0000-00-00";
+        return latestB.localeCompare(latestA);
+    });
 }
 
 async function initShipSearch() {
     shipData = await loadShipsFromDB();
+    sortShipData();
+
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     if (shipData.length === 0) {
