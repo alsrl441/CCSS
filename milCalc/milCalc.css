@@ -40,7 +40,7 @@
 }
 
 .realtime-percent {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: 1.4rem;
     font-weight: 700;
     color: black;
