@@ -94,6 +94,7 @@ function saveTraceLog() {
         coord: fullCoordDisplay.innerText,
         specs: document.getElementById('ship-specs').value || "정보 없음",
         inquirer: document.getElementById('inquirer').value || "직접 식별",
+        identifier: document.getElementById('identifier').value || "미상",
         status: document.getElementById('end-reason').value
     };
 
@@ -133,6 +134,7 @@ function copyToClipboard() {
 - 이동방향: ${document.getElementById('move-dir').value || "미상"}
 - 거리: ${distStr}
 - 문의자: ${document.getElementById('inquirer').value || "직접 식별(없음)"}
+- 식별자: ${document.getElementById('identifier').value || "미상"}
 - 식별제원: ${document.getElementById('ship-specs').value || "식별 중"}
 - 방위/고각: ${document.getElementById('az-el-input').value || "미상"}
 - 현재상태: ${document.getElementById('end-reason').value}
