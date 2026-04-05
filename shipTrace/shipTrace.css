@@ -1,30 +1,30 @@
 .form-section {
     border: 1px solid #dee2e6;
-    padding: 15px;
+    padding: 10px;
     border-radius: 8px;
     background-color: #fff;
 }
 
 .form-section h6 {
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     color: #0d6efd;
     font-weight: 700;
     border-bottom: 2px solid #0d6efd;
     display: inline-block;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
 }
 
 .form-group.full-width {
@@ -32,122 +32,108 @@
 }
 
 .form-group label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #666;
 }
 
-.form-control-sm {
-    padding: 8px;
+/* 입력 폼 스타일 통일 */
+.form-control-sm, .dist-box, .coord-display {
+    padding: 6px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-family: inherit;
+    height: 33px; /* 높이 통일 */
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
 }
 
-.dist-input-group {
-    display: flex;
-    gap: 5px;
+/* 결과창 전용 스타일 (입력창과 디자인은 같되 배경색만 약간 다르게) */
+.dist-box, .coord-display {
+    background-color: #f8f9fa;
+    justify-content: center;
+    font-weight: 600;
+    color: #212529;
+}
+
+.coord-display {
+    color: #0d6efd;
+    width: 100%;
+    margin-top: 2px;
 }
 
 .dist-multi-display {
     display: flex;
     gap: 5px;
-    margin-top: 5px;
+    margin-top: 2px;
 }
 
 .dist-box {
     flex: 1;
-    font-size: 1rem;
-    color: #0d6efd;
-    background: #f8f9fa;
-    padding: 8px;
-    border-radius: 4px;
-    text-align: center;
-    border: 2px solid #e7f1ff;
-    font-weight: bold;
 }
 
-.badge-status {
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 10px;
-    background: #e9ecef;
-    color: #495057;
-    margin-left: 5px;
-    font-weight: bold;
-}
-
-.coord-display {
-    margin-top: 5px;
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    background: #e7f1ff;
-    padding: 8px;
-    border-radius: 4px;
-    text-align: center;
-    color: #0d6efd;
-    font-weight: bold;
-    border: 1px solid #cfe2ff;
+.coord-input-group, .trace-num-group, .time-input-group, .dist-input-group {
+    display: flex;
+    gap: 5px;
 }
 
 .btn-now {
-    padding: 0 10px;
+    padding: 0 8px;
     background: #6c757d;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     white-space: nowrap;
 }
-
-.btn-now:hover { background: #5a6268; }
 
 .btn-primary {
     background-color: #0d6efd;
     color: white;
     border: none;
-    padding: 12px 25px;
+    padding: 8px 20px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-primary:hover { background-color: #0b5ed7; }
-
-.form-footer {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+    font-size: 0.9rem;
 }
 
 .trace-table {
     width: 100%;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     border-collapse: collapse;
 }
 
 .trace-table th {
     background: #f8f9fa;
-    padding: 12px 10px;
+    padding: 8px 5px;
     border-bottom: 2px solid #dee2e6;
     text-align: center;
-    font-size: 0.8rem;
     white-space: nowrap;
+    color: #495057;
 }
 
 .trace-table td {
-    padding: 12px 10px;
+    padding: 8px 5px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
     text-align: center;
-    font-size: 0.85rem;
 }
 
-textarea {
-    resize: none;
+.badge-status {
+    font-size: 0.7rem;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #e9ecef;
+    color: #495057;
+    font-weight: bold;
+}
+
+textarea.form-control-sm {
+    height: auto; /* 텍스트 에어리어는 높이 고정 해제 */
 }
 
 @media (max-width: 600px) {

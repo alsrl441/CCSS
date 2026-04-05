@@ -78,9 +78,9 @@ function saveTraceLog() {
         endPos: document.getElementById('end-az-el-input').value || "-",
         coord: fullCoordDisplay.innerText,
         specs: document.getElementById('ship-specs').value || "정보 없음",
-        status: document.getElementById('end-reason').value,
+        status: document.getElementById('end-reason').value || "-",
         identifier: document.getElementById('identifier').value || "-",
-        inquirer: document.getElementById('inquirer').value || "직접 식별"
+        inquirer: document.getElementById('inquirer').value || "X"
     };
 
     traceLogs.unshift(log);
