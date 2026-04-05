@@ -99,7 +99,7 @@ async function updateWorkSchedule() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">해복합</td>
+                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">항포구</td>
                             <td class="sub-group">${data.cctv[0]?.shift || "06-14"}</td>
                             <td>${formatName(data.cctv[0]?.p1)}</td>
                             <td>${formatName(data.cctv[0]?.p2)}</td>
