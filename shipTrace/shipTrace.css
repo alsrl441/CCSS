@@ -36,6 +36,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    align-items: flex-start; /* 입력창이 부모 너비만큼 늘어나지 않게 함 */
 }
 
 .form-control-sm, .dist-box, .coord-display {
