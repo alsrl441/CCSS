@@ -1,3 +1,20 @@
+// IndexedDB 설정
+const DB_NAME = 'myDB';
+const STORE_NAME = 'traceLog';
+let db;
+
+const request = indexedDB.open(DB_NAME, 1);
+request.onupgradeneeded = (e) => {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+    }
+};
+request.onsuccess = (e) => {
+    db = e.target.result;
+    renderLogs(); // DB 연결 성공 시 로그 출력
+};
+
 // 좌표 자동 완성 로직
 const coordInput = document.getElementById('coord-input');
 const fullCoordDisplay = document.getElementById('full-coord');
@@ -60,10 +77,10 @@ function resetForm() {
     }
 }
 
-// 로그 저장 및 표시
-let traceLogs = [];
-
+// 로그 저장
 function saveTraceLog() {
+    if (!db) return;
+
     const log = {
         idTime: document.getElementById('id-time').value || "-",
         idPos: document.getElementById('az-el-input').value || "-",
@@ -75,33 +92,50 @@ function saveTraceLog() {
         specs: document.getElementById('ship-specs').value || "정보 없음",
         status: document.getElementById('end-reason').value,
         identifier: document.getElementById('identifier').value || "-",
-        inquirer: document.getElementById('inquirer').value || "직접 식별"
+        inquirer: document.getElementById('inquirer').value || "직접 식별",
+        timestamp: new Date().getTime()
     };
 
-    traceLogs.unshift(log);
-    renderLogs();
-    alert("로그가 저장되었습니다.");
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    store.add(log);
+
+    transaction.oncomplete = () => {
+        renderLogs();
+        alert("로그가 DB에 저장되었습니다.");
+    };
 }
 
+// 로그 출력 (최근 10척)
 function renderLogs() {
-    const list = document.getElementById('log-list');
-    if (traceLogs.length === 0) {
-        list.innerHTML = '<tr><td colspan="8" class="text-muted py-4">저장된 로그가 없습니다.</td></tr>';
-        return;
-    }
+    if (!db) return;
 
-    list.innerHTML = traceLogs.map(log => `
-        <tr>
-            <td style="font-weight: bold;">${log.idTime}</td>
-            <td>${log.idPos}${log.idLoc ? '<br>(' + log.idLoc + ')' : ''}</td>
-            <td style="font-weight: bold;">${log.endTime}</td>
-            <td>${log.endPos}${log.endLoc ? '<br>(' + log.endLoc + ')' : ''}</td>
-            <td style="font-family: var(--font-mono); font-size: 0.85rem; color: #0d6efd;">${log.coord}</td>
-            <td style="text-align: left; min-width: 200px; white-space: pre-wrap;">${log.specs}\n<span class="badge-status">[${log.status}]</span></td>
-            <td>${log.identifier}</td>
-            <td>${log.inquirer}</td>
-        </tr>
-    `).join('');
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const allLogs = request.result;
+        // 최신순 정렬 후 10개만 추출
+        const recentLogs = allLogs.sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
+        
+        const list = document.getElementById('log-list');
+        if (recentLogs.length === 0) {
+            list.innerHTML = '<tr><td colspan="8" class="text-muted py-4">저장된 로그가 없습니다.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = recentLogs.map(log => `
+            <tr>
+                <td style="font-weight: bold;">${log.idTime}</td>
+                <td>${log.idPos}${log.idLoc ? '<br>(' + log.idLoc + ')' : ''}</td>
+                <td style="font-weight: bold;">${log.endTime}</td>
+                <td>${log.endPos}${log.endLoc ? '<br>(' + log.endLoc + ')' : ''}</td>
+                <td style="font-family: var(--font-mono); font-size: 0.85rem; color: #0d6efd;">${log.coord}</td>
+                <td style="text-align: left; min-width: 200px; white-space: pre-wrap;">${log.specs}\n<span class="badge-status">${log.status}(으)로 인해 추적 종료</span></td>
+                <td>${log.identifier}</td>
+                <td>${log.inquirer}</td>
+            </tr>
+        `).join('');
+    };
 }
-
-renderLogs();
