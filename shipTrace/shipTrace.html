@@ -26,21 +26,18 @@
     <main class="container py-4">
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding: 15px;">
-                <h5 class="card-title" style="margin:0; font-weight: bold; color: #333;">선박 추적 문의 접수</h5>
+                <h5 class="card-title" style="margin:0; font-weight: bold; color: #333;">선박 추적 기록지</h5>
                 <button class="btn-outline" onclick="resetForm()">새로고침</button>
             </div>
             <div class="card-body">
                 <form id="trace-form">
                     <!-- 단계 1: 접수 정보 -->
                     <div class="form-section">
-                        <h6>1. 접수 및 위치 정보</h6>
+                        <h6>1. 위치 및 문의 정보</h6>
                         <div class="grid-container">
                             <div class="form-group">
-                                <label>좌표 (3자리-3자리)</label>
-                                <div class="coord-input-group">
-                                    <input type="number" id="coord-x" placeholder="X (456)" class="form-control-sm" oninput="this.value=this.value.slice(0,3)">
-                                    <input type="number" id="coord-y" placeholder="Y (567)" class="form-control-sm" oninput="this.value=this.value.slice(0,3)">
-                                </div>
+                                <label>좌표 (예: 123 456)</label>
+                                <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                             </div>
                             <div class="form-group">
@@ -55,8 +52,16 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>거리</label>
-                                <input type="text" id="distance" placeholder="1.5M, 2.3km 등" class="form-control-sm">
+                                <label>거리 입력</label>
+                                <div class="dist-input-group">
+                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 70px;">
+                                    <select id="dist-unit" class="form-control-sm">
+                                        <option value="M">M</option>
+                                        <option value="NM">NM</option>
+                                        <option value="km">km</option>
+                                    </select>
+                                </div>
+                                <div id="dist-convert" class="dist-display">-- NM / -- km</div>
                             </div>
                             <div class="form-group">
                                 <label>추적번호</label>
@@ -65,16 +70,16 @@
                                         <option value="145">145</option>
                                         <option value="146">146</option>
                                     </select>
-                                    <input type="text" id="trace-num" placeholder="123" class="form-control-sm">
+                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>최초 출항지</label>
-                                <input type="text" id="departure" placeholder="외해, 00선착장 등" class="form-control-sm">
+                                <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
                             </div>
                             <div class="form-group">
                                 <label>문의자 관등성명</label>
-                                <input type="text" id="inquirer" placeholder="상병 홍길동" class="form-control-sm">
+                                <input type="text" id="inquirer" placeholder="관등성명" class="form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -91,23 +96,19 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>방위각 (mil)</label>
-                                <input type="number" id="azimuth" placeholder="0-6400" min="0" max="6400" class="form-control-sm">
-                            </div>
-                            <div class="form-group">
-                                <label>고각</label>
-                                <input type="number" id="elevation" placeholder="0-360" min="0" max="360" class="form-control-sm">
+                                <label>방위각 고각 (예: 2345 123)</label>
+                                <input type="text" id="az-el-input" placeholder="2345 123" class="form-control-sm">
                             </div>
                             <div class="form-group full-width">
-                                <label>선박 제원 (선종, 톤수, 기타 특이사항)</label>
-                                <textarea id="ship-specs" rows="2" class="form-control-sm" placeholder="예: 무궁화호, 어선, 5톤, 백색 선체"></textarea>
+                                <label>선박 제원 (선명, 선종, 톤수, 기타 특이사항)</label>
+                                <textarea id="ship-specs" rows="2" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- 단계 3: 소실/종료 -->
                     <div class="form-section mt-4">
-                        <h6>3. 상황 종료 (소실/입항)</h6>
+                        <h6>3. 상황 종료</h6>
                         <div class="grid-container">
                             <div class="form-group">
                                 <label>종료 시간</label>
@@ -117,20 +118,18 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>최종 방위각</label>
-                                <input type="number" id="end-azimuth" class="form-control-sm">
-                            </div>
-                            <div class="form-group">
-                                <label>최종 고각</label>
-                                <input type="number" id="end-elevation" class="form-control-sm">
+                                <label>최종 방위/고각 (예: 2500 120)</label>
+                                <input type="text" id="end-az-el-input" placeholder="2500 120" class="form-control-sm">
                             </div>
                             <div class="form-group">
                                 <label>종료 사유</label>
                                 <select id="end-reason" class="form-control-sm">
-                                    <option value="추적중">추적중</option>
+                                    <option value="추적 중">추적 중</option>
                                     <option value="소실">소실</option>
                                     <option value="입항">입항</option>
                                     <option value="정박">정박</option>
+                                    <option value="정상 활동">정상 활동</option>
+                                    <option value="타 선박 문의">타 선박 문의</option>
                                 </select>
                             </div>
                         </div>
@@ -138,7 +137,7 @@
 
                     <div class="form-footer mt-4">
                         <button type="button" class="btn-primary" onclick="saveTraceLog()">로그 저장</button>
-                        <button type="button" class="btn-outline" onclick="copyToClipboard()">텍스트 복사</button>
+                        <button type="button" class="btn-outline" onclick="copyToClipboard()">보고 텍스트 복사</button>
                     </div>
                 </form>
             </div>

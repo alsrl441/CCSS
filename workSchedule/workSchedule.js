@@ -1,12 +1,5 @@
-/**
- * CCSS Work Schedule System v2.5 (IndexedDB Stability Version)
- * 제작: Gemini (v3.9 Clean Bootstrap Style Compatible)
- */
-
 async function updateWorkSchedule() {
-    // --- [1] IndexedDB Data Fetcher ---
-    
-    // [수정] 특정 키 조회가 실패할 경우를 대비해 전체 검색 방식으로 변경
+        
     function getDaySchedule(dateStr) {
         return new Promise((resolve) => {
             const request = indexedDB.open("myDB"); 
@@ -40,7 +33,6 @@ async function updateWorkSchedule() {
         });
     }
 
-    // 모든 데이터를 가져오는 함수 (이건 기존 getAll 방식 유지)
     function getAllSchedules() {
         return new Promise((resolve) => {
             const request = indexedDB.open("myDB");
@@ -78,7 +70,6 @@ async function updateWorkSchedule() {
     const now = new Date();
     const todayStr = getFormattedDate(now);
     
-    // --- [2] 대시보드 렌더링 (index.html 메인용) ---
     const workDisplay = document.getElementById('work-display');
     if (workDisplay) {
         const tomorrowObj = new Date(now.getTime() + 86400000);
@@ -149,13 +140,11 @@ async function updateWorkSchedule() {
         workDisplay.innerHTML = todayContent + tomorrowContent;
     }
 
-    // --- [3] 월간 상세 근무표 및 통계 (workSchedule.html용) ---
     const monthlyDisplay = document.getElementById('monthly-work-display');
     const statsDisplay = document.getElementById('stats-display');
     const monthPicker = document.getElementById('month-picker');
 
     if (monthlyDisplay && statsDisplay && monthPicker) {
-        // 초기값 설정 (현재 월)
         if (!monthPicker.value) {
             monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
@@ -229,7 +218,6 @@ async function updateWorkSchedule() {
                 });
             });
 
-            // (renderCctvRow, renderTodRow 정의 생략하지 않고 포함)
             const renderCctvRow = (idx, label) => {
                 let row = `<tr>`;
                 if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">CCTV</td>`;
@@ -274,7 +262,6 @@ async function updateWorkSchedule() {
                     </table>
                 </div>`;
 
-            // 통계 렌더링
             const hourList = Object.values(stats).map(s => s.totalHours);
             const avgHours = hourList.length ? (hourList.reduce((a, b) => a + b, 0) / hourList.length) : 0;
             const sortedHours = [...hourList].sort((a, b) => a - b);
@@ -341,13 +328,11 @@ async function updateWorkSchedule() {
                 </div>`;
         };
 
-        // 초기 실행 및 이벤트 연결
         renderMonthlyView();
         monthPicker.addEventListener('change', renderMonthlyView);
     }
 }
 
-// 안전한 실행을 위해 DOM 상태 확인 후 실행
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     updateWorkSchedule();
 } else {
