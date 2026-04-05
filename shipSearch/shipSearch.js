@@ -159,14 +159,14 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const isEdit = historyIdx !== null;
     const newHistory = {
         date: document.getElementById('edit-date').value,
-        worker: document.getElementById('edit-worker').value,
-        telephonee: document.getElementById('edit-telephonee').value,
-        crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
         firstTime: document.getElementById('edit-first-time').value,
         firstPos: document.getElementById('edit-first-pos').value,
         lastTime: document.getElementById('edit-last-time').value,
         lastPos: document.getElementById('edit-last-pos').value,
+        crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
         handover: document.getElementById('edit-handover').value,
+        worker: document.getElementById('edit-worker').value,
+        telephonee: document.getElementById('edit-telephonee').value,
         shipImage: document.getElementById('edit-ship-img').value,
         pathImage: document.getElementById('edit-path-img').value
     };

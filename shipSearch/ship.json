@@ -13,42 +13,42 @@
         "history": [
             {
                 "date": "2026-01-01",
-                "shipImage": "https://th.bing.com/th/id/OIP.KFs0giVeh6N85nrARjmZSwHaEK?w=313&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "00:00",
                 "firstPos": "송공항 남서 1km",
                 "lastTime": "00:05",
                 "lastPos": "송공항 어촌계 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "https://th.bing.com/th/id/OIP.KFs0giVeh6N85nrARjmZSwHaEK?w=313&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+                "pathImage": "images/path1_260320.jpg"
             },
             {
                 "date": "2026-02-02",
-                "shipImage": "https://th.bing.com/th/id/OIP.w0fLQnTowjDoVBshrx6cqAHaEK?w=313&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
-                "pathImage": "images/path1_260314.jpg",
                 "firstTime": "05:00",
                 "firstPos": "송공항 남서 1.2km",
                 "lastTime": "06:05",
                 "lastPos": "송공항 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "https://th.bing.com/th/id/OIP.w0fLQnTowjDoVBshrx6cqAHaEK?w=313&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+                "pathImage": "images/path1_260314.jpg"
             },
             {
                 "date": "2026-03-03",
-                "shipImage": "https://th.bing.com/th/id/OIP.fUJ2lBCb59n2dKnOZX6TCwHaE7?w=263&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "15:30",
                 "firstPos": "송공항 남서 2.1km",
                 "lastTime": "15:35",
                 "lastPos": "신안군수협 사각구역",
                 "crewCount": 3,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "https://th.bing.com/th/id/OIP.fUJ2lBCb59n2dKnOZX6TCwHaE7?w=263&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+                "pathImage": "images/path1_260320.jpg"
             }
         ]
     },
@@ -66,42 +66,42 @@
         "history": [
             {
                 "date": "2026-01-01",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "00:00",
                 "firstPos": "송공항 남서 1km",
                 "lastTime": "00:05",
                 "lastPos": "송공항 어촌계 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             },
             {
                 "date": "2026-02-02",
-                "shipImage": "images/ship1_260314.jpg",
-                "pathImage": "images/path1_260314.jpg",
                 "firstTime": "05:00",
                 "firstPos": "송공항 남서 1.2km",
                 "lastTime": "06:05",
                 "lastPos": "송공항 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260314.jpg",
+                "pathImage": "images/path1_260314.jpg"
             },
             {
                 "date": "2026-03-03",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "15:30",
                 "firstPos": "송공항 남서 2.1km",
                 "lastTime": "15:35",
                 "lastPos": "신안군수협 사각구역",
                 "crewCount": 3,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             }
         ]
     },
@@ -119,42 +119,42 @@
         "history": [
             {
                 "date": "2026-01-01",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "00:00",
                 "firstPos": "송공항 남서 1km",
                 "lastTime": "00:05",
                 "lastPos": "송공항 어촌계 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             },
             {
                 "date": "2026-02-02",
-                "shipImage": "images/ship1_260314.jpg",
-                "pathImage": "images/path1_260314.jpg",
                 "firstTime": "05:00",
                 "firstPos": "송공항 남서 1.2km",
                 "lastTime": "06:05",
                 "lastPos": "송공항 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260314.jpg",
+                "pathImage": "images/path1_260314.jpg"
             },
             {
                 "date": "2026-03-03",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "15:30",
                 "firstPos": "송공항 남서 2.1km",
                 "lastTime": "15:35",
                 "lastPos": "신안군수협 사각구역",
                 "crewCount": 3,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             }
         ]
     },
@@ -172,42 +172,42 @@
         "history": [
             {
                 "date": "2026-01-01",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "00:00",
                 "firstPos": "송공항 남서 1km",
                 "lastTime": "00:05",
                 "lastPos": "송공항 어촌계 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             },
             {
                 "date": "2026-02-02",
-                "shipImage": "images/ship1_260314.jpg",
-                "pathImage": "images/path1_260314.jpg",
                 "firstTime": "05:00",
                 "firstPos": "송공항 남서 1.2km",
                 "lastTime": "06:05",
                 "lastPos": "송공항 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260314.jpg",
+                "pathImage": "images/path1_260314.jpg"
             },
             {
                 "date": "2026-03-03",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "15:30",
                 "firstPos": "송공항 남서 2.1km",
                 "lastTime": "15:35",
                 "lastPos": "신안군수협 사각구역",
                 "crewCount": 3,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             }
         ]
     },
@@ -225,42 +225,42 @@
         "history": [
             {
                 "date": "2026-01-01",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "00:00",
                 "firstPos": "송공항 남서 1km",
                 "lastTime": "00:05",
                 "lastPos": "송공항 어촌계 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             },
             {
                 "date": "2026-02-02",
-                "shipImage": "images/ship1_260314.jpg",
-                "pathImage": "images/path1_260314.jpg",
                 "firstTime": "05:00",
                 "firstPos": "송공항 남서 1.2km",
                 "lastTime": "06:05",
                 "lastPos": "송공항 피항지",
                 "crewCount": 1,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260314.jpg",
+                "pathImage": "images/path1_260314.jpg"
             },
             {
                 "date": "2026-03-03",
-                "shipImage": "images/ship1_260320.jpg",
-                "pathImage": "images/path1_260320.jpg",
                 "firstTime": "15:30",
                 "firstPos": "송공항 남서 2.1km",
                 "lastTime": "15:35",
                 "lastPos": "신안군수협 사각구역",
                 "crewCount": 3,
                 "handover": "145R/S에서 인수받은 선박",
-                "worker": "-",
-                "telephonee": "-"
+                "worker": "",
+                "telephonee": "",
+                "shipImage": "images/ship1_260320.jpg",
+                "pathImage": "images/path1_260320.jpg"
             }
         ]
     }
