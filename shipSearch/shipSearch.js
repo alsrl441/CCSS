@@ -92,7 +92,7 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         date: new Date().toISOString().split('T')[0],
         firstTime: "00:00", firstPos: "",
         lastTime: "00:00", lastPos: "",
-        crewCount: 1, handover: "특이사항 ",
+        crewCount: 1, handover: "",
         worker: "", telephonee: "",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg"
