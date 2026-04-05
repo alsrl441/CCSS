@@ -68,9 +68,8 @@ if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 // ------------------------------------------
 
-// 초기 날짜 설정
-const dateInput = document.getElementById('id-date');
-if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+// 초기 날짜 설정 (필요 시 유지, 현재는 식별 날짜 필드가 제거되었으므로 내부 변수용으로만 사용하거나 제거 가능)
+let identificationDate = new Date().toISOString().split('T')[0];
 
 function setCurrentTime(targetId) {
     const now = new Date();
@@ -79,10 +78,17 @@ function setCurrentTime(targetId) {
     document.getElementById(targetId).value = `${hours}:${minutes}`;
 }
 
+function toggleViolationDetail() {
+    const isChecked = document.getElementById('violation-check').checked;
+    const detailInput = document.getElementById('violation-detail');
+    detailInput.disabled = !isChecked;
+    if (!isChecked) detailInput.value = "";
+}
+
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
-        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        toggleViolationDetail();
         updateFullCoord();
         updateDistance();
     }
@@ -94,33 +100,42 @@ async function saveTraceLog() {
         return;
     }
 
-    const shipName = document.getElementById('ship-name').value.trim();
-    if (!shipName) {
-        alert("선명을 입력해주세요.");
+    const form = document.getElementById('trace-form');
+    if (!form.checkValidity()) {
+        alert("필수 입력 사항(*)을 모두 입력해주세요.");
+        form.reportValidity();
         return;
     }
+
+    // 기본값 처리
+    const telephonee = document.getElementById('telephonee').value.trim() || "-";
+    const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
+    const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
+    const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
+    const crewCount = document.getElementById('crew-count').value.trim() || "식별불가";
+    
+    // 위반 여부 처리
+    const isViolation = document.getElementById('violation-check').checked;
+    const violationDetail = document.getElementById('violation-detail').value.trim();
+    const violationStatus = isViolation ? `O (${violationDetail || "내용없음"})` : "X";
 
     const distText = distKmDisplay.innerText.replace(' km', '');
     const distanceKmValue = distText === "--" ? "-" : distText;
 
-    const tonnage = document.getElementById('ship-tonnage').value || "-";
-    const type = document.getElementById('ship-type').value || "-";
     const tagString = document.getElementById('tags').value;
     const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
 
     const newHistory = {
-        date: document.getElementById('id-date')?.value || new Date().toISOString().split('T')[0],
+        date: identificationDate,
         
-        // --- 세부 5가지 필드 ---
         raderStation: document.getElementById('radar-station-select')?.value || "-",
-        traceNumber: document.getElementById('trace-num')?.value || "-",
+        traceNumber: document.getElementById('trace-num')?.value.trim() || "-",
         firstOutport: document.getElementById('departure')?.value || "-",
         direction: document.getElementById('move-dir')?.value || "-",
         distance: distanceKmValue,
-        // -----------------------
 
         coord: fullCoordDisplay?.innerText || "-",
-        telephonee: document.getElementById('telephonee')?.value || "-",
+        telephonee: telephonee,
 
         // 식별 정보
         firstTime: document.getElementById('first-time')?.value || "00:00",
@@ -134,8 +149,8 @@ async function saveTraceLog() {
         status: document.getElementById('end-status')?.value || "소실",
 
         // 복기 정보
-        crewCount: document.getElementById('crew-count')?.value || "식별불가",
-        violation: document.getElementById('violation')?.value || "무",
+        crewCount: crewCount,
+        violation: violationStatus,
         worker: document.getElementById('worker')?.value || "-",
         
         shipImage: "Images/no-image.jpg",
@@ -163,8 +178,8 @@ async function saveTraceLog() {
         }
 
         if (existingShip) {
-            if (tonnage !== "-") existingShip.tonnage = tonnage;
-            if (type !== "-") existingShip.type = type;
+            if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
+            if (shipType !== "식별불가") existingShip.type = shipType;
             
             if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
             tags.forEach(t => {
@@ -178,7 +193,7 @@ async function saveTraceLog() {
             const newShip = {
                 name: shipName,
                 tonnage: tonnage,
-                type: type,
+                type: shipType,
                 number: "-", 
                 tel: "-",
                 tags: tags,
@@ -191,7 +206,7 @@ async function saveTraceLog() {
     tx.oncomplete = () => {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
-        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        toggleViolationDetail();
         updateFullCoord();
         updateDistance();
     };
