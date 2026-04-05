@@ -3,24 +3,40 @@ const STORE_NAME = 'traceLog';
 let db;
 
 function initDB() {
-    const request = indexedDB.open(DB_NAME, 3);
-
-    request.onupgradeneeded = (e) => {
-        db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-        }
-    };
+    // 1. 우선 버전 없이 열어서 현재 상태 확인
+    const request = indexedDB.open(DB_NAME);
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        console.log("DB 연결 성공 (v3)");
-        renderLogs();
+        const currentVersion = db.version;
+
+        // 2. 만약 스토어가 없으면 버전을 1 올려서 다시 열어야 함
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.close(); // 기존 연결 닫기
+            const upgradeRequest = indexedDB.open(DB_NAME, currentVersion + 1);
+            
+            upgradeRequest.onupgradeneeded = (e) => {
+                db = e.target.result;
+                db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                console.log(`[IndexedDB] 스토어 생성됨 (v${currentVersion + 1})`);
+            };
+            
+            upgradeRequest.onsuccess = (e) => {
+                db = e.target.result;
+                renderLogs();
+            };
+            
+            upgradeRequest.onerror = (e) => {
+                console.error("[IndexedDB] 업그레이드 실패:", e.target.error);
+            };
+        } else {
+            // 이미 스토어가 있으면 바로 로그 출력
+            renderLogs();
+        }
     };
 
     request.onerror = (e) => {
-        console.error("DB 연결 실패:", e.target.error);
-        alert("데이터베이스를 열 수 없습니다.");
+        console.error("[IndexedDB] 초기 연결 실패:", e.target.error);
     };
 }
 
