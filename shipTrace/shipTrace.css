@@ -1,0 +1,126 @@
+.form-section {
+    border: 1px solid #dee2e6;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.form-section h6 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #0d6efd;
+    font-weight: 700;
+    border-bottom: 2px solid #0d6efd;
+    display: inline-block;
+    font-size: 1rem;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.form-control-sm {
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.coord-input-group, .trace-num-group, .time-input-group {
+    display: flex;
+    gap: 5px;
+}
+
+.coord-display {
+    margin-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    background: #e7f1ff;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    color: #0d6efd;
+    font-weight: bold;
+    border: 1px solid #cfe2ff;
+}
+
+.btn-now {
+    padding: 0 10px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.btn-now:hover { background: #5a6268; }
+
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover { background-color: #0b5ed7; }
+
+.form-footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.trace-table {
+    width: 100%;
+    font-size: 0.85rem;
+    border-collapse: collapse;
+}
+
+.trace-table th {
+    background: #f8f9fa;
+    padding: 12px 10px;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+}
+
+.trace-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    text-align: center;
+}
+
+textarea {
+    resize: none;
+}
+
+@media (max-width: 600px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+}

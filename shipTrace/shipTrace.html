@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선박 추적 기록 - CCSS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="shipTrace.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../index.html" class="nav-link">대시보드</a>
+                <a href="../milCalc/milCalc.html" class="nav-link">복무 정보</a>
+                <a href="../shipSearch/shipSearch.html" class="nav-link">선박 찾기</a>
+                <a href="shipTrace.html" class="nav-link active">추적 기록</a>
+            </div>
+            <div class="navbar-right">
+                <div id="clock" class="clock"></div>
+                <a href="../game/game.html" class="nav-link game-link">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding: 15px;">
+                <h5 class="card-title" style="margin:0; font-weight: bold; color: #333;">선박 추적 문의 접수</h5>
+                <button class="btn-outline" onclick="resetForm()">새로고침</button>
+            </div>
+            <div class="card-body">
+                <form id="trace-form">
+                    <!-- 단계 1: 접수 정보 -->
+                    <div class="form-section">
+                        <h6>1. 접수 및 위치 정보</h6>
+                        <div class="grid-container">
+                            <div class="form-group">
+                                <label>좌표 (3자리-3자리)</label>
+                                <div class="coord-input-group">
+                                    <input type="number" id="coord-x" placeholder="X (456)" class="form-control-sm" oninput="this.value=this.value.slice(0,3)">
+                                    <input type="number" id="coord-y" placeholder="Y (567)" class="form-control-sm" oninput="this.value=this.value.slice(0,3)">
+                                </div>
+                                <div id="full-coord" class="coord-display">52SBD ----- -----</div>
+                            </div>
+                            <div class="form-group">
+                                <label>이동방향</label>
+                                <select id="move-dir" class="form-control-sm">
+                                    <option value="">선택</option>
+                                    <option value="북진">북진</option><option value="북동진">북동진</option>
+                                    <option value="동진">동진</option><option value="남동진">남동진</option>
+                                    <option value="남진">남진</option><option value="남서진">남서진</option>
+                                    <option value="서진">서진</option><option value="북서진">북서진</option>
+                                    <option value="외해진출">외해진출</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>거리</label>
+                                <input type="text" id="distance" placeholder="1.5M, 2.3km 등" class="form-control-sm">
+                            </div>
+                            <div class="form-group">
+                                <label>추적번호</label>
+                                <div class="trace-num-group">
+                                    <select id="radar-site" class="form-control-sm">
+                                        <option value="145">145</option>
+                                        <option value="146">146</option>
+                                    </select>
+                                    <input type="text" id="trace-num" placeholder="123" class="form-control-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>최초 출항지</label>
+                                <input type="text" id="departure" placeholder="외해, 00선착장 등" class="form-control-sm">
+                            </div>
+                            <div class="form-group">
+                                <label>문의자 관등성명</label>
+                                <input type="text" id="inquirer" placeholder="상병 홍길동" class="form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 단계 2: 식별 정보 -->
+                    <div class="form-section mt-4">
+                        <h6>2. 감시장비 식별 정보</h6>
+                        <div class="grid-container">
+                            <div class="form-group">
+                                <label>식별 시간</label>
+                                <div class="time-input-group">
+                                    <input type="time" id="id-time" class="form-control-sm">
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">Now</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>방위각 (mil)</label>
+                                <input type="number" id="azimuth" placeholder="0-6400" min="0" max="6400" class="form-control-sm">
+                            </div>
+                            <div class="form-group">
+                                <label>고각</label>
+                                <input type="number" id="elevation" placeholder="0-360" min="0" max="360" class="form-control-sm">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>선박 제원 (선종, 톤수, 기타 특이사항)</label>
+                                <textarea id="ship-specs" rows="2" class="form-control-sm" placeholder="예: 무궁화호, 어선, 5톤, 백색 선체"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 단계 3: 소실/종료 -->
+                    <div class="form-section mt-4">
+                        <h6>3. 상황 종료 (소실/입항)</h6>
+                        <div class="grid-container">
+                            <div class="form-group">
+                                <label>종료 시간</label>
+                                <div class="time-input-group">
+                                    <input type="time" id="end-time" class="form-control-sm">
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">Now</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>최종 방위각</label>
+                                <input type="number" id="end-azimuth" class="form-control-sm">
+                            </div>
+                            <div class="form-group">
+                                <label>최종 고각</label>
+                                <input type="number" id="end-elevation" class="form-control-sm">
+                            </div>
+                            <div class="form-group">
+                                <label>종료 사유</label>
+                                <select id="end-reason" class="form-control-sm">
+                                    <option value="추적중">추적중</option>
+                                    <option value="소실">소실</option>
+                                    <option value="입항">입항</option>
+                                    <option value="정박">정박</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-footer mt-4">
+                        <button type="button" class="btn-primary" onclick="saveTraceLog()">로그 저장</button>
+                        <button type="button" class="btn-outline" onclick="copyToClipboard()">텍스트 복사</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 로그 목록 -->
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title" style="margin:0; font-weight: bold;">오늘의 추적 로그</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table trace-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">시간</th>
+                                <th style="width: 100px;">추적번호</th>
+                                <th style="width: 180px;">좌표</th>
+                                <th>제원/상태</th>
+                                <th style="width: 120px;">문의자</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-list">
+                            <!-- JS에서 추가됨 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="btn-group">
+                <a href="../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
+                <a href="#" target="_blank" class="btn-outline">국방인사정보체계</a>
+                <a href="#" target="_blank" class="btn-outline">제96보병여단</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script src="shipTrace.js"></script>
+</body>
+</html>

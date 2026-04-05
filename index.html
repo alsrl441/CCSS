@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCSS - Coastal Composite Surveillance System</title>
+    <title></title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="menu/menu.css">
     <link rel="stylesheet" href="workSchedule/workSchedule.css">
@@ -15,6 +15,7 @@
                 <a href="index.html" class="nav-link active">대시보드</a>
                 <a href="milCalc/milCalc.html" class="nav-link">복무 정보</a>
                 <a href="shipSearch/shipSearch.html" class="nav-link">선박 찾기</a>
+                <a href="shipTrace/shipTrace.html" class="nav-link">추적 기록</a>
             </div>
             <div class="navbar-right">
                 <div id="clock" class="clock"></div>
@@ -28,7 +29,7 @@
             <div class="col-main">
                 <section class="card">
                     <div class="card-header">
-                        <h5 class="card-title">오늘의 메뉴</h5>
+                        <h5 class="card-title">식단표</h5>
                         <div class="menu-controls">
                             <span id="meal-type" class="badge-primary clickable" title="식단 검색"></span>
                             <div id="menu-search-ui" class="menu-search-pannel hidden">
@@ -43,7 +44,7 @@
                         </div>
                     </div>
                     <div class="card-body menu-container">
-                        <pre id="menu-display">데이터를 불러오는 중...</pre>
+                        <pre id="menu-display">데이터 로딩 실패</pre>
                     </div>
                 </section>
 

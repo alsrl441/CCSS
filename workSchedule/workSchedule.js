@@ -79,16 +79,14 @@ async function updateWorkSchedule() {
     const todayStr = getFormattedDate(now);
     
     // --- [2] 대시보드 렌더링 (index.html 메인용) ---
-    // (이전 코드 동일...)
     const workDisplay = document.getElementById('work-display');
     if (workDisplay) {
         const tomorrowObj = new Date(now.getTime() + 86400000);
         const tomorrowStr = getFormattedDate(tomorrowObj);
-        // ... (renderTable 정의 및 호출 로직 유지)
-
+        
         const renderTable = async (dateStr, label) => {
             const data = await getDaySchedule(dateStr);
-            const displayDate = dateStr.substring(5); // YYYY-MM-DD -> MM-DD
+            const displayDate = dateStr.substring(5);
             
             if (!data) return `<div class="no-data">${displayDate} (${label}) 데이터가 없습니다.</div>`;
             
