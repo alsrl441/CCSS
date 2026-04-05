@@ -1,15 +1,15 @@
 /* 통합 그리드 컨테이너 */
 .unified-grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 40px; /* 모든 입력 폼 사이 간격을 40px로 대폭 확대 */
-    padding: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 50px; /* 간격을 50px로 더 확대 */
+    padding: 15px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 12px; /* 라벨과 입력창 사이 간격 */
+    gap: 6px; /* 라벨과 입력창 사이 간격은 작게 유지 */
 }
 
 .form-group.full-width {
@@ -22,19 +22,19 @@
 }
 
 .form-group label {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: #444;
+    color: #555;
 }
 
-/* 입력 폼 스타일 통일 */
+/* 입력 폼 스타일 (크기를 다시 작게 조절) */
 .form-control-sm, .dist-box, .coord-display {
-    padding: 8px 12px;
+    padding: 4px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-family: inherit;
-    height: 40px; /* 높이를 조금 더 키워서 시원하게 */
+    height: 32px; /* 높이를 다시 콤팩트하게 줄임 */
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -43,11 +43,10 @@
 
 .form-control-sm:focus {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
     outline: none;
 }
 
-/* 결과창 전용 스타일 (입력창과 디자인 통일) */
+/* 결과창 전용 스타일 */
 .dist-box, .coord-display {
     background-color: #f8f9fa;
     justify-content: center;
@@ -57,13 +56,11 @@
 .coord-display {
     color: #0d6efd;
     width: 100%;
-    margin-top: 5px;
 }
 
 .dist-multi-display {
     display: flex;
-    gap: 12px;
-    margin-top: 5px;
+    gap: 8px;
 }
 
 .dist-box {
@@ -73,19 +70,19 @@
 
 .coord-input-group, .trace-num-group, .time-input-group, .dist-input-group {
     display: flex;
-    gap: 10px;
+    gap: 6px;
 }
 
 .btn-now {
-    padding: 0 15px;
+    padding: 0 10px;
     background: #6c757d;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     white-space: nowrap;
-    height: 40px;
+    height: 32px;
 }
 
 .btn-now:hover { background: #5a6268; }
@@ -94,24 +91,30 @@
     background-color: #0d6efd;
     color: white;
     border: none;
+    padding: 8px 25px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    font-size: 0.95rem;
 }
 
 .btn-primary:hover { background-color: #0b5ed7; }
-.btn-primary:active { transform: scale(0.98); }
+
+.form-footer {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
 
 .trace-table {
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     border-collapse: collapse;
 }
 
 .trace-table th {
     background: #f8f9fa;
-    padding: 15px 10px;
+    padding: 10px 5px;
     border-bottom: 2px solid #dee2e6;
     text-align: center;
     white-space: nowrap;
@@ -120,31 +123,30 @@
 }
 
 .trace-table td {
-    padding: 15px 10px;
+    padding: 10px 5px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
     text-align: center;
 }
 
 .badge-status {
-    font-size: 0.75rem;
-    padding: 3px 8px;
+    font-size: 0.7rem;
+    padding: 1px 5px;
     border-radius: 4px;
     background: #e9ecef;
     color: #495057;
     font-weight: bold;
     display: inline-block;
-    margin-top: 5px;
 }
 
 textarea.form-control-sm {
     height: auto;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 @media (max-width: 600px) {
     .unified-grid-container {
         grid-template-columns: 1fr;
-        gap: 25px;
+        gap: 30px;
     }
 }
