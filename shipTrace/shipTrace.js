@@ -20,13 +20,15 @@ coordInput.addEventListener('input', updateFullCoord);
 // 거리 단위 변환 로직
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
-const distConvert = document.getElementById('dist-convert');
+const distConv1 = document.getElementById('dist-conv-1');
+const distConv2 = document.getElementById('dist-conv-2');
 
 function updateDistance() {
     let val = parseFloat(distValue.value);
     let unit = distUnit.value;
     if (isNaN(val)) {
-        distConvert.innerText = "-- NM / -- km";
+        distConv1.innerText = "--";
+        distConv2.innerText = "--";
         return;
     }
     let km, nm, m;
@@ -34,9 +36,16 @@ function updateDistance() {
     else if (unit === 'NM') { nm = val; km = val * 1.852; m = val * 1.15078; }
     else if (unit === 'M') { m = val; km = val * 1.60934; nm = val * 0.868976; }
 
-    if (unit === 'km') distConvert.innerText = `${nm.toFixed(2)} NM / ${m.toFixed(2)} M`;
-    else if (unit === 'NM') distConvert.innerText = `${km.toFixed(2)} km / ${m.toFixed(2)} M`;
-    else if (unit === 'M') distConvert.innerText = `${nm.toFixed(2)} NM / ${km.toFixed(2)} km`;
+    if (unit === 'km') {
+        distConv1.innerText = `${nm.toFixed(2)} NM`;
+        distConv2.innerText = `${m.toFixed(2)} M`;
+    } else if (unit === 'NM') {
+        distConv1.innerText = `${km.toFixed(2)} km`;
+        distConv2.innerText = `${m.toFixed(2)} M`;
+    } else if (unit === 'M') {
+        distConv1.innerText = `${nm.toFixed(2)} NM`;
+        distConv2.innerText = `${km.toFixed(2)} km`;
+    }
 }
 distValue.addEventListener('input', updateDistance);
 distUnit.addEventListener('change', updateDistance);
