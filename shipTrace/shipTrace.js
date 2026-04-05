@@ -1,10 +1,9 @@
-// IndexedDB 설정
 const DB_NAME = 'myDB';
 const STORE_NAME = 'traceLog';
 let db;
 
 function initDB() {
-    const request = indexedDB.open(DB_NAME, 2);
+    const request = indexedDB.open(DB_NAME, 3);
 
     request.onupgradeneeded = (e) => {
         db = e.target.result;
@@ -15,7 +14,7 @@ function initDB() {
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        console.log("DB 연결 성공 (v2)");
+        console.log("DB 연결 성공 (v3)");
         renderLogs();
     };
 
