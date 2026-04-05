@@ -28,24 +28,6 @@ function initDB() {
 initDB();
 
 // --- 위치 및 문의 정보 관련 로직 ---
-const coordInput = document.getElementById('coord-input');
-const fullCoordDisplay = document.getElementById('full-coord');
-
-function updateFullCoord() {
-    let val = coordInput.value.trim();
-    if (!val) {
-        fullCoordDisplay.innerText = "52SBD ----- -----";
-        return;
-    }
-    let parts = val.split(/[\s,]+/);
-    let x = parts[0] || "";
-    let y = parts[1] || "";
-    let fullX = x.padEnd(3, '0').slice(0, 3) + "00";
-    let fullY = y.padEnd(3, '0').slice(0, 3) + "00";
-    fullCoordDisplay.innerText = `52SBD ${fullX} ${fullY}`;
-}
-if (coordInput) coordInput.addEventListener('input', updateFullCoord);
-
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
 const distKmDisplay = document.getElementById('dist-km-display');
@@ -68,7 +50,6 @@ if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 // ------------------------------------------
 
-// 초기 날짜 설정 (필요 시 유지, 현재는 식별 날짜 필드가 제거되었으므로 내부 변수용으로만 사용하거나 제거 가능)
 let identificationDate = new Date().toISOString().split('T')[0];
 
 function setCurrentTime(targetId) {
@@ -89,7 +70,6 @@ function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
         toggleViolationDetail();
-        updateFullCoord();
         updateDistance();
     }
 }
@@ -134,7 +114,7 @@ async function saveTraceLog() {
         direction: document.getElementById('move-dir')?.value || "-",
         distance: distanceKmValue,
 
-        coord: fullCoordDisplay?.innerText || "-",
+        coord: document.getElementById('coord-input')?.value.trim() || "-",
         telephonee: telephonee,
 
         // 식별 정보
@@ -206,7 +186,6 @@ async function saveTraceLog() {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
         toggleViolationDetail();
-        updateFullCoord();
         updateDistance();
     };
 
