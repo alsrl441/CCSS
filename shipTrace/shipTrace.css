@@ -50,15 +50,16 @@
     gap: 5px;
 }
 
-.dist-display {
+.dist-display-large {
     margin-top: 5px;
-    font-size: 0.8rem;
-    color: #666;
-    background: #f1f3f5;
-    padding: 5px;
-    border-radius: 4px;
+    font-size: 1.1rem;
+    color: #0d6efd;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
     text-align: center;
-    border: 1px solid #e9ecef;
+    border: 2px solid #e7f1ff;
+    font-weight: bold;
 }
 
 .badge-status {
@@ -68,6 +69,7 @@
     background: #e9ecef;
     color: #495057;
     margin-left: 5px;
+    font-weight: bold;
 }
 
 .coord-display {
@@ -126,6 +128,8 @@
     padding: 12px 10px;
     border-bottom: 2px solid #dee2e6;
     text-align: center;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 .trace-table td {
@@ -133,6 +137,7 @@
     border-bottom: 1px solid #eee;
     vertical-align: middle;
     text-align: center;
+    font-size: 0.85rem;
 }
 
 textarea {

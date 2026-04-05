@@ -41,27 +41,27 @@
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                             </div>
                             <div class="form-group">
-                                <label>이동방향</label>
-                                <select id="move-dir" class="form-control-sm">
-                                    <option value="">선택</option>
-                                    <option value="북진">북진</option><option value="북동진">북동진</option>
-                                    <option value="동진">동진</option><option value="남동진">남동진</option>
-                                    <option value="남진">남진</option><option value="남서진">남서진</option>
-                                    <option value="서진">서진</option><option value="북서진">북서진</option>
-                                    <option value="외해진출">외해진출</option>
-                                </select>
+                                <label>이동방향 (직접 입력/선택)</label>
+                                <input type="text" id="move-dir" list="dir-options" placeholder="방향 입력 또는 선택" class="form-control-sm">
+                                <datalist id="dir-options">
+                                    <option value="북진">북동진</option><option value="동진">남동진</option>
+                                    <option value="남진">남서진</option><option value="서진">북서진</option>
+                                    <option value="북동진">북동진</option><option value="남동진">남동진</option>
+                                    <option value="남서진">남서진</option><option value="북서진">북서진</option>
+                                    <option value="외해진출">외해진출</option><option value="내해진입">내해진입</option>
+                                </datalist>
                             </div>
                             <div class="form-group">
-                                <label>거리 입력</label>
+                                <label>거리 입력 및 자동 변환</label>
                                 <div class="dist-input-group">
-                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 70px;">
+                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="flex: 1;">
                                     <select id="dist-unit" class="form-control-sm">
                                         <option value="M">M</option>
                                         <option value="NM">NM</option>
                                         <option value="km">km</option>
                                     </select>
                                 </div>
-                                <div id="dist-convert" class="dist-display">-- NM / -- km</div>
+                                <div id="dist-convert" class="dist-display-large">-- NM / -- km</div>
                             </div>
                             <div class="form-group">
                                 <label>추적번호</label>
@@ -92,7 +92,7 @@
                                 <label>식별 시간</label>
                                 <div class="time-input-group">
                                     <input type="time" id="id-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">Now</button>
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">현재 시간</button>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -105,7 +105,7 @@
                             </div>
                             <div class="form-group full-width">
                                 <label>선박 제원 (선명, 선종, 톤수, 기타 특이사항)</label>
-                                <textarea id="ship-specs" rows="2" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
+                                <textarea id="ship-specs" rows="10" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@
                                 <label>종료 시간</label>
                                 <div class="time-input-group">
                                     <input type="time" id="end-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">Now</button>
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">현재 시간</button>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -140,35 +140,35 @@
                     </div>
 
                     <div class="form-footer mt-4">
-                        <button type="button" class="btn-primary" onclick="saveTraceLog()">로그 저장</button>
-                        <button type="button" class="btn-outline" onclick="copyToClipboard()">보고 텍스트 복사</button>
+                        <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 200px;">로그 저장</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- 로그 목록 -->
-        <div class="card mt-4 shadow-sm">
+        <div class="card mt-4 shadow-sm" style="max-width: 100%; overflow-x: auto;">
             <div class="card-header bg-white">
-                <h5 class="card-title" style="margin:0; font-weight: bold;">오늘의 추적 로그</h5>
+                <h5 class="card-title" style="margin:0; font-weight: bold;">추적 로그 현황</h5>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table trace-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">시간</th>
-                                <th style="width: 100px;">추적번호</th>
-                                <th style="width: 180px;">좌표</th>
-                                <th>제원/상태</th>
-                                <th style="width: 120px;">문의자</th>
-                            </tr>
-                        </thead>
-                        <tbody id="log-list">
-                            <!-- JS에서 추가됨 -->
-                        </tbody>
-                    </table>
-                </div>
+                <table class="table trace-table">
+                    <thead>
+                        <tr>
+                            <th>식별 시간</th>
+                            <th>식별 위치(방위/고각)</th>
+                            <th>최종 시간</th>
+                            <th>최종 위치(방위/고각)</th>
+                            <th>좌표</th>
+                            <th>제원/상태</th>
+                            <th>식별자</th>
+                            <th>문의자</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-list">
+                        <!-- JS에서 추가됨 -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
