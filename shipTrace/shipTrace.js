@@ -3,17 +3,29 @@ const DB_NAME = 'myDB';
 const STORE_NAME = 'traceLog';
 let db;
 
-const request = indexedDB.open(DB_NAME, 1);
-request.onupgradeneeded = (e) => {
-    db = e.target.result;
-    if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-    }
-};
-request.onsuccess = (e) => {
-    db = e.target.result;
-    renderLogs();
-};
+function initDB() {
+    const request = indexedDB.open(DB_NAME, 2);
+
+    request.onupgradeneeded = (e) => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        }
+    };
+
+    request.onsuccess = (e) => {
+        db = e.target.result;
+        console.log("DB 연결 성공 (v2)");
+        renderLogs();
+    };
+
+    request.onerror = (e) => {
+        console.error("DB 연결 실패:", e.target.error);
+        alert("데이터베이스를 열 수 없습니다.");
+    };
+}
+
+initDB();
 
 const coordInput = document.getElementById('coord-input');
 const fullCoordDisplay = document.getElementById('full-coord');
@@ -74,7 +86,10 @@ function resetForm() {
 }
 
 function saveTraceLog() {
-    if (!db) return;
+    if (!db) {
+        alert("데이터베이스가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.");
+        return;
+    }
 
     const log = {
         idTime: document.getElementById('id-time').value || "-",
@@ -93,11 +108,19 @@ function saveTraceLog() {
 
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    store.add(log);
+    const request = store.add(log);
 
-    transaction.oncomplete = () => {
+    request.onsuccess = () => {
         renderLogs();
-        alert("로그가 DB에 저장되었습니다.");
+        alert("로그가 성공적으로 저장되었습니다.");
+        document.getElementById('trace-form').reset();
+        updateFullCoord();
+        updateDistance();
+    };
+
+    request.onerror = (e) => {
+        console.error("저장 실패:", e.target.error);
+        alert("로그 저장 중 오류가 발생했습니다.");
     };
 }
 
