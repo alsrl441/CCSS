@@ -109,36 +109,46 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
             <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
             <div class="edit-group"><label>최초 시간/위치/AzEl</label>
-                <input type="time" id="edit-first-time" value="${h.firstTime}" style="width: 80px;">
-                <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
-                <input type="text" id="edit-first-azel" value="${h.firstAzEl || '-'}" placeholder="Az/El" style="width: 80px;">
+                <div class="d-flex gap-1">
+                    <input type="time" id="edit-first-time" value="${h.firstTime}" style="width: 85px;">
+                    <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
+                    <input type="text" id="edit-first-azel" value="${h.firstAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
+                </div>
             </div>
             <div class="edit-group"><label>최종 시간/위치/AzEl</label>
-                <input type="time" id="edit-last-time" value="${h.lastTime}" style="width: 80px;">
-                <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
-                <input type="text" id="edit-last-azel" value="${h.lastAzEl || '-'}" placeholder="Az/El" style="width: 80px;">
-            </div>
-            <div class="edit-group"><label>어선법 위반</label>
-                <select id="edit-violation">
-                    <option value="무" ${h.violation === '무' ? 'selected' : ''}>무</option>
-                    <option value="위반" ${h.violation === '위반' ? 'selected' : ''}>위반</option>
-                    <option value="확인불가" ${h.violation === '확인불가' ? 'selected' : ''}>확인불가</option>
-                </select>
+                <div class="d-flex gap-1">
+                    <input type="time" id="edit-last-time" value="${h.lastTime}" style="width: 85px;">
+                    <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
+                    <input type="text" id="edit-last-azel" value="${h.lastAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
+                </div>
             </div>
         </div>
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>문의 기지/추적번호</label>
-                <input type="text" id="edit-rader" value="${h.raderStation}" style="width: 80px;">
-                <input type="text" id="edit-tracenum" value="${h.traceNumber}" style="flex:1;">
+                <div class="d-flex gap-1">
+                    <input type="text" id="edit-rader" value="${h.raderStation}" style="width: 80px;">
+                    <input type="text" id="edit-tracenum" value="${h.traceNumber}" style="flex:1;">
+                </div>
             </div>
             <div class="edit-group"><label>출항지/방향/거리(km)</label>
-                <input type="text" id="edit-outport" value="${h.firstOutport}" style="flex:1;">
-                <input type="text" id="edit-direction" value="${h.direction}" style="width: 70px;">
-                <input type="text" id="edit-distance" value="${h.distance}" style="width: 70px;">
+                <div class="d-flex gap-1">
+                    <input type="text" id="edit-outport" value="${h.firstOutport}" style="flex:1;">
+                    <input type="text" id="edit-direction" value="${h.direction}" style="width: 70px;">
+                    <input type="text" id="edit-distance" value="${h.distance}" style="width: 70px;">
+                </div>
+            </div>
+            <div class="edit-group"><label>어선법 위반</label>
+                <select id="edit-violation" class="form-control-sm">
+                    <option value="무" ${h.violation === '무' ? 'selected' : ''}>무 (X)</option>
+                    <option value="위반" ${h.violation === '위반' ? 'selected' : ''}>위반 (O)</option>
+                    <option value="확인불가" ${h.violation === '확인불가' ? 'selected' : ''}>확인불가</option>
+                </select>
             </div>
             <div class="edit-group"><label>근무자/수화자</label>
-                <input type="text" id="edit-worker" value="${h.worker || ''}" style="flex:1;">
-                <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" style="flex:1;">
+                <div class="d-flex gap-1">
+                    <input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자" style="flex:1;">
+                    <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자" style="flex:1;">
+                </div>
             </div>
             <div class="history-actions">
                 <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
@@ -332,21 +342,32 @@ function showHistoryDetail(shipIdx, historyIdx) {
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     if (!card || !h) return;
     editingTagsShipIdx = null;
+    
+    // 어선법 위반 표시 로직
+    const violationText = h.violation === '위반' ? 'O (위반 식별)' : (h.violation === '무' ? 'X' : '확인불가');
+    
+    // 추적번호 표시 로직
+    const traceNo = (h.raderStation === '-' || !h.raderStation) ? (h.traceNumber || '-') : `${h.raderStation}-${h.traceNumber}`;
+
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos}) / ${h.firstAzEl || '-'}</span></div>
-            <div class="h-item"><label>최종 종료</label><span>${h.lastTime} (${h.lastPos}) / ${h.lastAzEl || '-'}</span></div>
-            <div class="h-item"><label>인원/어선법</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'} / <strong>${h.violation || '무'}</strong></span></div>
+            <div class="h-item"><label>최초 식별 시간</label><span>${h.firstTime}</span></div>
+            <div class="h-item"><label>최초 식별 위치</label><span>${h.firstAzEl || '-'} (${h.firstPos || '-'})</span></div>
+            <div class="h-item"><label>최종 식별 시간</label><span>${h.lastTime}</span></div>
+            <div class="h-item"><label>최종 식별 위치</label><span>${h.lastAzEl || '-'} (${h.lastPos || '-'})</span></div>
+            <div class="h-item"><label>추적번호</label><span>${traceNo}</span></div>
             <div class="history-actions">
                 <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                 <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
             </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>문의 기지</label><span>${h.raderStation} (No. ${h.traceNumber})</span></div>
-            <div class="h-item"><label>출항/방향/거리</label><span>${h.firstOutport} / ${h.direction} / ${h.distance}km</span></div>
-            <div class="h-item"><label>근무자/수화자</label><span>${h.worker || ''} / (수) ${h.telephonee || ''}</span></div>
+            <div class="h-item"><label>출항지</label><span>${h.firstOutport || '-'}</span></div>
+            <div class="h-item"><label>어선법 위반 유무</label><span style="color: ${h.violation === '위반' ? '#dc3545' : 'inherit'}; font-weight: bold;">${violationText}</span></div>
+            <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
+            <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
+            <div class="h-item"><label>인원</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</span></div>
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
