@@ -79,7 +79,7 @@ async function updateWorkSchedule() {
             const data = await getDaySchedule(dateStr);
             const displayDate = dateStr.substring(5);
             
-            if (!data) return `<div class="no-data">${displayDate} (${label}) 데이터가 없습니다.</div>`;
+            if (!data) return `<div class="no-data">${displayDate} (${label}) 데이터가 없음</div>`;
             
             const formatName = (name) => (name === "-" || !name ? "" : name);
 
@@ -88,7 +88,7 @@ async function updateWorkSchedule() {
                     <thead>
                         <tr class="table-light-bg">
                             <th colspan="4" class="table-date-header text-dark">
-                                ${displayDate} (${label}) ${data.isHoliday ? '<span>[공휴일/휴무]</span>' : ''}
+                                ${displayDate} (${label})}
                             </th>
                         </tr>
                         <tr class="table-white-bg">
@@ -220,7 +220,7 @@ async function updateWorkSchedule() {
 
             const renderCctvRow = (idx, label) => {
                 let row = `<tr>`;
-                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">CCTV</td>`;
+                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">항포구</td>`;
                 row += `<td class="sub-group table-fdfdfd-bg">${label}</td>`;
 
                 currentMonthData.forEach(day => {
@@ -316,9 +316,9 @@ async function updateWorkSchedule() {
                             <tr>
                                 <th>성명</th>
                                 <th>평일 근무</th>
-                                <th>주말 근무</th>
+                                <th>휴일 근무</th>
                                 <th>평일 비번</th>
-                                <th>주말 비번</th>
+                                <th>휴일 비번</th>
                                 <th>총 시간</th>
                                 <th>평균 편차</th>
                             </tr>

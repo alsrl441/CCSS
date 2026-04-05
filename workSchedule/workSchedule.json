@@ -39,7 +39,7 @@
     },
     "1": {
         "date": "2026-04-01",
-        "isHoliday": true,
+        "isHoliday": false,
         "cctv": [
             {
                 "shift": "06-14",

@@ -16,7 +16,6 @@
     font-size: 0.9rem;
 }
 
-/* 행(Row) 기반 레이아웃 */
 .form-row {
     display: flex;
     gap: 20px;
@@ -39,7 +38,6 @@
     color: #555;
 }
 
-/* 입력 폼 스타일 */
 .form-control-sm, .dist-box, .coord-display {
     padding: 4px 8px;
     border: 1px solid #ced4da;

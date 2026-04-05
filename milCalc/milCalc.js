@@ -4,9 +4,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const displayEl = document.getElementById('resultDisplay');
     const previewEl = document.getElementById('previewDisplay');
     let timerId = null; 
-    let members = []; // IndexedDB에서 로드할 데이터
+    let members = [];
 
-    // IndexedDB에서 데이터 로드
     async function loadMembersFromDB() {
         return new Promise((resolve) => {
             const request = indexedDB.open("myDB");
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     members = await loadMembersFromDB();
 
-    // 선택 박스 초기화
     if (members && members.length > 0) {
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
@@ -51,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function handleMemberSelect(val) {
-        if (timerId) clearInterval(timerId); // 기존 타이머 정지
+        if (timerId) clearInterval(timerId);
 
         if (val === "") {
             displayEl.classList.add('hidden');
@@ -62,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             displayEl.classList.remove('hidden');
             previewEl.classList.add('hidden');
             
-            // 최초 즉시 계산 후 실시간 타이머 시작
             calculateMilitary(user);
             timerId = setInterval(() => calculateMilitary(user), 10); 
         }
@@ -115,7 +112,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const percent = Math.min(100, Math.max(0, (passedTime / totalTime) * 100)).toFixed(8);
         const remainDays = Math.ceil(remainTime / (1000 * 60 * 60 * 24));
 
-        // 계급 계산
         const startFirstDay = new Date(start.getFullYear(), start.getMonth(), 1);
         const currentMonthCount = (now.getFullYear() - startFirstDay.getFullYear()) * 12 + (now.getMonth() - startFirstDay.getMonth()) + 1;
         
@@ -151,7 +147,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             nextPromoDate = new Date(startFirstDay.getFullYear(), startFirstDay.getMonth() + promoMonthOffset, 1);
         }
 
-        // 결과 반영
         document.getElementById('resName').innerText = remainTime > 0 ? `${rank} ${user.name}` : `병장 ${user.name}`;
         document.getElementById('resPercent').innerText = `${percent}%`;
         document.getElementById('progressBarFill').style.width = `${percent}%`;

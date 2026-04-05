@@ -1,4 +1,3 @@
-// 시계
 function updateClock() {
     const now = new Date();
     const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -16,7 +15,6 @@ function updateClock() {
     }
 }
 
-// 페이지 로드
 document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClock, 1000);
     updateClock();

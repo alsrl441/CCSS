@@ -12,10 +12,9 @@ request.onupgradeneeded = (e) => {
 };
 request.onsuccess = (e) => {
     db = e.target.result;
-    renderLogs(); // DB 연결 성공 시 로그 출력
+    renderLogs();
 };
 
-// 좌표 자동 완성 로직
 const coordInput = document.getElementById('coord-input');
 const fullCoordDisplay = document.getElementById('full-coord');
 
@@ -34,7 +33,6 @@ function updateFullCoord() {
 }
 coordInput.addEventListener('input', updateFullCoord);
 
-// 거리 단위 변환 로직
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
 const distConv1 = document.getElementById('dist-conv-1');
@@ -60,7 +58,6 @@ function updateDistance() {
 distValue.addEventListener('input', updateDistance);
 distUnit.addEventListener('change', updateDistance);
 
-// 현재 시간 입력 함수 (24시간 형식)
 function setCurrentTime(targetId) {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -68,7 +65,6 @@ function setCurrentTime(targetId) {
     document.getElementById(targetId).value = `${hours}:${minutes}`;
 }
 
-// 폼 초기화
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
@@ -77,7 +73,6 @@ function resetForm() {
     }
 }
 
-// 로그 저장
 function saveTraceLog() {
     if (!db) return;
 
@@ -106,7 +101,6 @@ function saveTraceLog() {
     };
 }
 
-// 로그 출력 (최근 10척)
 function renderLogs() {
     if (!db) return;
 
@@ -116,7 +110,6 @@ function renderLogs() {
 
     request.onsuccess = () => {
         const allLogs = request.result;
-        // 최신순 정렬 후 10개만 추출
         const recentLogs = allLogs.sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
         
         const list = document.getElementById('log-list');

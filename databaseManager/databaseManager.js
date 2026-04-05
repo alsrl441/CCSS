@@ -10,7 +10,7 @@ function verifyPassword() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const timeStr = hours + minutes;
-    const correctPassword = timeStr.split('').reverse().join('') + '!';
+    const correctPassword = 'qlqjs' + timeStr.split('').reverse().join('') + '!@#';
     
     if (input.value === correctPassword) {
         overlay.style.display = 'none';
@@ -29,7 +29,6 @@ const pathDisplay = document.getElementById('path-display');
 const statusMsg = document.getElementById('status-msg');
 const wrapper = document.getElementById('wrapper');
 
-// Drag & Drop
 window.addEventListener('dragover', (e) => { e.preventDefault(); wrapper.classList.add('drag-over'); });
 window.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.relatedTarget === null) wrapper.classList.remove('drag-over'); });
 window.addEventListener('drop', (e) => { e.preventDefault(); wrapper.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]); });

@@ -1,13 +1,9 @@
-/**
- * CCSS Menu System v2.5 (Final Production)
- */
 async function updateMenu() {
     const mealTypeEl = document.getElementById('meal-type');
     const menuDisplayEl = document.getElementById('menu-display');
     const searchDateInput = document.getElementById('search-date');
     const searchMealSelect = document.getElementById('search-meal');
 
-    // [Helper] IndexedDB에서 모든 데이터를 가져와 날짜로 찾기
     function getMenuFromDB(dateStr) {
         return new Promise((resolve) => {
             const request = indexedDB.open("myDB");
@@ -41,7 +37,6 @@ async function updateMenu() {
         return `${year}-${month}-${day}`;
     };
 
-    // 자동 식단 설정 함수
     async function setAutoMenu() {
         const now = new Date();
         const timeVal = now.getHours() * 100 + now.getMinutes();
@@ -54,7 +49,6 @@ async function updateMenu() {
         let displayLabel = "";
         const isSunday = now.getDay() === 0;
 
-        // 시간별 로직 (네 원래 로직 그대로!)
         if (isSunday) {
             if (timeVal < 1130) { displayLabel = "오늘 브런치"; mealKey = "brunch"; }
             else if (timeVal < 1830) { displayLabel = "오늘 저녁"; mealKey = "dinner"; }
@@ -73,7 +67,6 @@ async function updateMenu() {
 
         const menuData = await getMenuFromDB(targetDateStr);
 
-        // [핵심] JSON 형태가 아니라 실제 메뉴 텍스트만 추출
         if (menuData && menuData.meals) {
             mealTypeEl.innerText = displayLabel;
             menuDisplayEl.innerText = menuData.meals[mealKey] || "식단 정보가 없습니다.";
@@ -86,7 +79,6 @@ async function updateMenu() {
         if (searchMealSelect) searchMealSelect.value = mealKey;
     }
 
-    // 수동 검색 함수
     async function searchMenu() {
         const dateStr = searchDateInput.value;
         const mealKey = searchMealSelect.value;
@@ -97,7 +89,6 @@ async function updateMenu() {
         menuDisplayEl.innerText = menuData?.meals?.[mealKey] || "식단 정보가 없습니다.";
     }
 
-    // 이벤트 리스너 설정
     if (document.getElementById('meal-type')) {
         document.getElementById('meal-type').addEventListener('click', () => {
             const ui = document.getElementById('menu-search-ui');
@@ -108,11 +99,9 @@ async function updateMenu() {
     if (searchDateInput) searchDateInput.addEventListener('change', searchMenu);
     if (searchMealSelect) searchMealSelect.addEventListener('change', searchMenu);
 
-    // 초기 실행
     setAutoMenu();
 }
 
-// 안전한 실행을 위한 즉시 실행 로직
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     updateMenu();
 } else {
