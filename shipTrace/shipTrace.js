@@ -30,15 +30,13 @@ initDB();
 // --- 모드 전환 로직 ---
 function toggleTraceMode() {
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
-    const directSection = document.getElementById('section-direct');
     const inquirySection = document.getElementById('section-inquiry');
     
-    if (mode === 'direct') {
-        directSection.style.display = 'block';
-        inquirySection.style.display = 'none';
-    } else {
-        directSection.style.display = 'none';
+    // 문의 모드일 때만 추가 섹션 표시
+    if (mode === 'inquiry') {
         inquirySection.style.display = 'block';
+    } else {
+        inquirySection.style.display = 'none';
     }
 }
 
@@ -83,8 +81,6 @@ if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 // ------------------------------------------
 
-let identificationDate = new Date().toISOString().split('T')[0];
-
 function setCurrentTime(targetId) {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -120,18 +116,19 @@ async function saveTraceLog() {
 
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
     
-    // 필수 입력 체크
-    if (mode === 'direct') {
-        const camera = document.getElementById('camera-num').value;
-        const worker = document.getElementById('worker').value.trim();
-        if (!camera) { alert("식별 카메라를 선택해주세요."); return; }
-        if (!worker) { alert("근무자 관등성명을 입력해주세요."); return; }
-    } else {
+    // 필수 입력 체크 (공통)
+    const camera = document.getElementById('camera-num').value;
+    const worker = document.getElementById('worker').value.trim();
+    if (!camera) { alert("식별 카메라를 선택해주세요."); return; }
+    if (!worker) { alert("근무자 관등성명을 입력해주세요."); return; }
+
+    // 필수 입력 체크 (문의 시 추가)
+    if (mode === 'inquiry') {
         const telephonee = document.getElementById('telephonee').value.trim();
         if (!telephonee) { alert("수화자 관등성명을 입력해주세요."); return; }
     }
 
-    // 데이터 수집
+    // 데이터 수집 (공통)
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
     const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
     const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
@@ -141,41 +138,39 @@ async function saveTraceLog() {
     const violationDetail = document.getElementById('violation-detail').value.trim();
     const fullViolationText = (violationStatus === "O") ? `O (${violationDetail || "내용없음"})` : "X";
 
-    const distText = distKmDisplay.innerText.replace(' km', '');
-    const distanceKmValue = distText === "--" ? "-" : distText;
-
     const tagString = document.getElementById('tags').value;
     const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
 
+    const identificationDate = new Date().toISOString().split('T')[0];
+
+    // 데이터 객체 생성
     const newHistory = {
         mode: mode,
         date: identificationDate,
         timestamp: new Date().getTime(),
         
-        // 공통/식별 정보
+        // 공통 정보
+        cameraNum: camera,
         shipName: shipName,
         tonnage: tonnage,
         shipType: shipType,
         crewCount: crewCount,
+        worker: worker,
+        firstTime: document.getElementById('first-time').value || "-",
+        firstAzEl: document.getElementById('first-az-el').value || "-",
+        firstPos: document.getElementById('first-pos').value || "-",
+        lastTime: document.getElementById('last-time').value || "-",
+        lastAzEl: document.getElementById('last-az-el').value || "-",
+        lastPos: document.getElementById('last-pos').value || "-",
+        movementPath: document.getElementById('movement-path').value || "-",
         violation: fullViolationText,
         
-        // 직접 식별 전용
-        cameraNum: mode === 'direct' ? document.getElementById('camera-num').value : "-",
-        worker: mode === 'direct' ? document.getElementById('worker').value.trim() : "-",
-        firstTime: mode === 'direct' ? document.getElementById('first-time').value : "-",
-        firstAzEl: mode === 'direct' ? document.getElementById('first-az-el').value : "-",
-        firstPos: mode === 'direct' ? document.getElementById('first-pos').value : "-",
-        lastTime: mode === 'direct' ? document.getElementById('last-time').value : "-",
-        lastAzEl: mode === 'direct' ? document.getElementById('last-az-el').value : "-",
-        lastPos: mode === 'direct' ? document.getElementById('last-pos').value : "-",
-        movementPath: mode === 'direct' ? document.getElementById('movement-path').value : "-",
-        
-        // 문의 식별 전용
+        // 문의 식별 시에만 저장되는 정보
         coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "-",
         raderStation: mode === 'inquiry' ? document.getElementById('radar-station-select').value : "-",
         traceNumber: mode === 'inquiry' ? document.getElementById('trace-num').value.trim() : "-",
-        direction: mode === 'inquiry' ? document.getElementById('move-dir').value : "-",
-        distance: mode === 'inquiry' ? distanceKmValue : "-",
+        direction: mode === 'inquiry' ? document.getElementById('current-move-dir').value : "-",
+        distance: mode === 'inquiry' ? distKmDisplay.innerText.replace(' km', '') : "-",
         firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "-",
         telephonee: mode === 'inquiry' ? document.getElementById('telephonee').value.trim() : "-",
         handoverDetails: mode === 'inquiry' ? document.getElementById('handover-details').value : "-",
@@ -187,7 +182,6 @@ async function saveTraceLog() {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     
-    // 기존 로직과 동일하게 선명 기준으로 업데이트 또는 신규 추가
     const request = store.openCursor();
     let existingShip = null;
     let existingKey = null;
@@ -242,4 +236,3 @@ async function saveTraceLog() {
         alert("저장 중 오류가 발생했습니다.");
     };
 }
-
