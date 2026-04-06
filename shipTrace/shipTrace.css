@@ -53,6 +53,36 @@
     color: var(--primary-color);
 }
 
+/* Mode Tabs */
+.mode-tabs {
+    display: flex;
+    background: #f3f4f6;
+    padding: 4px;
+    border-radius: 8px;
+    gap: 4px;
+}
+
+.mode-tabs input[type="radio"] {
+    display: none;
+}
+
+.mode-tab {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s;
+    margin: 0;
+}
+
+.mode-tabs input[type="radio"]:checked + .mode-tab {
+    background: #fff;
+    color: var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
 .btn-reset {
     background: #fee2e2;
     color: #b91c1c;

@@ -27,7 +27,13 @@
         <div class="trace-card">
             <div class="trace-header">
                 <div class="header-title">
-                    <h5>선박 추적</h5>
+                    <h5>선박 추적 기록</h5>
+                </div>
+                <div class="mode-tabs">
+                    <input type="radio" id="mode-direct" name="trace-mode" value="direct" checked onchange="toggleTraceMode()">
+                    <label for="mode-direct" class="mode-tab">직접 식별</label>
+                    <input type="radio" id="mode-inquiry" name="trace-mode" value="inquiry" onchange="toggleTraceMode()">
+                    <label for="mode-inquiry" class="mode-tab">문의로 식별</label>
                 </div>
                 <button type="button" class="btn-reset" onclick="resetForm()">
                     <span class="icon-rotate">↻</span> 초기화
@@ -35,145 +41,174 @@
             </div>
 
             <form id="trace-form" class="trace-form">
-                <div class="form-group-section">
-                    <h6 class="section-label">문의 정보</h6>
-                    <div class="grid-layout">
-                        <div class="input-field">
-                            <label>문의 좌표</label>
-                            <input type="text" id="coord-input" size="7" placeholder="좌표">
-                        </div>
-                        <div class="input-field">
-                            <label>추적 번호</label>
-                            <div class="input-group">
-                                <select id="radar-station-select">
-                                    <option value="-">-</option>
-                                    <option value="145">145</option>
-                                    <option value="146">146</option>
-                                </select>
-                                <input type="text" id="trace-num" size="3" placeholder="번호">
+                <!-- [문의로 식별] 전용 섹션 -->
+                <div id="section-inquiry" class="mode-section" style="display: none;">
+                    <div class="form-group-section">
+                        <h6 class="section-label">문의 정보 (레이더 기지)</h6>
+                        <div class="grid-layout">
+                            <div class="input-field">
+                                <label>문의 좌표</label>
+                                <input type="text" id="coord-input" size="7" placeholder="123 456">
                             </div>
-                        </div>
-                        <div class="input-field">
-                            <label>이동방향</label>
-                            <input type="text" id="move-dir" list="dir-options" size="3" placeholder="이동방향 선택/입력">
-                            <datalist id="dir-options">
-                                <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
-                                <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
-                            </datalist>
-                        </div>
-                        <div class="input-field">
-                            <label>거리</label>
-                            <div class="input-group">
-                                <input type="number" id="dist-value" step="0.1" style="width: 80px;" placeholder="거리">
-                                <select id="dist-unit">
-                                    <option value="NM">NM</option>
-                                    <option value="M">M</option>
-                                    <option value="km">km</option>
-                                </select>
-                                <span id="dist-km-display" class="km-badge">km</span>
-                            </div>
-                        </div>
-                        <div class="input-field">
-                            <label>출항지</label>
-                            <input type="text" id="departure" size="12" placeholder="출항지">
-                        </div>
-                        <div class="input-field">
-                            <label>수화자</label>
-                            <input type="text" id="telephonee" size="8" placeholder="수화자 관등성명">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group-section highlight">
-                    <h6 class="section-label">식별 시간 및 위치</h6>
-                    <div class="grid-layout cols-2">
-                        <div class="time-record-box">
-                            <div class="box-header">최초 식별</div>
-                            <div class="box-content">
-                                <div class="inner-row">
-                                    <label>시간 <span class="required">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="first-time" size="5" maxlength="5" placeholder="00:00" required>
-                                        <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재 시간 입력</button>
-                                    </div>
-                                </div>
-                                <div class="inner-row">
-                                    <label>방위각 고각 <span class="required">*</span></label>
-                                    <input type="text" id="first-az-el" size="10" required placeholder="0000 00">
-                                </div>
-                                <div class="inner-row">
-                                    <label>위치 <span class="required">*</span></label>
-                                    <input type="text" id="first-pos" size="20" required placeholder="식별 위치">
+                            <div class="input-field">
+                                <label>추적 번호</label>
+                                <div class="input-group">
+                                    <select id="radar-station-select">
+                                        <option value="-">-</option>
+                                        <option value="145">145</option>
+                                        <option value="146">146</option>
+                                    </select>
+                                    <input type="text" id="trace-num" size="3" placeholder="번호">
                                 </div>
                             </div>
-                        </div>
-                        <div class="time-record-box">
-                            <div class="box-header">최종 식별</div>
-                            <div class="box-content">
-                                <div class="inner-row">
-                                    <label>시간 <span class="required">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="last-time" size="5" maxlength="5" placeholder="00:00" required>
-                                        <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재 시간 입력</button>
-                                    </div>
+                            <div class="input-field">
+                                <label>이동방향</label>
+                                <input type="text" id="move-dir" list="dir-options" size="3" placeholder="이동방향">
+                                <datalist id="dir-options">
+                                    <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
+                                    <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
+                                </datalist>
+                            </div>
+                            <div class="input-field">
+                                <label>거리</label>
+                                <div class="input-group">
+                                    <input type="number" id="dist-value" step="0.1" style="width: 80px;" placeholder="거리">
+                                    <select id="dist-unit">
+                                        <option value="NM">NM</option>
+                                        <option value="M">M</option>
+                                        <option value="km">km</option>
+                                    </select>
+                                    <span id="dist-km-display" class="km-badge">km</span>
                                 </div>
-                                <div class="inner-row">
-                                    <label>방위각 고각 <span class="required">*</span></label>
-                                    <input type="text" id="last-az-el" size="10" required placeholder="0000 00">
-                                </div>
-                                <div class="inner-row">
-                                    <label>위치 <span class="required">*</span></label>
-                                    <input type="text" id="last-pos" size="20" required placeholder="소실 위치">
-                                </div>
+                            </div>
+                            <div class="input-field">
+                                <label>출항지</label>
+                                <input type="text" id="departure" size="12" placeholder="출항지">
+                            </div>
+                            <div class="input-field">
+                                <label>수화자</label>
+                                <input type="text" id="telephonee" size="8" placeholder="관등성명">
                             </div>
                         </div>
                     </div>
+                    <div class="form-group-section">
+                        <h6 class="section-label">레이더 기지 인수인계 내용</h6>
+                        <textarea id="handover-details" rows="3" placeholder="수화자에게 인수받은 내용 및 인계한 내용을 기록하세요."></textarea>
+                    </div>
                 </div>
 
-                <div class="form-group-section">
-                    <h6 class="section-label">선박 제원</h6>
-                    <div class="grid-layout">
-                        <div class="input-field">
-                            <label>선명</label>
-                            <input type="text" id="ship-name" size="15" placeholder="아라호">
+                <!-- [직접 식별] 전용 섹션 -->
+                <div id="section-direct" class="mode-section">
+                    <div class="form-group-section">
+                        <h6 class="section-label">식별 카메라 및 제원</h6>
+                        <div class="grid-layout">
+                            <div class="input-field">
+                                <label>식별 카메라 <span class="required">*</span></label>
+                                <select id="camera-num">
+                                    <option value="">선택</option>
+                                    <option value="1">1번 카메라</option>
+                                    <option value="2">2번 카메라</option>
+                                    <option value="3">3번 카메라</option>
+                                    <option value="4">4번 카메라</option>
+                                    <option value="5">5번 카메라</option>
+                                </select>
+                            </div>
+                            <div class="input-field">
+                                <label>선명</label>
+                                <input type="text" id="ship-name" size="15" placeholder="선명 입력">
+                            </div>
+                            <div class="input-field">
+                                <label>선종</label>
+                                <input type="text" id="ship-type" size="12" placeholder="선외기/목선 등">
+                            </div>
+                            <div class="input-field">
+                                <label>톤수</label>
+                                <input type="text" id="ship-tonnage" size="5" placeholder="1t">
+                            </div>
+                            <div class="input-field">
+                                <label>인원</label>
+                                <input type="text" id="crew-count" size="5" placeholder="1">
+                            </div>
+                            <div class="input-field">
+                                <label>근무자 <span class="required">*</span></label>
+                                <input type="text" id="worker" size="10" placeholder="관등성명">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label>톤수</label>
-                            <input type="text" id="ship-tonnage" size="5" placeholder="1t">
+                    </div>
+
+                    <div class="form-group-section highlight">
+                        <h6 class="section-label">식별 시간 및 위치 (고각 포함)</h6>
+                        <div class="grid-layout cols-2">
+                            <div class="time-record-box">
+                                <div class="box-header">최초 식별</div>
+                                <div class="box-content">
+                                    <div class="inner-row">
+                                        <label>시간</label>
+                                        <div class="input-group">
+                                            <input type="text" id="first-time" size="5" maxlength="5" placeholder="00:00">
+                                            <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재 시간</button>
+                                        </div>
+                                    </div>
+                                    <div class="inner-row">
+                                        <label>방위각/고각</label>
+                                        <input type="text" id="first-az-el" size="10" placeholder="0000 00">
+                                    </div>
+                                    <div class="inner-row">
+                                        <label>위치</label>
+                                        <input type="text" id="first-pos" size="20" placeholder="식별 위치">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="time-record-box">
+                                <div class="box-header">최종 식별</div>
+                                <div class="box-content">
+                                    <div class="inner-row">
+                                        <label>시간</label>
+                                        <div class="input-group">
+                                            <input type="text" id="last-time" size="5" maxlength="5" placeholder="00:00">
+                                            <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재 시간</button>
+                                        </div>
+                                    </div>
+                                    <div class="inner-row">
+                                        <label>방위각/고각</label>
+                                        <input type="text" id="last-az-el" size="10" placeholder="0000 00">
+                                    </div>
+                                    <div class="inner-row">
+                                        <label>위치</label>
+                                        <input type="text" id="last-pos" size="20" placeholder="소실 위치">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label>선종</label>
-                            <input type="text" id="ship-type" size="12" placeholder="선외기">
-                        </div>
-                        <div class="input-field">
-                            <label>인원</label>
-                            <input type="text" id="crew-count" size="5" placeholder="1">
-                        </div>
-                        <div class="input-field span-2">
+                    </div>
+
+                    <div class="form-group-section">
+                        <h6 class="section-label">전체 이동 경로</h6>
+                        <textarea id="movement-path" rows="2" placeholder="예시: 3번 카메라 남서쪽 1.5km 지점에서 북진하여 3번 카메라 북서쪽 2.3km 지점 사각구역으로 소실."></textarea>
+                    </div>
+
+                    <div class="form-group-section">
+                        <h6 class="section-label">외형적 특이사항 (태그)</h6>
+                        <textarea id="tags" rows="3" placeholder="기타 특이사항을 입력하세요."></textarea>
+                    </div>
+
+                    <div class="form-group-section">
+                        <div class="input-field full-width">
                             <label>어선법 위반 여부</label>
                             <div class="violation-wrapper">
                                 <select id="violation-select" onchange="toggleViolationDetail()">
                                     <option value="X" selected>X</option>
                                     <option value="O">O</option>
                                 </select>
-                                <input type="text" id="violation-detail" size="25" placeholder="위반 내용" disabled>
+                                <input type="text" id="violation-detail" size="40" placeholder="위반 내용 입력" disabled style="flex: 1;">
                             </div>
-                        </div>
-                        <div class="input-field">
-                            <label>근무자 <span class="required">*</span></label>
-                            <input type="text" id="worker" size="10" required placeholder="근무자 관등성명">
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group-section">
-                    <h6 class="section-label">태그</h6>
-                    <textarea id="tags" rows="6" placeholder="기타/외형적 특이사항 (,로 구분)"></textarea>
-                </div>
-
                 <div class="form-actions">
                     <button type="button" class="btn-submit" onclick="saveTraceLog()">
-                        저장
+                        추적 기록 저장
                     </button>
                 </div>
             </form>

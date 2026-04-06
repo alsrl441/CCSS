@@ -27,6 +27,21 @@ function initDB() {
 }
 initDB();
 
+// --- 모드 전환 로직 ---
+function toggleTraceMode() {
+    const mode = document.querySelector('input[name="trace-mode"]:checked').value;
+    const directSection = document.getElementById('section-direct');
+    const inquirySection = document.getElementById('section-inquiry');
+    
+    if (mode === 'direct') {
+        directSection.style.display = 'block';
+        inquirySection.style.display = 'none';
+    } else {
+        directSection.style.display = 'none';
+        inquirySection.style.display = 'block';
+    }
+}
+
 // --- 위치 및 문의 정보 관련 로직 ---
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
@@ -36,10 +51,10 @@ const traceNumInput = document.getElementById('trace-num');
 
 // 추적 번호 입력창 활성/비활성 제어
 function toggleTraceNum() {
-    if (radarStationSelect.value === "-") {
+    if (radarStationSelect && radarStationSelect.value === "-") {
         traceNumInput.disabled = true;
         traceNumInput.value = "";
-    } else {
+    } else if (traceNumInput) {
         traceNumInput.disabled = false;
     }
 }
@@ -48,8 +63,9 @@ if (radarStationSelect) {
     toggleTraceNum(); // 초기 상태 설정
 }
 
-// 거리 계산 로직 (1마일 = 1.609km, 소수점 둘째자리 반올림)
+// 거리 계산 로직 (1해리 = 1.852km, 1마일 = 1.609km)
 function updateDistance() {
+    if (!distValue || !distKmDisplay) return;
     let val = parseFloat(distValue.value);
     let unit = distUnit.value;
     if (isNaN(val)) {
@@ -58,8 +74,8 @@ function updateDistance() {
     }
     let km;
     if (unit === 'km') { km = val; }
-    else if (unit === 'NM') { km = val * 1.852; } // 해리(Nautical Mile)
-    else if (unit === 'M') { km = val * 1.609; }  // 마일(Mile)
+    else if (unit === 'NM') { km = val * 1.852; }
+    else if (unit === 'M') { km = val * 1.609; }
 
     distKmDisplay.innerText = `${km.toFixed(2)} km`;
 }
@@ -78,15 +94,18 @@ function setCurrentTime(targetId) {
 
 // 어선법 위반 여부 토글
 function toggleViolationDetail() {
-    const violationValue = document.getElementById('violation-select').value;
+    const violationSelect = document.getElementById('violation-select');
     const detailInput = document.getElementById('violation-detail');
-    detailInput.disabled = (violationValue === "X");
-    if (violationValue === "X") detailInput.value = "";
+    if (!violationSelect || !detailInput) return;
+    
+    detailInput.disabled = (violationSelect.value === "X");
+    if (violationSelect.value === "X") detailInput.value = "";
 }
 
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
+        toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();
         updateDistance();
@@ -99,21 +118,25 @@ async function saveTraceLog() {
         return;
     }
 
-    const form = document.getElementById('trace-form');
-    if (!form.checkValidity()) {
-        alert("필수 입력 사항(*)을 모두 입력해주세요.");
-        form.reportValidity();
-        return;
+    const mode = document.querySelector('input[name="trace-mode"]:checked').value;
+    
+    // 필수 입력 체크
+    if (mode === 'direct') {
+        const camera = document.getElementById('camera-num').value;
+        const worker = document.getElementById('worker').value.trim();
+        if (!camera) { alert("식별 카메라를 선택해주세요."); return; }
+        if (!worker) { alert("근무자 관등성명을 입력해주세요."); return; }
+    } else {
+        const telephonee = document.getElementById('telephonee').value.trim();
+        if (!telephonee) { alert("수화자 관등성명을 입력해주세요."); return; }
     }
 
-    // 기본값 처리
-    const telephonee = document.getElementById('telephonee').value.trim() || "-";
+    // 데이터 수집
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
     const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
     const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
     const crewCount = document.getElementById('crew-count').value.trim() || "식별불가";
     
-    // 위반 여부 처리
     const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
     const fullViolationText = (violationStatus === "O") ? `O (${violationDetail || "내용없음"})` : "X";
@@ -125,37 +148,46 @@ async function saveTraceLog() {
     const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
 
     const newHistory = {
+        mode: mode,
         date: identificationDate,
+        timestamp: new Date().getTime(),
         
-        raderStation: radarStationSelect?.value || "-",
-        traceNumber: traceNumInput?.value.trim() || "-",
-        firstOutport: document.getElementById('departure')?.value || "-",
-        direction: document.getElementById('move-dir')?.value || "-",
-        distance: distanceKmValue,
-
-        coord: document.getElementById('coord-input')?.value.trim() || "-",
-        telephonee: telephonee,
-
-        firstTime: document.getElementById('first-time')?.value || "00:00",
-        firstPos: document.getElementById('first-pos')?.value || "-",
-        firstAzEl: document.getElementById('first-az-el')?.value || "-",
-
-        lastTime: document.getElementById('last-time')?.value || "00:00",
-        lastPos: document.getElementById('last-pos')?.value || "-",
-        lastAzEl: document.getElementById('last-az-el')?.value || "-",
-
+        // 공통/식별 정보
+        shipName: shipName,
+        tonnage: tonnage,
+        shipType: shipType,
         crewCount: crewCount,
         violation: fullViolationText,
-        worker: document.getElementById('worker')?.value || "-",
         
+        // 직접 식별 전용
+        cameraNum: mode === 'direct' ? document.getElementById('camera-num').value : "-",
+        worker: mode === 'direct' ? document.getElementById('worker').value.trim() : "-",
+        firstTime: mode === 'direct' ? document.getElementById('first-time').value : "-",
+        firstAzEl: mode === 'direct' ? document.getElementById('first-az-el').value : "-",
+        firstPos: mode === 'direct' ? document.getElementById('first-pos').value : "-",
+        lastTime: mode === 'direct' ? document.getElementById('last-time').value : "-",
+        lastAzEl: mode === 'direct' ? document.getElementById('last-az-el').value : "-",
+        lastPos: mode === 'direct' ? document.getElementById('last-pos').value : "-",
+        movementPath: mode === 'direct' ? document.getElementById('movement-path').value : "-",
+        
+        // 문의 식별 전용
+        coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "-",
+        raderStation: mode === 'inquiry' ? document.getElementById('radar-station-select').value : "-",
+        traceNumber: mode === 'inquiry' ? document.getElementById('trace-num').value.trim() : "-",
+        direction: mode === 'inquiry' ? document.getElementById('move-dir').value : "-",
+        distance: mode === 'inquiry' ? distanceKmValue : "-",
+        firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "-",
+        telephonee: mode === 'inquiry' ? document.getElementById('telephonee').value.trim() : "-",
+        handoverDetails: mode === 'inquiry' ? document.getElementById('handover-details').value : "-",
+
         shipImage: "Images/no-image.jpg",
-        pathImage: "Images/no-image.jpg",
-        timestamp: new Date().getTime()
+        pathImage: "Images/no-image.jpg"
     };
 
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     
+    // 기존 로직과 동일하게 선명 기준으로 업데이트 또는 신규 추가
     const request = store.openCursor();
     let existingShip = null;
     let existingKey = null;
@@ -163,7 +195,7 @@ async function saveTraceLog() {
     request.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
-            if (cursor.value.name === shipName) {
+            if (cursor.value.name === shipName && shipName !== "식별불가") {
                 existingShip = cursor.value;
                 existingKey = cursor.key;
             } else {
@@ -189,8 +221,6 @@ async function saveTraceLog() {
                 name: shipName,
                 tonnage: tonnage,
                 type: shipType,
-                number: "-", 
-                tel: "-",
                 tags: tags,
                 history: [newHistory]
             };
@@ -201,6 +231,7 @@ async function saveTraceLog() {
     tx.oncomplete = () => {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
+        toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();
         updateDistance();
@@ -211,3 +242,4 @@ async function saveTraceLog() {
         alert("저장 중 오류가 발생했습니다.");
     };
 }
+
