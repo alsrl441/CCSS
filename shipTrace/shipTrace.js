@@ -27,12 +27,10 @@ function initDB() {
 }
 initDB();
 
-// --- 모드 전환 로직 ---
 function toggleTraceMode() {
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
     const inquirySection = document.getElementById('section-inquiry');
     
-    // 문의 모드일 때만 추가 섹션 표시
     if (mode === 'inquiry') {
         inquirySection.style.display = 'block';
     } else {
@@ -40,14 +38,12 @@ function toggleTraceMode() {
     }
 }
 
-// --- 위치 및 문의 정보 관련 로직 ---
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
 const distKmDisplay = document.getElementById('dist-km-display');
 const radarStationSelect = document.getElementById('radar-station-select');
 const traceNumInput = document.getElementById('trace-num');
 
-// 추적 번호 입력창 활성/비활성 제어
 function toggleTraceNum() {
     if (radarStationSelect && radarStationSelect.value === "-") {
         traceNumInput.disabled = true;
@@ -58,10 +54,9 @@ function toggleTraceNum() {
 }
 if (radarStationSelect) {
     radarStationSelect.addEventListener('change', toggleTraceNum);
-    toggleTraceNum(); // 초기 상태 설정
+    toggleTraceNum();
 }
 
-// 거리 계산 로직 (1해리 = 1.852km, 1마일 = 1.609km)
 function updateDistance() {
     if (!distValue || !distKmDisplay) return;
     let val = parseFloat(distValue.value);
@@ -75,13 +70,12 @@ function updateDistance() {
     else if (unit === 'NM') { km = val * 1.852; }
     else if (unit === 'M') { km = val * 1.609; }
 
-    distKmDisplay.innerText = `${km.toFixed(2)} km`;
+    distKmDisplay.innerText = `${km.toFixed(1)} km`;
 }
 if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
-// ------------------------------------------
 
-// --- 이동 경로 실시간 미리보기 ---
+
 function updateMovementPathPreview() {
     const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치)";
     const moveDir = document.getElementById('move-dir-common').value.trim() || "(이동 방향)";
@@ -95,7 +89,6 @@ function updateMovementPathPreview() {
     }
 }
 
-// 이벤트 리스너 등록
 ['first-pos', 'move-dir-common', 'last-pos', 'termination-reason'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -104,7 +97,6 @@ function updateMovementPathPreview() {
     }
 });
 
-// 초기 실행
 updateMovementPathPreview();
 
 function setCurrentTime(targetId) {
