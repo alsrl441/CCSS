@@ -81,6 +81,32 @@ if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 // ------------------------------------------
 
+// --- 이동 경로 실시간 미리보기 ---
+function updateMovementPathPreview() {
+    const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치)";
+    const moveDir = document.getElementById('move-dir-common').value.trim() || "(이동 방향)";
+    const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치)";
+    const reason = document.getElementById('termination-reason').value;
+    
+    const previewText = `${firstPos}에서 ${moveDir}하여 ${lastPos}에서 ${reason}.`;
+    const previewElement = document.getElementById('path-preview-text');
+    if (previewElement) {
+        previewElement.innerText = previewText;
+    }
+}
+
+// 이벤트 리스너 등록
+['first-pos', 'move-dir-common', 'last-pos', 'termination-reason'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        const eventType = el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(eventType, updateMovementPathPreview);
+    }
+});
+
+// 초기 실행
+updateMovementPathPreview();
+
 function setCurrentTime(targetId) {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -105,6 +131,7 @@ function resetForm() {
         toggleViolationDetail();
         toggleTraceNum();
         updateDistance();
+        updateMovementPathPreview();
     }
 }
 
@@ -133,13 +160,13 @@ async function saveTraceLog() {
 
     const identificationDate = new Date().toISOString().split('T')[0];
 
-    // 이동 경로 자동 생성
+    // 이동 경로 자동 생성 (미리보기 형식과 동일하게)
     const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치 미입력)";
     const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "(이동 방향 미입력)";
     const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치 미입력)";
     const terminationReason = document.getElementById('termination-reason').value;
     
-    const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}`;
+    const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}.`;
 
     // 데이터 객체 생성
     const newHistory = {
@@ -229,6 +256,7 @@ async function saveTraceLog() {
         toggleViolationDetail();
         toggleTraceNum();
         updateDistance();
+        updateMovementPathPreview();
     };
 
     tx.onerror = (e) => {
