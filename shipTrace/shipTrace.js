@@ -106,7 +106,6 @@ function setCurrentTime(targetId) {
     document.getElementById(targetId).value = `${hours}:${minutes}`;
 }
 
-// 어선법 위반 여부 토글
 function toggleViolationDetail() {
     const violationSelect = document.getElementById('violation-select');
     const detailInput = document.getElementById('violation-detail');
@@ -135,7 +134,6 @@ async function saveTraceLog() {
 
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
     
-    // 데이터 수집 (공통)
     const camera = document.getElementById('camera-num').value;
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
     const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
@@ -152,7 +150,6 @@ async function saveTraceLog() {
 
     const identificationDate = new Date().toISOString().split('T')[0];
 
-    // 이동 경로 자동 생성 (미리보기 형식과 동일하게)
     const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치 미입력)";
     const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "(이동 방향 미입력)";
     const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치 미입력)";
@@ -160,13 +157,11 @@ async function saveTraceLog() {
     
     const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}.`;
 
-    // 데이터 객체 생성
     const newHistory = {
         mode: mode,
         date: identificationDate,
         timestamp: new Date().getTime(),
         
-        // 공통 정보
         cameraNum: camera,
         shipName: shipName,
         tonnage: tonnage,
@@ -184,7 +179,6 @@ async function saveTraceLog() {
         movementPath: autoMovementPath,
         violation: fullViolationText,
         
-        // 문의 식별 시에만 저장되는 정보
         coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "-",
         raderStation: mode === 'inquiry' ? document.getElementById('radar-station-select').value : "-",
         traceNumber: mode === 'inquiry' ? document.getElementById('trace-num').value.trim() : "-",
