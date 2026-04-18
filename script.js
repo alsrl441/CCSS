@@ -1,8 +1,35 @@
 function initDatabase() {
     const DB_NAME = "IMS_database";
-    const DB_VERSION = 1;
 
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    // 1. 우선 버전을 명시하지 않고 열어서 현재 버전을 확인함
+    const request = indexedDB.open(DB_NAME);
+
+    request.onsuccess = (e) => {
+        const db = e.target.result;
+        const currentVersion = db.version;
+        
+        // 필요한 스토어 목록
+        const requiredStores = ["menu", "workSchedule", "members", "ships", "shipTrace"];
+        const missingStores = requiredStores.filter(s => !db.objectStoreNames.contains(s));
+
+        // 만약 스토어가 하나라도 없으면 버전을 올려서 다시 열기 (업그레이드 트리거)
+        if (missingStores.length > 0) {
+            console.log(`Missing stores: ${missingStores.join(", ")}. Upgrading version to ${currentVersion + 1}...`);
+            db.close();
+            upgradeDatabase(DB_NAME, currentVersion + 1);
+        } else {
+            console.log(`Database is up to date (Version: ${currentVersion}).`);
+            db.close();
+        }
+    };
+
+    request.onerror = (e) => {
+        console.error("Database open error:", e.target.error);
+    };
+}
+
+function upgradeDatabase(name, version) {
+    const request = indexedDB.open(name, version);
 
     request.onupgradeneeded = (e) => {
         const db = e.target.result;
@@ -22,15 +49,11 @@ function initDatabase() {
         if (!db.objectStoreNames.contains("shipTrace")) {
             db.createObjectStore("shipTrace", { keyPath: "id" });
         }
-        console.log("Database stores initialized.");
+        console.log(`Database upgraded to version ${version}.`);
     };
 
-    request.onsuccess = () => {
-        console.log("Database opened successfully.");
-    };
-
-    request.onerror = (e) => {
-        console.error("Database error:", e.target.error);
+    request.onsuccess = (e) => {
+        e.target.result.close();
     };
 }
 
