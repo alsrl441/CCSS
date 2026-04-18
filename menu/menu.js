@@ -129,7 +129,8 @@ async function updateMenu() {
         
         const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
         mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
-        menuDisplayEl.innerText = menuData?.[mealKey] || "식단 정보가 없습니다.";
+        const menuText = menuData?.[mealKey] ? menuData[mealKey].replace(/, /g, '\n').replace(/,/g, '\n') : "식단 정보가 없습니다.";
+        menuDisplayEl.innerText = menuText;
     }
 
     if (mealTypeEl) {
@@ -149,4 +150,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     updateMenu();
 } else {
     document.addEventListener('DOMContentLoaded', updateMenu);
+}
+;
 }
