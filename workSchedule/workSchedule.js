@@ -143,15 +143,25 @@ function getDaySchedule(dateStr) {
             const [selectedYear, selectedMonth] = monthPicker.value.split('-').map(Number);
             const allSchedules = await getAllSchedules();
             
-            const currentMonthData = allSchedules.filter(day => {
-                const d = new Date(day.date);
-                return d.getFullYear() === selectedYear && (d.getMonth() + 1) === selectedMonth;
-            }).sort((a, b) => a.date.localeCompare(b.date));
+            // 1. 해당 월의 모든 날짜 생성
+            const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+            const currentMonthData = [];
 
-            if (currentMonthData.length === 0) {
-                monthlyDisplay.innerHTML = `<div class="alert alert-light text-center py-5" style="border:1px solid #dee2e6;">${selectedYear}년 ${selectedMonth}월 데이터가 존재하지 않습니다.</div>`;
-                statsDisplay.innerHTML = "";
-                return;
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dbData = allSchedules.find(day => day.date === dateStr);
+                
+                if (dbData) {
+                    currentMonthData.push(dbData);
+                } else {
+                    // 데이터가 없으면 빈 구조 생성
+                    currentMonthData.push({
+                        date: dateStr,
+                        cctv: [{}, {}, {}],
+                        tod: [{}, {}, {}],
+                        isHoliday: false
+                    });
+                }
             }
 
             const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
