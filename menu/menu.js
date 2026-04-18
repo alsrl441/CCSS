@@ -41,6 +41,34 @@ async function updateMenu() {
         return `${year}-${month}-${day}`;
     };
 
+    function updateMealOptions(dateStr) {
+        const date = new Date(dateStr);
+        const isSunday = date.getDay() === 0;
+        const currentVal = searchMealSelect.value;
+        
+        searchMealSelect.innerHTML = '';
+        
+        if (isSunday) {
+            const optBrunch = new Option("브런치", "brunch");
+            const optDinner = new Option("저녁", "dinner");
+            searchMealSelect.add(optBrunch);
+            searchMealSelect.add(optDinner);
+        } else {
+            const optBreakfast = new Option("아침", "breakfast");
+            const optLunch = new Option("점심", "lunch");
+            const optDinner = new Option("저녁", "dinner");
+            searchMealSelect.add(optBreakfast);
+            searchMealSelect.add(optLunch);
+            searchMealSelect.add(optDinner);
+        }
+
+        // 기존 선택값이 새 목록에도 있으면 유지, 없으면 첫 번째 옵션 선택
+        const hasValue = Array.from(searchMealSelect.options).some(opt => opt.value === currentVal);
+        if (hasValue) {
+            searchMealSelect.value = currentVal;
+        }
+    }
+
     async function setAutoMenu() {
         const now = new Date();
         const timeVal = now.getHours() * 100 + now.getMinutes();
@@ -74,6 +102,11 @@ async function updateMenu() {
             }
         }
 
+        if (searchDateInput) {
+            searchDateInput.value = targetDateStr;
+            updateMealOptions(targetDateStr);
+        }
+        
         const menuData = await getMenuFromDB(targetDateStr);
 
         if (menuData) {
@@ -84,17 +117,18 @@ async function updateMenu() {
             menuDisplayEl.innerText = "식단 정보가 없습니다.";
         }
 
-        if (searchDateInput) searchDateInput.value = targetDateStr;
         if (searchMealSelect) searchMealSelect.value = mealKey;
     }
 
     async function searchMenu() {
         const dateStr = searchDateInput.value;
+        updateMealOptions(dateStr); // 날짜 변경 시 옵션 목록 갱신
+        
         const mealKey = searchMealSelect.value;
         const menuData = await getMenuFromDB(dateStr);
         
         const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
-        mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey]}`;
+        mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
         menuDisplayEl.innerText = menuData?.[mealKey] || "식단 정보가 없습니다.";
     }
 
