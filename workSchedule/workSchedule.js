@@ -1,35 +1,49 @@
+const WORK_WEIGHTS = {
+    weekday: {
+        cctv: { "06-14": [8, 0.5], "14-22": [8, 0.5], "22-06": [8, 0] },
+        tod: { "고하도": [9, 0], "외기 평시": [7, 0], "외기 핵취": [9, 0] }
+    },
+    saturday: {
+        cctv: { "06-14": [8, 2.5], "14-22": [8, 3.5], "22-06": [8, 3.5] },
+        tod: { "고하도": [9, 5.5], "외기 평시": [7, 3.5], "외기 핵취": [9, 3.5] }
+    },
+    holiday: {
+        cctv: { "06-14": [8, 6], "14-22": [8, 7], "22-06": [8, 7] },
+        tod: { "고하도": [9, 9], "외기 평시": [7, 7], "외기 핵취": [9, 7] }
+    }
+};
+
 async function updateWorkSchedule() {
     const DB_NAME = "IMS_database";
     const STORE_NAME = "workSchedule";
-function getDaySchedule(dateStr) {
-    return new Promise((resolve) => {
-        const request = indexedDB.open(DB_NAME); 
-        request.onsuccess = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                resolve(null);
-                return;
-            }
-            const tx = db.transaction(STORE_NAME, "readonly");
-            const store = tx.objectStore(STORE_NAME);
 
-            // keyPath가 없어도 작동하도록 getAll로 가져와서 찾기
-            const getReq = store.getAll();
-            getReq.onsuccess = () => {
-                const allData = getReq.result || [];
-                const res = allData.find(item => item.date === dateStr);
-                if (res) {
-                    res.cctv = res.cctv || [{}, {}, {}];
-                    res.tod = res.tod || [{}, {}, {}];
+    function getDaySchedule(dateStr) {
+        return new Promise((resolve) => {
+            const request = indexedDB.open(DB_NAME); 
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    resolve(null);
+                    return;
                 }
-                resolve(res || null);
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const store = tx.objectStore(STORE_NAME);
+                
+                const getReq = store.getAll();
+                getReq.onsuccess = () => {
+                    const allData = getReq.result || [];
+                    const res = allData.find(item => item.date === dateStr);
+                    if (res) {
+                        res.cctv = res.cctv || [{}, {}, {}];
+                        res.tod = res.tod || [{}, {}, {}];
+                    }
+                    resolve(res || null);
+                };
+                getReq.onerror = () => resolve(null);
             };
-            getReq.onerror = () => resolve(null);
-        };
-        request.onerror = () => resolve(null);
-    });
-}
-
+            request.onerror = () => resolve(null);
+        });
+    }
 
     function getAllSchedules() {
         return new Promise((resolve) => {
@@ -143,7 +157,6 @@ function getDaySchedule(dateStr) {
             const [selectedYear, selectedMonth] = monthPicker.value.split('-').map(Number);
             const allSchedules = await getAllSchedules();
             
-            // 1. 해당 월의 모든 날짜 생성
             const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
             const currentMonthData = [];
 
@@ -154,7 +167,6 @@ function getDaySchedule(dateStr) {
                 if (dbData) {
                     currentMonthData.push(dbData);
                 } else {
-                    // 데이터가 없으면 빈 구조 생성
                     currentMonthData.push({
                         date: dateStr,
                         cctv: [{}, {}, {}],
@@ -167,6 +179,7 @@ function getDaySchedule(dateStr) {
             const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
             const stats = {};
 
+            // 통계 대상 인원 파악
             currentMonthData.forEach(day => {
                 const namesInDay = [
                     ...day.cctv.flatMap(c => [c.p1, c.p2]),
@@ -174,7 +187,7 @@ function getDaySchedule(dateStr) {
                 ].filter(name => name && name !== "-");
                 
                 namesInDay.forEach(name => {
-                    if (!stats[name]) stats[name] = { wdWork: 0, weWork: 0, totalHours: 0 };
+                    if (!stats[name]) stats[name] = { wdWork: 0, weWork: 0, totalHours: 0, totalLostTime: 0, score: 0 };
                 });
             });
 
@@ -183,39 +196,56 @@ function getDaySchedule(dateStr) {
 
             currentMonthData.forEach(dayData => {
                 const d = new Date(dayData.date);
-                const isWeekendOrHoliday = (d.getDay() === 0 || d.getDay() === 6 || dayData.isHoliday);
-                if (isWeekendOrHoliday) totalWE++; else totalWD++;
+                const isSun = d.getDay() === 0;
+                const isSat = d.getDay() === 6;
+                const isHoliday = dayData.isHoliday;
+                
+                let dayType = "weekday";
+                if (isSun || isHoliday) dayType = "holiday";
+                else if (isSat) dayType = "saturday";
+
+                if (isSun || isSat || isHoliday) totalWE++; else totalWD++;
 
                 const dayName = daysOfWeek[d.getDay()];
-                const isRedDay = (d.getDay() === 0 || dayData.isHoliday);
-                const dayClass = isRedDay ? "text-danger" : (d.getDay() === 6 ? "text-primary" : "");
+                const isRedDay = (isSun || isHoliday);
+                const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
                 
                 headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
 
-                dayData.cctv.forEach(c => { 
-                    [c.p1, c.p2].forEach(p => { 
-                        if (stats[p]) { 
-                            if (isWeekendOrHoliday) stats[p].weWork++; else stats[p].wdWork++; 
-                            stats[p].totalHours += 8; 
-                        } 
+                // CCTV 통계 계산
+                const cctvWeights = WORK_WEIGHTS[dayType].cctv;
+                dayData.cctv.forEach((c, idx) => {
+                    const shift = idx === 0 ? "06-14" : (idx === 1 ? "14-22" : "22-06");
+                    const [wh, lh] = cctvWeights[shift];
+                    [c.p1, c.p2].forEach(p => {
+                        if (p && p !== "-" && stats[p]) {
+                            if (dayType === "weekday") stats[p].wdWork++; else stats[p].weWork++;
+                            stats[p].totalHours += wh;
+                            stats[p].totalLostTime += lh;
+                        }
                     });
                 });
 
+                // TOD 통계 계산
+                const todWeights = WORK_WEIGHTS[dayType].tod;
                 dayData.tod.forEach(t => {
-                    if (t.location !== "-" && t.location !== "") {
-                        let hours = 0;
-                        if (t.location === "고하도") hours = 9;
-                        else if (t.location === "외기 평시") hours = 7;
-                        else if (t.location === "외기 핵취") hours = 10;
-
-                        [t.p1, t.p2].forEach(p => { 
-                            if (stats[p] && p !== "-") { 
-                                if (isWeekendOrHoliday) stats[p].weWork++; else stats[p].wdWork++; 
-                                stats[p].totalHours += hours; 
-                            } 
+                    const loc = t.location;
+                    if (loc && loc !== "-" && todWeights[loc]) {
+                        const [wh, lh] = todWeights[loc];
+                        [t.p1, t.p2].forEach(p => {
+                            if (p && p !== "-" && stats[p]) {
+                                if (dayType === "weekday") stats[p].wdWork++; else stats[p].weWork++;
+                                stats[p].totalHours += wh;
+                                stats[p].totalLostTime += lh;
+                            }
                         });
                     }
                 });
+            });
+
+            // 점수 계산 (근무시간 + 뺏긴 시간)
+            Object.keys(stats).forEach(name => {
+                stats[name].score = stats[name].totalHours + stats[name].totalLostTime;
             });
 
             const renderCctvRow = (idx, label) => {
@@ -251,8 +281,8 @@ function getDaySchedule(dateStr) {
             bodyHtml += renderCctvRow(1, "14-22");
             bodyHtml += renderCctvRow(2, "22-06");
             bodyHtml += renderTodRow('고하도', "고하도");
-            bodyHtml += renderTodRow('외기', "외기 평시");
-            bodyHtml += renderTodRow('외기', "외기 핵취");
+            bodyHtml += renderTodRow('외기 평시', "외기 평시");
+            bodyHtml += renderTodRow('외기 핵취', "외기 핵취");
 
             monthlyDisplay.innerHTML = `
                 <div class="monthly-table-wrapper">
@@ -262,22 +292,18 @@ function getDaySchedule(dateStr) {
                     </table>
                 </div>`;
 
-            const hourList = Object.values(stats).map(s => s.totalHours);
-            const avgHours = hourList.length ? (hourList.reduce((a, b) => a + b, 0) / hourList.length) : 0;
-            const sortedHours = [...hourList].sort((a, b) => a - b);
-            const medianHours = sortedHours.length ? (sortedHours.length % 2 === 0 
-                ? (sortedHours[sortedHours.length/2 - 1] + sortedHours[sortedHours.length/2]) / 2 
-                : sortedHours[Math.floor(sortedHours.length/2)]) : 0;
+            const scoreList = Object.values(stats).map(s => s.score);
+            const avgScore = scoreList.length ? (scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
             
-            const maxVal = hourList.length ? Math.max(...hourList) : 0;
-            const minVal = hourList.length ? Math.min(...hourList) : 0;
-            const maxUsers = Object.keys(stats).filter(n => stats[n].totalHours === maxVal);
-            const minUsers = Object.keys(stats).filter(n => stats[n].totalHours === minVal);
+            const maxScore = scoreList.length ? Math.max(...scoreList) : 0;
+            const minScore = scoreList.length ? Math.min(...scoreList) : 0;
+            const maxUsers = Object.keys(stats).filter(n => stats[n].score === maxScore);
+            const minUsers = Object.keys(stats).filter(n => stats[n].score === minScore);
 
             let statsRows = "";
             Object.keys(stats).sort().forEach(name => {
                 const s = stats[name];
-                const dev = (s.totalHours - avgHours).toFixed(1);
+                const dev = (s.score - avgScore).toFixed(1);
                 const devClass = dev > 0 ? "text-danger" : (dev < 0 ? "text-primary" : "");
                 statsRows += `
                     <tr>
@@ -286,7 +312,7 @@ function getDaySchedule(dateStr) {
                         <td>${s.weWork}회</td>
                         <td>${totalWD - s.wdWork}일</td>
                         <td>${totalWE - s.weWork}일</td>
-                        <td class="hours-cell">${s.totalHours}h</td>
+                        <td class="hours-cell">${s.totalHours}h <small class="text-muted">(+${s.totalLostTime.toFixed(1)}h)</small></td>
                         <td class="dev-cell ${devClass}">${dev > 0 ? '+' : ''}${dev}h</td>
                     </tr>`;
             });
@@ -295,11 +321,7 @@ function getDaySchedule(dateStr) {
                 <div class="summary-grid">
                     <div class="summary-item">
                         <div class="summary-label">평균값</div>
-                        <div class="summary-value">${avgHours.toFixed(1)}h</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">중앙값</div>
-                        <div class="summary-value">${medianHours}h</div>
+                        <div class="summary-value">${avgScore.toFixed(1)}h</div>
                     </div>
                     <div class="summary-item mvp">
                         <div class="summary-label">이달의 MVP</div>
