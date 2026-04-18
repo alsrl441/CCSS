@@ -151,5 +151,3 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 } else {
     document.addEventListener('DOMContentLoaded', updateMenu);
 }
-;
-}
