@@ -8,7 +8,7 @@ let editingTagsShipIdx = null;
 
 async function loadShipsFromDB() {
     return new Promise((resolve) => {
-        const request = indexedDB.open("myDB");
+        const request = indexedDB.open("IMS_database");
         request.onsuccess = (e) => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains("ship")) {
@@ -43,7 +43,7 @@ async function updateShipInDB(key, updatedData) {
     const dataToSave = { ...updatedData };
     delete dataToSave._dbKey;
     return new Promise((resolve) => {
-        const request = indexedDB.open("myDB");
+        const request = indexedDB.open("IMS_database");
         request.onsuccess = (e) => {
             const db = e.target.result;
             const tx = db.transaction("ship", "readwrite");

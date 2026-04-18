@@ -4,7 +4,7 @@ async function updateMenu() {
     const searchDateInput = document.getElementById('search-date');
     const searchMealSelect = document.getElementById('search-meal');
 
-    const DB_NAME = "myDB";
+    const DB_NAME = "IMS_database";
     const STORE_NAME = "menu";
 
     function getMenuFromDB(dateStr) {

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadMembersFromDB() {
         return new Promise((resolve) => {
-            const request = indexedDB.open("myDB");
+            const request = indexedDB.open("IMS_database");
             request.onsuccess = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains("member")) {

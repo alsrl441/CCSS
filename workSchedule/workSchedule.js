@@ -1,5 +1,5 @@
 async function updateWorkSchedule() {
-    const DB_NAME = "myDB";
+    const DB_NAME = "IMS_database";
     const STORE_NAME = "workSchedule";
 
     function getDaySchedule(dateStr) {

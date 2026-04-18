@@ -1,4 +1,4 @@
-const DB_NAME = 'myDB';
+const DB_NAME = 'IMS_database';
 const STORE_NAME = 'ship';
 let db;
 
