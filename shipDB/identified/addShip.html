@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>선박 추가 - CCSS</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="shipSearch.css">
+    <title>선박 추가 - IMS</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="identified.css">
     <style>
         .form-container { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .form-group { margin-bottom: 20px; }
@@ -22,18 +22,18 @@
                 <a href="../../index.html" class="nav-link">대시보드</a>
                 <a href="../../milCalc/milCalc.html" class="nav-link">복무 정보</a>
                 <div class="nav-item-dropdown">
-                    <a href="#" class="nav-link">선박 DB</a>
+                    <a href="#" class="nav-link active">선박 DB</a>
                     <div class="dropdown-menu">
-                        <a href="../../shipDB/received/received.html" class="dropdown-item">수신 선박</a>
-                        <a href="../../shipDB/identified/identified.html" class="dropdown-item active">식별 선박</a>
-                        <a href="../../shipDB/unidentified/unidentified.html" class="dropdown-item">미식별 선박</a>
+                        <a href="../received/received.html" class="dropdown-item">수신 선박</a>
+                        <a href="identified.html" class="dropdown-item">식별 선박</a>
+                        <a href="../unidentified/unidentified.html" class="dropdown-item">미식별 선박</a>
                     </div>
                 </div>
                 <a href="../../shipTrace/shipTrace.html" class="nav-link">선박 추적</a>
             </div>
             <div class="navbar-right">
                 <div id="clock" class="clock"></div>
-                <a href="../game/game.html" class="nav-link game-link">놀이터</a>
+                <a href="../../game/game.html" class="nav-link game-link">놀이터</a>
             </div>
         </div>
     </nav>
@@ -44,23 +44,23 @@
             <form id="add-ship-form">
                 <div class="form-group">
                     <label>선명</label>
-                    <input type="text" id="name" class="form-control" required hint="선명을 입력해주세요.">
+                    <input type="text" id="name" class="form-control" required placeholder="선명을 입력해주세요.">
                 </div>
                 <div class="form-group">
                     <label>톤수</label>
-                    <input type="text" id="tonnage" class="form-control" required hint="톤수를 입력해주세요.">
+                    <input type="text" id="tonnage" class="form-control" required placeholder="톤수를 입력해주세요.">
                 </div>
                 <div class="form-group">
                     <label>선종</label>
-                    <input type="text" id="type" class="form-control" required hint="선종을 입력해주세요.">
+                    <input type="text" id="type" class="form-control" required placeholder="선종을 입력해주세요.">
                 </div>
                 <div class="form-group">
                     <label>어선번호</label>
-                    <input type="text" id="number" class="form-control" hint="어선번호를 입력해주세요.">
+                    <input type="text" id="number" class="form-control" placeholder="어선번호를 입력해주세요.">
                 </div>
                 <div class="form-group">
                     <label>연락처</label>
-                    <input type="text" id="tel" class="form-control" hint="연락처를 입력해주세요.">
+                    <input type="text" id="tel" class="form-control" placeholder="연락처를 입력해주세요.">
                 </div>
                 <button type="submit" class="btn-submit">선박 등록하기</button>
             </form>
@@ -70,14 +70,14 @@
     <footer class="footer">
         <div class="container text-center">
             <div class="btn-group">
-                <a href="../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
+                <a href="../../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
                 <a href="#" target="_blank" class="btn-outline">국방인사정보체계</a>
                 <a href="#" target="_blank" class="btn-outline">제96보병여단</a>
             </div>
         </div>
     </footer>
 
-    <script src="../script.js"></script>
+    <script src="../../script.js"></script>
     <script>
         document.getElementById('add-ship-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -95,16 +95,14 @@
             const request = indexedDB.open("IMS_database");
             request.onsuccess = (event) => {
                 const db = event.target.result;
-                const tx = db.transaction("ship", "readwrite");
-                const store = tx.objectStore("ship");
+                const tx = db.transaction("identified_ships", "readwrite");
+                const store = tx.objectStore("identified_ships");
                 
-                // keyPath가 없으므로 두 번째 인자로 유니크한 키(번호 등)를 주거나 자동 생성되게 해야 함
-                // 여기서는 번호를 키로 사용하거나, getAll 후 push 하는 방식이 안전
                 const addRequest = store.add(newShip, Date.now().toString()); 
                 
                 addRequest.onsuccess = () => {
                     alert("선박이 성공적으로 등록되었습니다.");
-                    location.href = "shipSearch.html";
+                    location.href = "identified.html";
                 };
             };
         });
