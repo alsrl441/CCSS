@@ -3,22 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>선박 찾기</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="shipSearch.css">
+    <title>식별 선박 DB</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="identified.css">
 </head>
 <body class="bg-light">
     <nav class="navbar">
         <div class="container navbar-container">
             <div class="navbar-nav">
-                <a href="../index.html" class="nav-link">대시보드</a>
-                <a href="../milCalc/milCalc.html" class="nav-link">복무 정보</a>
-                <a href="shipSearch.html" class="nav-link active">선박 찾기</a>
-                <a href="../shipTrace/shipTrace.html" class="nav-link">추적 기록</a>
+                <a href="../../index.html" class="nav-link">대시보드</a>
+                <a href="../../milCalc/milCalc.html" class="nav-link">복무 정보</a>
+                <div class="nav-item-dropdown">
+                    <a href="#" class="nav-link active">선박 DB</a>
+                    <div class="dropdown-menu">
+                        <a href="../received/received.html" class="dropdown-item">수신 선박</a>
+                        <a href="identified.html" class="dropdown-item">식별 선박</a>
+                        <a href="../unidentified/unidentified.html" class="dropdown-item">미식별 선박</a>
+                    </div>
+                </div>
+                <a href="../../shipTrace/shipTrace.html" class="nav-link">선박 추적</a>
             </div>
             <div class="navbar-right">
                 <div id="clock" class="clock"></div>
-                <a href="../game/game.html" class="nav-link game-link">놀이터</a>
+                <a href="../../game/game.html" class="nav-link game-link">놀이터</a>
             </div>
         </div>
     </nav>
@@ -46,14 +53,14 @@
     <footer class="footer">
         <div class="container text-center">
             <div class="btn-group">
-                <a href="../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
+                <a href="../../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
                 <a href="#" target="_blank" class="btn-outline">국방인사정보체계</a>
                 <a href="#" target="_blank" class="btn-outline">제96보병여단</a>
             </div>
         </div>
     </footer>
 
-    <script src="../script.js"></script>
-    <script src="shipSearch.js"></script>
+    <script src="../../script.js"></script>
+    <script src="identified.js"></script>
 </body>
 </html>

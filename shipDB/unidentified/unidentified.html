@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미식별 선박 DB</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="unidentified.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../../index.html" class="nav-link">대시보드</a>
+                <a href="../../milCalc/milCalc.html" class="nav-link">복무 정보</a>
+                <div class="nav-item-dropdown">
+                    <a href="#" class="nav-link active">선박 DB</a>
+                    <div class="dropdown-menu">
+                        <a href="../received/received.html" class="dropdown-item">수신 선박</a>
+                        <a href="../identified/identified.html" class="dropdown-item">식별 선박</a>
+                        <a href="unidentified.html" class="dropdown-item">미식별 선박</a>
+                    </div>
+                </div>
+                <a href="../../shipTrace/shipTrace.html" class="nav-link">선박 추적</a>
+            </div>
+            <div class="navbar-right">
+                <div id="clock" class="clock"></div>
+                <a href="../../game/game.html" class="nav-link game-link">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="search-layout">
+            <section class="search-box-section mb-5">
+                <div class="search-input-wrapper">
+                    <div class="search-input-container">
+                        <input type="text" id="tag-input" placeholder="검색어를 입력해주세요." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
+                </div>
+                <div id="selected-tags" class="selected-tags-container"></div>
+            </section>
+
+            <div id="ship-results" class="ship-results-grid">
+            </div>
+
+            <div id="pagination-container" class="pagination-wrapper mt-4"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="btn-group">
+                <a href="../../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
+                <a href="#" target="_blank" class="btn-outline">국방인사정보체계</a>
+                <a href="#" target="_blank" class="btn-outline">제96보병여단</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../script.js"></script>
+    <script src="unidentified.js"></script>
+</body>
+</html>

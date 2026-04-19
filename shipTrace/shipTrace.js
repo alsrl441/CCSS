@@ -1,19 +1,32 @@
 const DB_NAME = 'IMS_database';
-const STORE_NAME = 'ship';
+const STORE_IDENTIFIED = 'identified_ships';
+const STORE_UNIDENTIFIED = 'unidentified_ships';
 let db;
 
 function initDB() {
     const request = indexedDB.open(DB_NAME);
 
+    request.onupgradeneeded = (e) => {
+        const upgradeDb = e.target.result;
+        if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
+            upgradeDb.createObjectStore(STORE_IDENTIFIED);
+        }
+        if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
+            upgradeDb.createObjectStore(STORE_UNIDENTIFIED);
+        }
+    };
+
     request.onsuccess = (e) => {
         db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
+        // 런타임에 스토어가 없는 경우를 대비한 체크
+        if (!db.objectStoreNames.contains(STORE_IDENTIFIED) || !db.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
             const version = db.version;
             db.close();
             const upgradeRequest = indexedDB.open(DB_NAME, version + 1);
             upgradeRequest.onupgradeneeded = (ev) => {
-                const upgradeDb = ev.target.result;
-                upgradeDb.createObjectStore(STORE_NAME);
+                const upDb = ev.target.result;
+                if (!upDb.objectStoreNames.contains(STORE_IDENTIFIED)) upDb.createObjectStore(STORE_IDENTIFIED);
+                if (!upDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) upDb.createObjectStore(STORE_UNIDENTIFIED);
             };
             upgradeRequest.onsuccess = (ev) => {
                 db = ev.target.result;
@@ -192,48 +205,64 @@ async function saveTraceLog() {
         pathImage: "Images/no-image.jpg"
     };
 
-    const tx = db.transaction(STORE_NAME, "readwrite");
-    const store = tx.objectStore(STORE_NAME);
+    const isIdentified = (shipName !== "식별불가");
+    const targetStoreName = isIdentified ? STORE_IDENTIFIED : STORE_UNIDENTIFIED;
     
-    const request = store.openCursor();
-    let existingShip = null;
-    let existingKey = null;
+    const tx = db.transaction(targetStoreName, "readwrite");
+    const store = tx.objectStore(targetStoreName);
+    
+    if (isIdentified) {
+        // 식별 선박 로직: 기존 선박이 있는지 확인하고 히스토리 추가
+        const request = store.openCursor();
+        let existingShip = null;
+        let existingKey = null;
 
-    request.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-            if (cursor.value.name === shipName && shipName !== "식별불가") {
-                existingShip = cursor.value;
-                existingKey = cursor.key;
-            } else {
-                cursor.continue();
-                return;
+        request.onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+                if (cursor.value.name === shipName) {
+                    existingShip = cursor.value;
+                    existingKey = cursor.key;
+                } else {
+                    cursor.continue();
+                    return;
+                }
             }
-        }
 
-        if (existingShip) {
-            if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
-            if (shipType !== "식별불가") existingShip.type = shipType;
-            
-            if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
-            tags.forEach(t => {
-                if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
-            });
+            if (existingShip) {
+                if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
+                if (shipType !== "식별불가") existingShip.type = shipType;
+                
+                if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
+                tags.forEach(t => {
+                    if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
+                });
 
-            if (!existingShip.history) existingShip.history = [];
-            existingShip.history.push(newHistory);
-            store.put(existingShip, existingKey);
-        } else {
-            const newShip = {
-                name: shipName,
-                tonnage: tonnage,
-                type: shipType,
-                tags: tags,
-                history: [newHistory]
-            };
-            store.add(newShip, Date.now().toString());
-        }
-    };
+                if (!existingShip.history) existingShip.history = [];
+                existingShip.history.push(newHistory);
+                store.put(existingShip, existingKey);
+            } else {
+                const newShip = {
+                    name: shipName,
+                    tonnage: tonnage,
+                    type: shipType,
+                    tags: tags,
+                    history: [newHistory]
+                };
+                store.add(newShip, Date.now().toString());
+            }
+        };
+    } else {
+        // 미식별 선박 로직: 무조건 매번 새로 씀
+        const newShip = {
+            name: shipName,
+            tonnage: tonnage,
+            type: shipType,
+            tags: tags,
+            history: [newHistory]
+        };
+        store.add(newShip, Date.now().toString());
+    }
 
     tx.oncomplete = () => {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.\n\n생성된 경로: " + autoMovementPath);

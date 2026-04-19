@@ -9,12 +9,15 @@ function initDatabase() {
         const currentVersion = db.version;
         
         // 필요한 스토어 목록
-        const requiredStores = ["menu", "workSchedule", "members", "ships", "shipTrace"];
+        const requiredStores = ["menu", "workSchedule", "members", "identified_ships", "unidentified_ships"];
         const missingStores = requiredStores.filter(s => !db.objectStoreNames.contains(s));
 
-        // 만약 스토어가 하나라도 없으면 버전을 올려서 다시 열기 (업그레이드 트리거)
-        if (missingStores.length > 0) {
-            console.log(`Missing stores: ${missingStores.join(", ")}. Upgrading version to ${currentVersion + 1}...`);
+        // 마이그레이션 대상 확인
+        const needsMigration = db.objectStoreNames.contains("ship");
+
+        // 만약 스토어가 하나라도 없거나 마이그레이션이 필요하면 버전을 올려서 다시 열기
+        if (missingStores.length > 0 || needsMigration) {
+            console.log(`Database update needed. Missing: ${missingStores.join(", ")}, Migration: ${needsMigration}`);
             db.close();
             upgradeDatabase(DB_NAME, currentVersion + 1);
         } else {
@@ -43,13 +46,35 @@ function upgradeDatabase(name, version) {
         if (!db.objectStoreNames.contains("members")) {
             db.createObjectStore("members", { keyPath: "id" });
         }
-        if (!db.objectStoreNames.contains("ships")) {
-            db.createObjectStore("ships", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("identified_ships")) {
+            db.createObjectStore("identified_ships");
         }
-        if (!db.objectStoreNames.contains("shipTrace")) {
-            db.createObjectStore("shipTrace", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("unidentified_ships")) {
+            db.createObjectStore("unidentified_ships");
         }
-        console.log(`Database upgraded to version ${version}.`);
+
+        // 마이그레이션 로직
+        if (db.objectStoreNames.contains("ship")) {
+            console.log("Migrating data from 'ship' to new stores...");
+            // onupgradeneeded 안에서는 transaction을 직접 열 필요 없이 e.target.transaction을 사용
+            const tx = e.target.transaction;
+            const oldStore = tx.objectStore("ship");
+            const identifiedStore = tx.objectStore("identified_ships");
+            const unidentifiedStore = tx.objectStore("unidentified_ships");
+
+            oldStore.openCursor().onsuccess = (ev) => {
+                const cursor = ev.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    const targetStore = (data.name === "식별불가") ? unidentifiedStore : identifiedStore;
+                    targetStore.put(data, cursor.key);
+                    cursor.continue();
+                } else {
+                    console.log("Migration complete. Deleting old 'ship' store.");
+                    db.deleteObjectStore("ship");
+                }
+            };
+        }
     };
 
     request.onsuccess = (e) => {

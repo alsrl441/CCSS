@@ -6,18 +6,21 @@ let shipData = [];
 let shipSliderState = {};
 let editingTagsShipIdx = null;
 
+const DB_NAME = "IMS_database";
+const STORE_NAME = "unidentified_ships";
+
 async function loadShipsFromDB() {
     return new Promise((resolve) => {
-        const request = indexedDB.open("IMS_database");
+        const request = indexedDB.open(DB_NAME);
         request.onsuccess = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains("ship")) {
-                console.warn("'ship' store not found");
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                console.warn(`'${STORE_NAME}' store not found`);
                 resolve([]);
                 return;
             }
-            const tx = db.transaction("ship", "readonly");
-            const store = tx.objectStore("ship");
+            const tx = db.transaction(STORE_NAME, "readonly");
+            const store = tx.objectStore(STORE_NAME);
             const results = [];
             store.openCursor().onsuccess = (event) => {
                 const cursor = event.target.result;
@@ -33,7 +36,7 @@ async function loadShipsFromDB() {
         };
         request.onupgradeneeded = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains("ship")) db.createObjectStore("ship");
+            if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
         };
         request.onerror = () => resolve([]);
     });
@@ -43,11 +46,11 @@ async function updateShipInDB(key, updatedData) {
     const dataToSave = { ...updatedData };
     delete dataToSave._dbKey;
     return new Promise((resolve) => {
-        const request = indexedDB.open("IMS_database");
+        const request = indexedDB.open(DB_NAME);
         request.onsuccess = (e) => {
             const db = e.target.result;
-            const tx = db.transaction("ship", "readwrite");
-            const store = tx.objectStore("ship");
+            const tx = db.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
             store.put(dataToSave, key);
             tx.oncomplete = () => resolve(true);
         };
