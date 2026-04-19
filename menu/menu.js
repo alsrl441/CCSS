@@ -11,24 +11,30 @@ async function updateMenu() {
         return new Promise((resolve) => {
             const request = indexedDB.open(DB_NAME);
             
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: "date" });
-                }
-            };
-
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    resolve(null);
-                    return;
-                }
-                const tx = db.transaction(STORE_NAME, "readonly");
+                const tx = db.transaction(STORE_NAME, "readwrite");
                 const store = tx.objectStore(STORE_NAME);
-                const getReq = store.get(dateStr);
-                getReq.onsuccess = () => resolve(getReq.result || null);
-                getReq.onerror = () => resolve(null);
+
+                // 데이터가 하나도 없는지 확인
+                const countReq = store.count();
+                countReq.onsuccess = () => {
+                    if (countReq.result === 0) {
+                        const initialMenuTemplate = {
+                            "date": "0000-00-00",
+                            "breakfast": "",
+                            "lunch": "",
+                            "dinner": "",
+                            "brunch": ""
+                        };
+                        store.put(initialMenuTemplate);
+                        console.log("Initial menu template inserted.");
+                    }
+                    
+                    const getReq = store.get(dateStr);
+                    getReq.onsuccess = () => resolve(getReq.result || null);
+                    getReq.onerror = () => resolve(null);
+                };
             };
             request.onerror = () => resolve(null);
         });

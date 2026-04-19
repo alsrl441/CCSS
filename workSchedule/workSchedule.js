@@ -22,24 +22,42 @@ async function updateWorkSchedule() {
             const request = indexedDB.open(DB_NAME); 
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    resolve(null);
-                    return;
-                }
-                const tx = db.transaction(STORE_NAME, "readonly");
+                const tx = db.transaction(STORE_NAME, "readwrite");
                 const store = tx.objectStore(STORE_NAME);
                 
-                const getReq = store.getAll();
-                getReq.onsuccess = () => {
-                    const allData = getReq.result || [];
-                    const res = allData.find(item => item.date === dateStr);
-                    if (res) {
-                        res.cctv = res.cctv || [{}, {}, {}];
-                        res.tod = res.tod || [{}, {}, {}];
+                const countReq = store.count();
+                countReq.onsuccess = () => {
+                    if (countReq.result === 0) {
+                        const initialWorkTemplate = {
+                            "date": "0000-00-00",
+                            "isHoliday": false,
+                            "cctv": [
+                                { "shift": "06-14", "p1": "", "p2": "" },
+                                { "shift": "14-22", "p1": "", "p2": "" },
+                                { "shift": "22-06", "p1": "", "p2": "" }
+                            ],
+                            "tod": [
+                                { "location": "고하도", "p1": "", "p2": "" },
+                                { "location": "외기 평시", "p1": "", "p2": "" },
+                                { "location": "외기 핵취", "p1": "", "p2": "" }
+                            ]
+                        };
+                        store.put(initialWorkTemplate);
+                        console.log("Initial workSchedule template inserted.");
                     }
-                    resolve(res || null);
+                    
+                    const getReq = store.getAll();
+                    getReq.onsuccess = () => {
+                        const allData = getReq.result || [];
+                        const res = allData.find(item => item.date === dateStr);
+                        if (res) {
+                            res.cctv = res.cctv || [{}, {}, {}];
+                            res.tod = res.tod || [{}, {}, {}];
+                        }
+                        resolve(res || null);
+                    };
+                    getReq.onerror = () => resolve(null);
                 };
-                getReq.onerror = () => resolve(null);
             };
             request.onerror = () => resolve(null);
         });

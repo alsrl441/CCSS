@@ -7,24 +7,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     let members = [];
 
     async function loadMembersFromDB() {
+        const STORE_NAME = "members";
         return new Promise((resolve) => {
             const request = indexedDB.open("IMS_database");
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains("member")) {
-                    console.warn("'member' store not found");
-                    resolve([]);
-                    return;
-                }
-                const tx = db.transaction("member", "readonly");
-                const store = tx.objectStore("member");
-                const getReq = store.getAll();
-                getReq.onsuccess = () => resolve(getReq.result || []);
-                getReq.onerror = () => resolve([]);
-            };
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains("member")) db.createObjectStore("member");
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+
+                const countReq = store.count();
+                countReq.onsuccess = () => {
+                    if (countReq.result === 0) {
+                        const initialMemberTemplate = {
+                            "id": "0",
+                            "name": "홍길동",
+                            "nickName": "길동이",
+                            "start": "2024-01-01",
+                            "end": "2025-06-30",
+                            "vacation": "2024-05-01",
+                            "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 }
+                        };
+                        store.put(initialMemberTemplate);
+                        console.log("Initial members template inserted.");
+                    }
+                    
+                    const getReq = store.getAll();
+                    getReq.onsuccess = () => resolve(getReq.result || []);
+                    getReq.onerror = () => resolve([]);
+                };
             };
             request.onerror = () => resolve([]);
         });

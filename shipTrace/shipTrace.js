@@ -230,22 +230,34 @@ async function saveTraceLog() {
             }
 
             if (existingShip) {
-                if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
-                if (shipType !== "식별불가") existingShip.type = shipType;
+                // 기존 정보가 '식별불가'나 '-'가 아닐 경우에만 유지 (이미 값이 있으면 덮어쓰지 않음)
+                if (!existingShip.tonnage || existingShip.tonnage === "식별불가" || existingShip.tonnage === "-") {
+                    if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
+                }
+                if (!existingShip.type || existingShip.type === "식별불가" || existingShip.type === "-") {
+                    if (shipType !== "식별불가") existingShip.type = shipType;
+                }
                 
+                // number와 tel도 기존에 있으면 유지
+                if (!existingShip.number || existingShip.number === "-") existingShip.number = "-";
+                if (!existingShip.tel || existingShip.tel === "-") existingShip.tel = "-";
+
                 if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
                 tags.forEach(t => {
                     if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
                 });
 
                 if (!existingShip.history) existingShip.history = [];
-                existingShip.history.push(newHistory);
+                // 새로운 히스토리를 앞에 추가 (최신순)
+                existingShip.history.unshift(newHistory);
                 store.put(existingShip, existingKey);
             } else {
                 const newShip = {
                     name: shipName,
                     tonnage: tonnage,
                     type: shipType,
+                    number: "-", // 초기값
+                    tel: "-",    // 초기값
                     tags: tags,
                     history: [newHistory]
                 };
@@ -258,6 +270,8 @@ async function saveTraceLog() {
             name: shipName,
             tonnage: tonnage,
             type: shipType,
+            number: "-",
+            tel: "-",
             tags: tags,
             history: [newHistory]
         };

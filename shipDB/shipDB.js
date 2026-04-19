@@ -14,29 +14,52 @@ async function loadShipsFromDB() {
         const request = indexedDB.open(DB_NAME);
         request.onsuccess = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains(TARGET_STORE_NAME)) {
-                console.warn(`'${TARGET_STORE_NAME}' store not found`);
-                resolve([]);
-                return;
-            }
-            const tx = db.transaction(TARGET_STORE_NAME, "readonly");
+            const tx = db.transaction(TARGET_STORE_NAME, "readwrite");
             const store = tx.objectStore(TARGET_STORE_NAME);
-            const results = [];
-            store.openCursor().onsuccess = (event) => {
-                const cursor = event.target.result;
-                if (cursor) {
-                    const data = cursor.value;
-                    data._dbKey = cursor.key;
-                    results.push(data);
-                    cursor.continue();
-                } else {
-                    resolve(results);
+
+            const countReq = store.count();
+            countReq.onsuccess = () => {
+                if (countReq.result === 0) {
+                    const initialShipTemplate = {
+                        "name": "샘플 선박",
+                        "tonnage": "2톤",
+                        "type": "어선",
+                        "number": "1234567-1234567",
+                        "tel": "010-0000-0000",
+                        "tags": ["흰색 선체"],
+                        "history": [
+                            {
+                                "date": "2024-01-01",
+                                "firstTime": "00:00",
+                                "firstPos": "샘플 위치",
+                                "lastTime": "00:00",
+                                "lastPos": "샘플 위치",
+                                "crewCount": 0,
+                                "handover": "",
+                                "worker": "",
+                                "telephonee": "",
+                                "shipImage": "Images/no-image.jpg",
+                                "pathImage": "Images/no-image.jpg"
+                            }
+                        ]
+                    };
+                    store.put(initialShipTemplate, "template_key");
+                    console.log(`Initial ${TARGET_STORE_NAME} template inserted.`);
                 }
+
+                const results = [];
+                store.openCursor().onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const data = cursor.value;
+                        data._dbKey = cursor.key;
+                        results.push(data);
+                        cursor.continue();
+                    } else {
+                        resolve(results);
+                    }
+                };
             };
-        };
-        request.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(TARGET_STORE_NAME)) db.createObjectStore(TARGET_STORE_NAME);
         };
         request.onerror = () => resolve([]);
     });
@@ -258,10 +281,33 @@ async function deleteShip(shipIdx) {
             store.delete(ship._dbKey);
             tx.oncomplete = () => {
                 alert("선박 정보가 삭제되었습니다.");
-                initShipSearch(); // 데이터 다시 로드 및 렌더링
+                initShipSearch(); 
             };
         };
     }
+}
+
+async function editShipMainInfo(shipIdx) {
+    const ship = shipData[shipIdx];
+    const newName = prompt("선명 수정:", ship.name);
+    if (newName === null) return;
+    const newTonnage = prompt("톤수 수정:", ship.tonnage || "-");
+    const newType = prompt("선종 수정:", ship.type || "-");
+    const newNumber = prompt("어선번호 수정:", ship.number || "-");
+    const newTel = prompt("연락처 수정:", ship.tel || "-");
+
+    const updatedShip = {
+        ...ship,
+        name: newName || "이름없음",
+        tonnage: newTonnage || "-",
+        type: newType || "-",
+        number: newNumber || "-",
+        tel: newTel || "-"
+    };
+
+    await updateShipInDB(ship._dbKey, updatedShip);
+    alert("선박 정보가 수정되었습니다.");
+    initShipSearch();
 }
 
 function sortShipData() {
@@ -437,13 +483,16 @@ function renderShips() {
                         <div class="ship-name-row">
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
                             <h4>${ship.name}</h4>
-                            <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">&times;</button>
+                            <div class="ship-actions-main">
+                                <button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✏️</button>
+                                <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">&times;</button>
+                            </div>
                         </div>
                         <div class="ship-meta-group">
-                            <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage}</p>
-                            <p class="ship-detail"><strong>선종</strong> ${ship.type}</p>
-                            <p class="ship-detail"><strong>어선번호</strong> ${ship.number}</p>
-                            <p class="ship-detail"><strong>연락처</strong> ${ship.tel}</p>
+                            <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage || '-'}</p>
+                            <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
+                            <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
+                            <p class="ship-detail"><strong>연락처</strong> ${ship.tel || '-'}</p>
                         </div>
                     </div>
                     <div class="ship-info-tags">
