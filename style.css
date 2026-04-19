@@ -9,8 +9,7 @@
     --bs-body-color: #212529;
     --bs-border-radius: 0.375rem;
     --bs-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    --font-sans: "Malgun Gothic", "맑은 고딕", sans-serif;
-    --font-mono: Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-family: "Malgun Gothic", sans-serif;
 }
 
 * {
@@ -20,7 +19,7 @@
 }
 
 body {
-    font-family: var(--font-sans);
+    font-family: var(--font-family);
     background-color: var(--bs-light);
     color: var(--bs-body-color);
     line-height: 1.5;
@@ -101,7 +100,7 @@ main {
 }
 
 .clock {
-    font-family: var(--font-mono);
+    font-family: var(--font-family);
     font-size: 0.875rem;
     color: var(--bs-secondary);
 }
@@ -176,7 +175,7 @@ main {
 }
 
 #menu-display {
-    font-family: inherit;
+    font-family: var(--font-family);
     font-size: 1.125rem;
     line-height: 2;
     white-space: pre-wrap;

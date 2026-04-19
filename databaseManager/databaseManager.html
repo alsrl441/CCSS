@@ -10,11 +10,11 @@
 
 <div id="password-overlay">
     <div class="password-box">
-        <h3>DBM Access Locked</h3>
-        <p>암호를 입력하세요.</p>
+        <h3>[ Access Locked ]</h3>
+        <p>Please enter password.</p>
         <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter') verifyPassword()">
-        <button onclick="verifyPassword()" class="btn btn-primary">Unlock</button>
-        <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">비밀번호가 일치하지 않습니다.</div>
+        <button onclick="verifyPassword()" class="btn btn-primary">Verify</button>
+        <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">wrong password.</div>
     </div>
 </div>
 
@@ -44,7 +44,7 @@
         <div id="editor-container">
             <textarea id="json-editor" style="display:none;" spellcheck="false" placeholder="Enter JSON data here..."></textarea>
             <div id="welcome-msg">
-                <h3 style="font-weight: 300;">Select a store from the sidebar or drop a file to start.</h3>
+                <h3 style="font-weight: 300;">Select a store from the sidebar.</h3>
             </div>
         </div>
 
