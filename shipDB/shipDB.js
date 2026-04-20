@@ -554,34 +554,34 @@ function renderShips() {
                         <div class="ship-name-row">
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
                             ${isEditing ? 
-                                `<input type="text" id="edit-name" value="${ship.name}" placeholder="${ship.name}" style="font-size: 1.1rem; font-weight: 700; flex: 1; padding: 4px 8px; border: 1px solid #0d6efd; border-radius: 6px;">` : 
+                                `<div class="edit-group" style="flex:1; margin-bottom:0;"><input type="text" id="edit-name" value="${ship.name}" placeholder="선명 입력" style="font-weight:700;"></div>` : 
                                 `<h4>${ship.name}</h4>`
                             }
+                            ${!isEditing ? `
                             <div class="ship-actions-wrapper">
-                                ${isEditing ? 
-                                    `<button class="btn-save-ship" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" title="저장" style="color: #198754; background: none; border: none; cursor: pointer; font-size: 1.1rem;">✓</button>
-                                     <button class="btn-cancel-ship" onclick="event.stopPropagation(); cancelEditShip()" title="취소" style="color: #dc3545; background: none; border: none; cursor: pointer; font-size: 1.1rem;">×</button>` : 
-                                    `<button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">⋮</button>
-                                     <div id="actions-dropdown-${shipIdx}" class="actions-dropdown">
-                                         <button class="actions-dropdown-item" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})">수정</button>
-                                         <button class="actions-dropdown-item delete" onclick="event.stopPropagation(); deleteShip(${shipIdx})">삭제</button>
-                                     </div>`
-                                }
-                            </div>
+                                <button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">⋮</button>
+                                <div id="actions-dropdown-${shipIdx}" class="actions-dropdown">
+                                    <button class="actions-dropdown-item" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})">수정</button>
+                                    <button class="actions-dropdown-item delete" onclick="event.stopPropagation(); deleteShip(${shipIdx})">삭제</button>
+                                </div>
+                            </div>` : ''}
                         </div>
                         <div class="ship-meta-group">
-                            <p class="ship-detail"><strong>톤수</strong> 
-                                ${isEditing ? `<input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="${ship.tonnage || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.tonnage || '-')}
-                            </p>
-                            <p class="ship-detail"><strong>선종</strong> 
-                                ${isEditing ? `<input type="text" id="edit-type" value="${ship.type || ''}" placeholder="${ship.type || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.type || '-')}
-                            </p>
-                            <p class="ship-detail"><strong>어선번호</strong> 
-                                ${isEditing ? `<input type="text" id="edit-number" value="${ship.number || ''}" placeholder="${ship.number || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.number || '-')}
-                            </p>
-                            <p class="ship-detail"><strong>연락처</strong> 
-                                ${isEditing ? `<input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="${ship.tel || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.tel || '-')}
-                            </p>
+                            ${isEditing ? `
+                                <div class="edit-group"><label>톤수</label><input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-"></div>
+                                <div class="edit-group"><label>선종</label><input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-"></div>
+                                <div class="edit-group"><label>어선번호</label><input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-"></div>
+                                <div class="edit-group"><label>연락처</label><input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-"></div>
+                                <div class="history-actions" style="margin-top:10px; padding-top:5px;">
+                                    <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})">확인</button>
+                                    <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()">취소</button>
+                                </div>
+                            ` : `
+                                <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage || '-'}</p>
+                                <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
+                                <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
+                                <p class="ship-detail"><strong>연락처</strong> ${ship.tel || '-'}</p>
+                            `}
                         </div>
                     </div>
                     <div class="ship-info-tags">
