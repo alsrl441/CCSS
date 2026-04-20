@@ -1,12 +1,10 @@
-// 상수는 script.js와 겹칠 수 있으므로 존재 여부 확인 후 선언하거나 전역 변수 사용
-if (typeof DB_NAME === 'undefined') {
-    var DB_NAME = 'IMS_database';
-}
+// STORE 이름은 shipTrace.js 내에서만 쓰이므로 변수명 충돌 방지를 위해 지역 변수로 유지하거나 var 사용
 var STORE_IDENTIFIED = 'identified_ships';
 var STORE_UNIDENTIFIED = 'unidentified_ships';
 var db;
 
 function initDB() {
+    // script.js에 선언된 전역 DB_NAME 사용
     const request = indexedDB.open(DB_NAME);
 ...
     request.onupgradeneeded = (e) => {
