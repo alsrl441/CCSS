@@ -1,11 +1,14 @@
 const DB_NAME = "IMS_database";
 
-/**
- * 특정 스토어가 존재하는지 확인하고, 없으면 버전을 올려서 생성한다.
- * @param {string} storeName - 생성할 스토어 이름
- * @param {string|null} keyPath - 키 경로 (필요한 경우)
- * @returns {Promise} - 스토어 준비 완료 시 resolve
- */
+// 데이터베이스 연결을 위한 헬퍼 함수
+window.getDB = function() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME);
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+};
+
 window.ensureStore = function(storeName, keyPath = null) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME);
@@ -21,7 +24,6 @@ window.ensureStore = function(storeName, keyPath = null) {
             const version = db.version;
             db.close();
             
-            // 버전을 올려서 다시 열기 (onupgradeneeded 호출 유도)
             const upgradeReq = indexedDB.open(DB_NAME, version + 1);
             upgradeReq.onupgradeneeded = (ev) => {
                 const upDb = ev.target.result;
@@ -45,6 +47,60 @@ window.ensureStore = function(storeName, keyPath = null) {
     });
 };
 
+// 공통 데이터 읽기 함수
+window.getDBData = async function(storeName) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const request = store.getAll();
+        request.onsuccess = () => {
+            db.close();
+            resolve(request.result);
+        };
+        request.onerror = () => {
+            db.close();
+            reject(request.error);
+        };
+    });
+};
+
+// 공통 데이터 쓰기 함수 (데이터 양식은 하위 로직에서 결정해서 넘겨줌)
+window.putDBData = async function(storeName, data) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const request = store.put(data);
+        tx.oncomplete = () => {
+            db.close();
+            resolve();
+        };
+        tx.onerror = () => {
+            db.close();
+            reject(tx.error);
+        };
+    });
+};
+
+// 공통 데이터 삭제 함수
+window.deleteDBData = async function(storeName, key) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const request = store.delete(key);
+        tx.oncomplete = () => {
+            db.close();
+            resolve();
+        };
+        tx.onerror = () => {
+            db.close();
+            reject(tx.error);
+        };
+    });
+};
+
 function updateClock() {
     const now = new Date();
     const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -63,8 +119,6 @@ function updateClock() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 이제 initDatabase() 같은 하드코딩된 호출은 하지 않음.
-    // 각 페이지(JS)에서 본인이 필요한 store를 ensureStore()로 요청함.
     setInterval(updateClock, 1000);
     updateClock();
 });
