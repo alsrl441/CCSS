@@ -134,7 +134,11 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>문의 기지/추적번호</label>
                 <div class="d-flex gap-1">
-                    <input type="text" id="edit-rader" value="${h.raderStation || '-'}" style="width: 80px;">
+                    <select id="edit-rader" style="width: 80px;">
+                        <option value="-" ${h.raderStation === '-' ? 'selected' : ''}>-</option>
+                        <option value="145" ${h.raderStation === '145' ? 'selected' : ''}>145</option>
+                        <option value="146" ${h.raderStation === '146' ? 'selected' : ''}>146</option>
+                    </select>
                     <input type="text" id="edit-tracenum" value="${h.traceNumber || '-'}" style="flex:1;">
                 </div>
             </div>
@@ -163,7 +167,13 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             <div class="edit-group"><label>이동 방향/종료 사유</label>
                 <div class="d-flex gap-1">
                     <input type="text" id="edit-move-dir" value="${h.moveDirOverall || ''}" placeholder="방향(예: 북상)" style="flex:1;">
-                    <input type="text" id="edit-term-reason" value="${h.terminationReason || '종료'}" placeholder="사유(예: 시계외 종료)" style="flex:1;">
+                    <select id="edit-term-reason" style="flex:1;">
+                        <option value="소실" ${h.terminationReason === '소실' ? 'selected' : ''}>소실</option>
+                        <option value="입항" ${h.terminationReason === '입항' ? 'selected' : ''}>입항</option>
+                        <option value="정박" ${h.terminationReason === '정박' ? 'selected' : ''}>정박</option>
+                        <option value="정상 활동" ${h.terminationReason === '정상 활동' ? 'selected' : ''}>정상 활동</option>
+                        <option value="타 선박 문의" ${h.terminationReason === '타 선박 문의' ? 'selected' : ''}>타 선박 문의</option>
+                    </select>
                 </div>
             </div>
             <div class="edit-group"><label>출항지</label>
@@ -171,9 +181,8 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             </div>
             <div class="edit-group"><label>어선법 위반</label>
                 <select id="edit-violation" class="form-control-sm">
-                    <option value="무" ${h.violation === '무' ? 'selected' : ''}>무 (X)</option>
-                    <option value="위반" ${h.violation === '위반' ? 'selected' : ''}>위반 (O)</option>
-                    <option value="확인불가" ${h.violation === '확인불가' ? 'selected' : ''}>확인불가</option>
+                    <option value="X" ${h.violation === 'X' || h.violation === '무' ? 'selected' : ''}>X</option>
+                    <option value="O" ${h.violation === 'O' || h.violation === '위반' ? 'selected' : ''}>O</option>
                 </select>
             </div>
             <div class="edit-group"><label>근무자/수화자</label>
@@ -447,7 +456,7 @@ function showHistoryDetail(shipIdx, historyIdx) {
         <div class="history-info-group fade-in">
             <div class="h-item"><label>인원</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</span></div>
             <div class="h-item"><label>출항지</label><span>${h.firstOutport || '-'}</span></div>
-            <div class="h-item"><label>어선법 위반 유무</label><span style="color: ${isViolation ? '#dc3545' : 'inherit'}; font-weight: bold;">${violationText}</span></div>
+            <div class="h-item"><label>어선법 위반 유무</label><span>${violationText}</span></div>
             <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
             <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
         </div>

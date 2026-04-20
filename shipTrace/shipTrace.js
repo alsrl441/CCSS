@@ -174,7 +174,7 @@ async function saveTraceLog() {
     
     const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
-    const fullViolationText = (violationStatus === "O") ? `O (${violationDetail || "내용없음"})` : "X";
+    const fullViolationText = (violationStatus === "O") ? "O" : "X";
 
     const tagString = document.getElementById('tags').value;
     const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
