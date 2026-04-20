@@ -107,13 +107,48 @@ if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 
 
+function getAutoMovementPath(firstPos, moveDir, lastPos, reason) {
+    let reasonText = "";
+    
+    // 받침 유무에 따른 '으로/로' 처리 (소실용)
+    const attachRo = (word) => {
+        if (!word || word.endsWith(")")) return word + "(으)로"; // "(최종 위치)" 등 예외처리
+        const lastChar = word.charCodeAt(word.length - 1);
+        const batchimCode = (lastChar - 0xAC00) % 28;
+        // 받침이 있고 'ㄹ'받침이 아닌 경우 '으로', 그 외(받침 없거나 'ㄹ'받침) '로'
+        return (batchimCode !== 0 && batchimCode !== 8) ? word + "으로" : word + "로";
+    };
+
+    switch (reason) {
+        case "소실":
+            reasonText = `${attachRo(lastPos)} 소실`;
+            break;
+        case "입항":
+            reasonText = `${lastPos}에 입항`;
+            break;
+        case "정박":
+            reasonText = `${lastPos}에서 정박`;
+            break;
+        case "정상 활동":
+            reasonText = `${lastPos}에서 정상 활동으로 추적 종료`;
+            break;
+        case "타 선박 문의":
+            reasonText = `${lastPos}에서 타 선박 문의로 추적 종료`;
+            break;
+        default:
+            reasonText = `${lastPos}에서 ${reason}`;
+    }
+    
+    return `${firstPos}에서 ${moveDir}하여 ${reasonText}.`;
+}
+
 function updateMovementPathPreview() {
     const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치)";
     const moveDir = document.getElementById('move-dir-common').value.trim() || "(이동 방향)";
     const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치)";
     const reason = document.getElementById('termination-reason').value;
     
-    const previewText = `${firstPos}에서 ${moveDir}하여 ${lastPos}에서 ${reason}.`;
+    const previewText = getAutoMovementPath(firstPos, moveDir, lastPos, reason);
     const previewElement = document.getElementById('path-preview-text');
     if (previewElement) {
         previewElement.innerText = previewText;
@@ -190,7 +225,7 @@ async function saveTraceLog() {
     const lastPos = document.getElementById('last-pos').value.trim() || "";
     const terminationReason = document.getElementById('termination-reason').value;
     
-    const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}.`;
+    const autoMovementPath = getAutoMovementPath(firstPos, moveDirCommon, lastPos, terminationReason);
 
     // 거리 환산 (km로 저장)
     let distKm = "0";
