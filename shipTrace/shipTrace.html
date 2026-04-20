@@ -34,7 +34,7 @@
         <div class="trace-card">
             <div class="trace-header">
                 <div class="header-title">
-                    <h5>선박 추적 기록</h5>
+                    <h5>선박 추적</h5>
                 </div>
                 <div class="mode-tabs">
                     <input type="radio" id="mode-direct" name="trace-mode" value="direct" checked>
@@ -127,7 +127,7 @@
                             </div>
                             <div class="input-field">
                                 <label>어선 번호</label>
-                                <input type="text" id="ship-number" size="15" placeholder="1234567-1234567">
+                                <input type="text" id="ship-number" size="15" placeholder="어선 번호">
                             </div>
                             <div class="input-field">
                                 <label>인원</label>
@@ -135,11 +135,11 @@
                             </div>
                             <div class="input-field">
                                 <label>선주</label>
-                                <input type="text" id="ship-owner" size="10" placeholder="선주 성명">
+                                <input type="text" id="ship-owner" size="10" placeholder="선주명">
                             </div>
                             <div class="input-field">
-                                <label>연락처</label>
-                                <input type="text" id="ship-tel" size="15" placeholder="010-0000-0000">
+                                <label>전화번호</label>
+                                <input type="text" id="ship-tel" size="15" placeholder="전화번호">
                             </div>
                             <div class="input-field">
                                 <label>근무자</label>
@@ -167,7 +167,7 @@
                                     </div>
                                     <div class="inner-row">
                                         <label>최초 식별 위치</label>
-                                        <input type="text" id="first-pos" size="20" placeholder="예: 송공항 남서쪽 1km">
+                                        <input type="text" id="first-pos" size="20" placeholder="식별 위치">
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                                     </div>
                                     <div class="inner-row">
                                         <label>최종 식별 위치</label>
-                                        <input type="text" id="last-pos" size="20" placeholder="예: 송공항 간이선착장">
+                                        <input type="text" id="last-pos" size="20" placeholder="식별 위치">
                                     </div>
                                 </div>
                             </div>
@@ -224,13 +224,13 @@
                     <div class="form-group-section">
                         <div class="input-field full-width">
                             <label>외부명칭 / 깃발</label>
-                            <input type="text" id="external-name" placeholder="조타실 전면 '아라호', 선미 빨간색 깃발">
+                            <input type="text" id="external-name" placeholder="외부 명칭 / 깃발">
                         </div>
                     </div>
 
                     <div class="form-group-section">
                         <h6 class="section-label">선체 특징 (콤마로 구분)</h6>
-                        <textarea id="tags" rows="2" placeholder="선미 검은색 모터, 조타실 상부 항해등, ..."></textarea>
+                        <textarea id="tags" rows="2" placeholder="선수 OO, 선미 OO, ..."></textarea>
                     </div>
 
                     <div class="form-group-section">
