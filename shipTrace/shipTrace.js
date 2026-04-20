@@ -41,15 +41,26 @@ function initDB() {
 initDB();
 
 function toggleTraceMode() {
-    const mode = document.querySelector('input[name="trace-mode"]:checked').value;
+    const modeEl = document.querySelector('input[name="trace-mode"]:checked');
+    if (!modeEl) return;
+    
+    const mode = modeEl.value;
     const inquirySection = document.getElementById('section-inquiry');
+    const directSection = document.getElementById('section-direct');
     
     if (mode === 'inquiry') {
         inquirySection.style.display = 'block';
+        directSection.style.display = 'none';
     } else {
         inquirySection.style.display = 'none';
+        directSection.style.display = 'block';
     }
 }
+
+// 페이지 로드 시 초기 상태 반영
+window.addEventListener('DOMContentLoaded', () => {
+    toggleTraceMode();
+});
 
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
