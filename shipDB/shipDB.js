@@ -517,8 +517,8 @@ function renderShips() {
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
                             <h4>${ship.name}</h4>
                             <div class="ship-actions-main">
-                                <button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✏️</button>
-                                <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">&times;</button>
+                                <button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✎</button>
+                                <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">×</button>
                             </div>
                         </div>
                         <div class="ship-meta-group">
