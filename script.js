@@ -1,6 +1,5 @@
 const DB_NAME = "IMS_database";
 
-// 데이터베이스 연결을 위한 헬퍼 함수
 window.getDB = function() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME);
@@ -47,7 +46,6 @@ window.ensureStore = function(storeName, keyPath = null) {
     });
 };
 
-// 공통 데이터 읽기 함수
 window.getDBData = async function(storeName) {
     const db = await getDB();
     return new Promise((resolve, reject) => {
@@ -65,7 +63,6 @@ window.getDBData = async function(storeName) {
     });
 };
 
-// 공통 데이터 쓰기 함수 (데이터 양식은 하위 로직에서 결정해서 넘겨줌)
 window.putDBData = async function(storeName, data) {
     const db = await getDB();
     return new Promise((resolve, reject) => {
@@ -83,7 +80,6 @@ window.putDBData = async function(storeName, data) {
     });
 };
 
-// 공통 데이터 삭제 함수
 window.deleteDBData = async function(storeName, key) {
     const db = await getDB();
     return new Promise((resolve, reject) => {
