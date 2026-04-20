@@ -165,69 +165,72 @@ async function saveTraceLog() {
 
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
     
-    const camera = document.getElementById('camera-num').value;
+    // 기본 정보
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
-    // 't' 등 단위 제거하고 숫자만 저장
-    let tonnage = document.getElementById('ship-tonnage').value.trim().replace(/t/gi, '');
-    if (!tonnage) tonnage = "식별불가";
+    const shipType = document.getElementById('ship-type').value.trim() || "";
+    const tonnage = document.getElementById('ship-tonnage').value.trim().replace(/t/gi, '') || "";
+    const shipNumber = document.getElementById('ship-number').value.trim() || "";
+    const shipOwner = document.getElementById('ship-owner').value.trim() || "";
+    const shipTel = document.getElementById('ship-tel').value.trim() || "";
     
-    const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
-    
-    // '명' 등 단위 제거하고 숫자만 저장
-    let crewCount = document.getElementById('crew-count').value.trim().replace(/명/g, '');
-    if (!crewCount) crewCount = "식별불가";
-    
+    // 식별 기록 정보
     const worker = document.getElementById('worker').value.trim() || "미입력";
-    
+    const telephonee = document.getElementById('telephonee').value.trim() || "";
     const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
-    const fullViolationText = (violationStatus === "O") ? "O" : "X";
+    const fullViolationText = (violationStatus === "O") ? `O (${violationDetail})` : "X";
 
     const tagString = document.getElementById('tags').value;
-    const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
+    const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [""];
 
     const identificationDate = new Date().toISOString().split('T')[0];
 
-    const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치 미입력)";
-    const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "(이동 방향 미입력)";
-    const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치 미입력)";
+    const firstPos = document.getElementById('first-pos').value.trim() || "";
+    const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "";
+    const lastPos = document.getElementById('last-pos').value.trim() || "";
     const terminationReason = document.getElementById('termination-reason').value;
     
     const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}.`;
 
+    // 거리 환산 (km로 저장)
+    let distKm = "0";
+    if (mode === 'inquiry') {
+        const val = parseFloat(document.getElementById('dist-value').value);
+        const unit = document.getElementById('dist-unit').value;
+        if (!isNaN(val)) {
+            if (unit === 'km') distKm = val.toFixed(1);
+            else if (unit === 'NM') distKm = (val * 1.852).toFixed(1);
+            else if (unit === 'M') distKm = (val * 1.609).toFixed(1);
+        }
+    }
+
     const newHistory = {
-        mode: mode,
         date: identificationDate,
-        timestamp: new Date().getTime(),
-        
-        cameraNum: camera,
-        shipName: shipName,
-        tonnage: tonnage,
-        shipType: shipType,
-        crewCount: crewCount,
-        worker: worker,
-        firstTime: document.getElementById('first-time').value || "-",
-        firstAzEl: document.getElementById('first-az-el').value || "-",
+        coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "",
+        directionAtInquiry: mode === 'inquiry' ? document.getElementById('current-move-dir').value : "",
+        distance: distKm + "km",
+        traceNumber: mode === 'inquiry' ? (document.getElementById('radar-station-select').value + "-" + document.getElementById('trace-num').value.trim()) : "",
+        firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "",
+        firstTime: document.getElementById('first-time').value || "00:00",
+        firstAzEl: document.getElementById('first-az-el').value || "",
         firstPos: firstPos,
-        lastTime: document.getElementById('last-time').value || "-",
-        lastAzEl: document.getElementById('last-az-el').value || "-",
+        lastTime: document.getElementById('last-time').value || "00:00",
+        lastAzEl: document.getElementById('last-az-el').value || "",
         lastPos: lastPos,
+        tags: tags,
         moveDirOverall: moveDirCommon,
         terminationReason: terminationReason,
         movementPath: autoMovementPath,
-        violation: fullViolationText,
-        
-        coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "-",
-        raderStation: mode === 'inquiry' ? document.getElementById('radar-station-select').value : "-",
-        traceNumber: mode === 'inquiry' ? document.getElementById('trace-num').value.trim() : "-",
-        directionAtInquiry: mode === 'inquiry' ? document.getElementById('current-move-dir').value : "-",
-        distance: mode === 'inquiry' ? distKmDisplay.innerText.replace(' km', '') : "-",
-        firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "-",
-        telephonee: mode === 'inquiry' ? document.getElementById('telephonee').value.trim() : "-",
-        handoverDetails: mode === 'inquiry' ? document.getElementById('handover-details').value : "-",
-
+        crewCount: document.getElementById('crew-count').value.trim().replace(/명/g, '') || "식별불가",
+        externalName: document.getElementById('external-name').value.trim() || "X",
+        handoverDetails: mode === 'inquiry' ? (document.getElementById('handover-details').value || "X") : "X",
         shipImage: "Images/no-image.jpg",
-        pathImage: "Images/no-image.jpg"
+        pathImage: "Images/no-image.jpg",
+        violation: fullViolationText,
+        worker: worker,
+        telephonee: telephonee,
+        timestamp: new Date().getTime(),
+        cameraNum: document.getElementById('camera-num').value
     };
 
     const isIdentified = (shipName !== "식별불가");
@@ -236,91 +239,51 @@ async function saveTraceLog() {
     const tx = db.transaction(targetStoreName, "readwrite");
     const store = tx.objectStore(targetStoreName);
     
-    if (isIdentified) {
-        // 식별 선박 로직: 기존 선박이 있는지 확인하고 히스토리 추가
-        const request = store.openCursor();
-        let existingShip = null;
-        let existingKey = null;
+    const getReq = store.openCursor();
+    let existingShip = null;
+    let existingKey = null;
 
-        request.onsuccess = (e) => {
-            const cursor = e.target.result;
-            if (cursor) {
-                if (cursor.value.name === shipName) {
-                    existingShip = cursor.value;
-                    existingKey = cursor.key;
-                } else {
-                    cursor.continue();
-                    return;
-                }
-            }
-
-            if (existingShip) {
-                // 기존 정보가 '식별불가'나 '-'가 아닐 경우에만 유지 (이미 값이 있으면 덮어쓰지 않음)
-                if (!existingShip.tonnage || existingShip.tonnage === "식별불가" || existingShip.tonnage === "-") {
-                    if (tonnage !== "식별불가") existingShip.tonnage = tonnage;
-                }
-                if (!existingShip.type || existingShip.type === "식별불가" || existingShip.type === "-") {
-                    if (shipType !== "식별불가") existingShip.type = shipType;
-                }
-                
-                // number와 tel도 기존에 있으면 유지
-                if (!existingShip.number || existingShip.number === "-") existingShip.number = "-";
-                if (!existingShip.tel || existingShip.tel === "-") existingShip.tel = "-";
-
-                if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
-                tags.forEach(t => {
-                    if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
-                });
-
-                if (!existingShip.history) existingShip.history = [];
-                existingShip.history.unshift(newHistory);
-                
-                if (store.keyPath) {
-                    store.put(existingShip);
-                } else {
-                    store.put(existingShip, existingKey);
-                }
+    getReq.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+            if (cursor.value.name === shipName && isIdentified) {
+                existingShip = cursor.value;
+                existingKey = cursor.key;
             } else {
-                const newShip = {
-                    id: Date.now().toString(), // keyPath "id"를 만족시키기 위해 추가
-                    name: shipName,
-                    tonnage: tonnage,
-                    type: shipType,
-                    number: "-",
-                    tel: "-",
-                    tags: tags,
-                    history: [newHistory]
-                };
-                
-                if (store.keyPath) {
-                    store.add(newShip);
-                } else {
-                    store.add(newShip, newShip.id);
-                }
+                cursor.continue();
+                return;
             }
-        };
-    } else {
-        // 미식별 선박 로직: 무조건 매번 새로 씀
-        const newShip = {
-            id: Date.now().toString(), // keyPath가 "id"일 경우를 대비해 추가
-            name: shipName,
-            tonnage: tonnage,
-            type: shipType,
-            number: "-",
-            tel: "-",
-            tags: tags,
-            history: [newHistory]
-        };
-        
-        if (store.keyPath) {
-            store.add(newShip);
+        }
+
+        if (existingShip) {
+            // 기존 정보 업데이트 (값이 없을 때만)
+            if (!existingShip.type) existingShip.type = shipType;
+            if (!existingShip.tonnage) existingShip.tonnage = tonnage;
+            if (!existingShip.number) existingShip.number = shipNumber;
+            if (!existingShip.owner) existingShip.owner = shipOwner;
+            if (!existingShip.tel) existingShip.tel = shipTel;
+
+            if (!existingShip.history) existingShip.history = [];
+            existingShip.history.unshift(newHistory);
+            
+            store.put(existingShip, existingKey);
         } else {
+            const newShip = {
+                id: Date.now().toString(),
+                name: shipName,
+                type: shipType,
+                tonnage: tonnage,
+                number: shipNumber,
+                owner: shipOwner,
+                tel: shipTel,
+                history: [newHistory]
+            };
             store.add(newShip, newShip.id);
         }
-    }
+    };
 
     tx.oncomplete = () => {
-        alert("추적 기록이 성공적으로 DB에 등록되었습니다.\n\n생성된 경로: " + autoMovementPath);
+        alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
         toggleTraceMode();
         toggleViolationDetail();
@@ -334,3 +297,4 @@ async function saveTraceLog() {
         alert("저장 중 오류가 발생했습니다.");
     };
 }
+

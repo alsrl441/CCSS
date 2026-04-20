@@ -102,7 +102,7 @@
                 <div id="section-common" class="mode-section">
                     <div class="form-group-section">
                         <h6 class="section-label">선박 식별 정보 및 제원</h6>
-                        <div class="grid-layout">
+                        <div class="grid-layout cols-3">
                             <div class="input-field">
                                 <label>식별 카메라</label>
                                 <select id="camera-num">
@@ -126,8 +126,20 @@
                                 <input type="text" id="ship-tonnage" size="5" placeholder="톤수">
                             </div>
                             <div class="input-field">
+                                <label>어선 번호</label>
+                                <input type="text" id="ship-number" size="15" placeholder="1234567-1234567">
+                            </div>
+                            <div class="input-field">
                                 <label>인원</label>
                                 <input type="text" id="crew-count" size="5" placeholder="식별 인원수">
+                            </div>
+                            <div class="input-field">
+                                <label>선주</label>
+                                <input type="text" id="ship-owner" size="10" placeholder="선주 성명">
+                            </div>
+                            <div class="input-field">
+                                <label>연락처</label>
+                                <input type="text" id="ship-tel" size="15" placeholder="010-0000-0000">
                             </div>
                             <div class="input-field">
                                 <label>근무자</label>
@@ -210,8 +222,15 @@
                     </div>
 
                     <div class="form-group-section">
-                        <h6 class="section-label">특이사항</h6>
-                        <textarea id="tags" rows="2" placeholder="기타/외형적 특이사항 입력. (,로 구분)"></textarea>
+                        <div class="input-field full-width">
+                            <label>외부명칭 / 깃발</label>
+                            <input type="text" id="external-name" placeholder="조타실 전면 '아라호', 선미 빨간색 깃발">
+                        </div>
+                    </div>
+
+                    <div class="form-group-section">
+                        <h6 class="section-label">선체 특징 (콤마로 구분)</h6>
+                        <textarea id="tags" rows="2" placeholder="선미 검은색 모터, 조타실 상부 항해등, ..."></textarea>
                     </div>
 
                     <div class="form-group-section">

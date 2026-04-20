@@ -43,10 +43,10 @@ async function saveShipMainInfo(idx) {
     if (!card) return;
 
     const newName = card.querySelector('#edit-name').value.trim();
-    // 't' 등 단위 제거하고 숫자만 저장
-    let newTonnage = card.querySelector('#edit-tonnage').value.trim().replace(/t/gi, '');
     const newType = card.querySelector('#edit-type').value.trim();
+    const newTonnage = card.querySelector('#edit-tonnage').value.trim().replace(/t/gi, '');
     const newNumber = card.querySelector('#edit-number').value.trim();
+    const newOwner = card.querySelector('#edit-owner').value.trim();
     const newTel = card.querySelector('#edit-tel').value.trim();
 
     if (!newName) {
@@ -56,9 +56,10 @@ async function saveShipMainInfo(idx) {
 
     const ship = shipData[idx];
     ship.name = newName;
-    ship.tonnage = newTonnage;
     ship.type = newType;
+    ship.tonnage = newTonnage;
     ship.number = newNumber;
+    ship.owner = newOwner;
     ship.tel = newTel;
 
     const success = await updateShipInDB(ship._dbKey, ship);
@@ -81,24 +82,32 @@ async function loadShipsFromDB() {
                 if (countReq.result === 0) {
                     const initialShipTemplate = {
                         "name": "샘플 선박",
-                        "tonnage": "2톤",
+                        "tonnage": "2",
                         "type": "어선",
                         "number": "1234567-1234567",
+                        "owner": "홍길동",
                         "tel": "010-0000-0000",
                         "tags": ["흰색 선체"],
                         "history": [
                             {
-                                "date": "2024-01-01",
+                                "date": "2026-04-20",
                                 "firstTime": "00:00",
                                 "firstPos": "샘플 위치",
+                                "firstAzEl": "1234 56",
                                 "lastTime": "00:00",
                                 "lastPos": "샘플 위치",
-                                "crewCount": 0,
-                                "handover": "",
-                                "worker": "",
-                                "telephonee": "",
+                                "lastAzEl": "1234 56",
+                                "crewCount": "1",
+                                "handoverDetails": "인수인계 샘플",
+                                "worker": "일병 김철수",
+                                "telephonee": "상병 이영희",
                                 "shipImage": "Images/no-image.jpg",
-                                "pathImage": "Images/no-image.jpg"
+                                "pathImage": "Images/no-image.jpg",
+                                "tags": ["선미 검은색 모터"],
+                                "movementPath": "샘플 경로",
+                                "violation": "X",
+                                "externalName": "X",
+                                "traceNumber": "145-1"
                             }
                         ]
                     };
@@ -107,7 +116,6 @@ async function loadShipsFromDB() {
                     } else {
                         store.put(initialShipTemplate, "template_key");
                     }
-                    console.log(`Initial ${TARGET_STORE_NAME} template inserted.`);
                 }
 
                 const results = [];
@@ -158,6 +166,7 @@ async function addTagInline(event, shipIdx) {
         const newTag = input.value.trim();
         if (newTag) {
             const ship = shipData[shipIdx];
+            if (!ship.tags) ship.tags = [];
             if (!ship.tags.includes(newTag)) {
                 ship.tags.push(newTag);
                 await updateShipInDB(ship._dbKey, ship);
@@ -183,154 +192,102 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const isEdit = historyIdx !== null;
     const h = isEdit ? ship.history[historyIdx] : {
         date: new Date().toISOString().split('T')[0],
-        firstTime: "00:00", firstPos: "", firstAzEl: "-",
-        lastTime: "00:00", lastPos: "", lastAzEl: "-",
+        firstTime: "00:00", firstPos: "", firstAzEl: "",
+        lastTime: "00:00", lastPos: "", lastAzEl: "",
         moveDirOverall: "", terminationReason: "종료",
         crewCount: "식별불가", 
-        raderStation: "-", traceNumber: "-", firstOutport: "-",
-        violation: "무",
+        traceNumber: "-", firstOutport: "-",
+        violation: "X",
         worker: "", telephonee: "",
+        externalName: "X", handoverDetails: "X",
         shipImage: "Images/no-image.jpg",
-        pathImage: "Images/no-image.jpg"
+        pathImage: "Images/no-image.jpg",
+        tags: [""]
     };
 
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     const detailView = card.querySelector('.history-detail-view');
-    const pathBox = card.querySelector('.history-path-box');
 
     detailView.innerHTML = `
-        <div class="history-info-group fade-in">
-            <div class="edit-group"><label>문의 기지/추적번호</label>
-                <div class="d-flex gap-1">
-                    <select id="edit-rader" style="width: 80px;">
-                        <option value="-" ${h.raderStation === '-' ? 'selected' : ''}>-</option>
-                        <option value="145" ${h.raderStation === '145' ? 'selected' : ''}>145</option>
-                        <option value="146" ${h.raderStation === '146' ? 'selected' : ''}>146</option>
-                    </select>
-                    <input type="text" id="edit-tracenum" value="${h.traceNumber || '-'}" style="flex:1;">
+        <div class="history-edit-container fade-in" style="display: flex; gap: 20px; padding: 10px; width: 100%;">
+            <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
+                <div class="edit-group"><label>추적번호</label><input type="text" id="edit-tracenum" value="${h.traceNumber || '-'}"></div>
+                <div class="edit-group"><label>최초 시간 / AzEl / 위치</label>
+                    <div class="d-flex gap-1">
+                        <input type="text" id="edit-first-time" value="${h.firstTime}" style="width: 60px;">
+                        <input type="text" id="edit-first-azel" value="${h.firstAzEl || ''}" placeholder="AzEl" style="width: 80px;">
+                        <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
+                    </div>
+                </div>
+                <div class="edit-group"><label>최종 시간 / AzEl / 위치</label>
+                    <div class="d-flex gap-1">
+                        <input type="text" id="edit-last-time" value="${h.lastTime}" style="width: 60px;">
+                        <input type="text" id="edit-last-azel" value="${h.lastAzEl || ''}" placeholder="AzEl" style="width: 80px;">
+                        <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
+                    </div>
+                </div>
+                <div class="edit-group"><label>특징 (콤마 구분)</label>
+                    <input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}">
+                </div>
+                <div class="history-actions" style="margin-top: auto;">
+                    <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
+                    <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
                 </div>
             </div>
-            <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
-            <div class="edit-group"><label>최초 시간/위치/AzEl</label>
-                <div class="d-flex gap-1">
-                    <input type="text" id="edit-first-time" value="${h.firstTime}" placeholder="hh:mm" style="width: 85px;">
-                    <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
-                    <input type="text" id="edit-first-azel" value="${h.firstAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
+            <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
+                <div class="edit-group"><label>인수인계</label><textarea id="edit-handover" rows="3" style="font-size: 0.8rem;">${h.handoverDetails || 'X'}</textarea></div>
+                <div class="edit-group"><label>외부명칭 / 깃발</label><input type="text" id="edit-external" value="${h.externalName || 'X'}"></div>
+                <div class="edit-group"><label>어선법 위반 여부</label><input type="text" id="edit-violation" value="${h.violation || 'X'}"></div>
+                <div class="edit-group"><label>근무자 / 수화자</label>
+                    <div class="d-flex gap-1">
+                        <input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자">
+                        <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자">
+                    </div>
                 </div>
             </div>
-            <div class="edit-group"><label>최종 시간/위치/AzEl</label>
-                <div class="d-flex gap-1">
-                    <input type="text" id="edit-last-time" value="${h.lastTime}" placeholder="hh:mm" style="width: 85px;">
-                    <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
-                    <input type="text" id="edit-last-azel" value="${h.lastAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
-                </div>
-            </div>
-            <div class="history-actions">
-                <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
-                <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
-            </div>
-        </div>
-        <div class="history-info-group fade-in">
-            <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
-            <div class="edit-group"><label>이동 방향/종료 사유</label>
-                <div class="d-flex gap-1">
-                    <input type="text" id="edit-move-dir" value="${h.moveDirOverall || ''}" placeholder="방향(예: 북상)" style="flex:1;">
-                    <select id="edit-term-reason" style="flex:1;">
-                        <option value="소실" ${h.terminationReason === '소실' ? 'selected' : ''}>소실</option>
-                        <option value="입항" ${h.terminationReason === '입항' ? 'selected' : ''}>입항</option>
-                        <option value="정박" ${h.terminationReason === '정박' ? 'selected' : ''}>정박</option>
-                        <option value="정상 활동" ${h.terminationReason === '정상 활동' ? 'selected' : ''}>정상 활동</option>
-                        <option value="타 선박 문의" ${h.terminationReason === '타 선박 문의' ? 'selected' : ''}>타 선박 문의</option>
-                    </select>
-                </div>
-            </div>
-            <div class="edit-group"><label>출항지</label>
-                <input type="text" id="edit-outport" value="${h.firstOutport || '-'}" style="flex:1;">
-            </div>
-            <div class="edit-group"><label>어선법 위반</label>
-                <select id="edit-violation" class="form-control-sm">
-                    <option value="X" ${h.violation === 'X' || h.violation === '무' ? 'selected' : ''}>X</option>
-                    <option value="O" ${h.violation === 'O' || h.violation === '위반' ? 'selected' : ''}>O</option>
-                </select>
-            </div>
-            <div class="edit-group"><label>근무자/수화자</label>
-                <div class="d-flex gap-1">
-                    <input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자" style="flex:1;">
-                    <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자" style="flex:1;">
-                </div>
+            <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
+                <div class="edit-group"><label>선박 이미지 경로</label><input type="text" id="edit-ship-img" value="${h.shipImage}"></div>
+                <div class="edit-group"><label>항로 이미지 경로</label><input type="text" id="edit-path-img" value="${h.pathImage}"></div>
             </div>
         </div>
     `;
-
-    pathBox.innerHTML = `
-        <div class="history-info-group w-100 fade-in">
-            <div class="edit-group">
-                <label>선박 사진</label>
-                <div class="drop-zone" id="drop-ship-img">
-                    <span>이미지 드롭 또는 경로 입력</span>
-                    <input type="text" id="edit-ship-img" value="${h.shipImage}">
-                </div>
-            </div>
-            <div class="edit-group">
-                <label>항로 사진</label>
-                <div class="drop-zone" id="drop-path-img">
-                    <span>이미지 드롭 또는 경로 입력</span>
-                    <input type="text" id="edit-path-img" value="${h.pathImage}">
-                </div>
-            </div>
-        </div>
-    `;
-
-    ['drop-ship-img', 'drop-path-img'].forEach(id => {
-        const zone = document.getElementById(id);
-        const input = zone.querySelector('input');
-        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-        zone.addEventListener('drop', (e) => {
-            e.preventDefault(); zone.classList.remove('drag-over');
-            if (e.dataTransfer.files[0]) input.value = `Images/${e.dataTransfer.files[0].name}`;
-        });
-    });
 }
 
 async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
     
-    const fPos = document.getElementById('edit-first-pos').value || "(최초 위치)";
-    const moveDir = document.getElementById('edit-move-dir').value || "(방향)";
-    const lPos = document.getElementById('edit-last-pos').value || "(최종 위치)";
-    const termReason = document.getElementById('edit-term-reason').value || "종료";
-    const newPath = `${fPos}에서 ${moveDir}하여 ${lPos}에서 ${termReason}.`;
-
-    // '명' 등 단위 제거하고 숫자만 저장
-    let crewCount = document.getElementById('edit-crew').value.trim().replace(/명/g, '');
-    if (!crewCount) crewCount = "식별불가";
+    const tagsVal = document.getElementById('edit-tags').value;
+    const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : [""];
 
     const newHistory = {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
-        firstPos: fPos,
+        firstPos: document.getElementById('edit-first-pos').value,
         firstAzEl: document.getElementById('edit-first-azel').value,
         lastTime: document.getElementById('edit-last-time').value,
-        lastPos: lPos,
+        lastPos: document.getElementById('edit-last-pos').value,
         lastAzEl: document.getElementById('edit-last-azel').value,
-        moveDirOverall: moveDir,
-        terminationReason: termReason,
-        movementPath: newPath,
+        tags: tagsArr,
+        movementPath: document.getElementById('edit-path-text').value,
         crewCount: document.getElementById('edit-crew').value || "식별불가",
         violation: document.getElementById('edit-violation').value,
-        raderStation: document.getElementById('edit-rader').value,
         traceNumber: document.getElementById('edit-tracenum').value,
-        firstOutport: document.getElementById('edit-outport').value,
+        handoverDetails: document.getElementById('edit-handover').value,
+        externalName: document.getElementById('edit-external').value,
         worker: document.getElementById('edit-worker').value,
         telephonee: document.getElementById('edit-telephonee').value,
         shipImage: document.getElementById('edit-ship-img').value,
         pathImage: document.getElementById('edit-path-img').value,
         timestamp: isEdit ? (ship.history[historyIdx].timestamp || new Date().getTime()) : new Date().getTime()
     };
+    
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
+    
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     await updateShipInDB(ship._dbKey, ship);
     
@@ -482,46 +439,59 @@ function showHistoryDetail(shipIdx, historyIdx) {
     if (!card || !h) return;
     editingTagsShipIdx = null;
     
-    // 어선법 위반 표시 로직
-    const isViolation = h.violation && h.violation.startsWith('O');
-    const violationText = isViolation ? h.violation : 'X';
-    
     // 추적번호 표시 로직
-    const traceNo = (h.raderStation === '-' || !h.raderStation) ? (h.traceNumber || '-') : `${h.raderStation}-${h.traceNumber}`;
+    const traceNo = h.traceNumber || "-";
 
-    // 인원수 표시 로직 (숫자일 때만 '명' 붙임)
-    const displayCrew = (h.crewCount && !isNaN(h.crewCount)) ? h.crewCount + '명' : (h.crewCount || '-');
+    // 인원수 표시 로직
+    const displayCrew = (h.crewCount && !isNaN(h.crewCount)) ? h.crewCount + '명' : (h.crewCount || '식별불가');
 
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
+    
+    // 히스토리 상세 뷰 레이아웃 수정
     card.querySelector('.history-detail-view').innerHTML = `
-        <div class="history-info-group fade-in">
-            <div class="h-item"><label>추적번호</label><span>${traceNo}</span></div>
-            <div class="h-item"><label>최초 식별 시간</label><span>${h.firstTime}</span></div>
-            <div class="h-item"><label>최초 식별 위치</label><span>${h.firstAzEl || '-'} (${h.firstPos || '-'})</span></div>
-            <div class="h-item"><label>최종 식별 시간</label><span>${h.lastTime}</span></div>
-            <div class="h-item"><label>최종 식별 위치</label><span>${h.lastAzEl || '-'} (${h.lastPos || '-'})</span></div>
-            <div class="history-actions">
-                <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
-                <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
+        <div class="history-layout-container fade-in">
+            <!-- 좌측: 날짜 -->
+            <div class="history-side-left">
+                <div class="h-item">
+                    <label>식별 날짜</label>
+                    <span class="highlight-text">${h.date} (${h.firstTime})</span>
+                </div>
+                <div class="history-actions" style="margin-top: auto; padding-top: 20px;">
+                    <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
+                    <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
+                </div>
+            </div>
+
+            <!-- 중간: 식별 정보 -->
+            <div class="history-middle">
+                <div class="history-mid-left">
+                    <div class="h-item"><label>최초 식별 시간</label><span>${h.firstTime}</span></div>
+                    <div class="h-item"><label>최초 식별 위치</label><span>${h.firstAzEl || '-'} [${h.firstPos || '-'}]</span></div>
+                    <div class="h-item"><label>최종 식별 시간</label><span>${h.lastTime}</span></div>
+                    <div class="h-item"><label>최종 식별 위치</label><span>${h.lastAzEl || '-'} [${h.lastPos || '-'}]</span></div>
+                    <div class="h-item"><label>추적번호</label><span>${traceNo}</span></div>
+                    <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
+                </div>
+                <div class="history-mid-right">
+                    <div class="h-item h-item-block">
+                        <label>인수인계</label>
+                        <div class="scroll-box">${h.handoverDetails || 'X'}</div>
+                    </div>
+                    <div class="h-item"><label>어선법 위반 여부</label><span>${h.violation || 'X'}</span></div>
+                    <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
+                    <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
+                </div>
+            </div>
+
+            <!-- 우측: 항로 정보 -->
+            <div class="history-side-right">
+                <div class="path-img-container">
+                    <img src="${h.pathImage}" class="path-img fade-in">
+                </div>
+                <div class="path-text-display">${h.movementPath || ''}</div>
             </div>
         </div>
-        <div class="history-info-group fade-in">
-            <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
-            <div class="h-item"><label>출항지</label><span>${h.firstOutport || '-'}</span></div>
-            <div class="h-item"><label>어선법 위반 유무</label><span>${violationText}</span></div>
-            <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
-            <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
-        </div>
     `;
-    const pathBox = card.querySelector('.history-path-box');
-    pathBox.innerHTML = `
-        <div class="path-img-container">
-            <img src="${h.pathImage}" class="path-img fade-in" style="opacity: 0;">
-        </div>
-        <div class="path-text-display fade-in">${h.movementPath || ''}</div>
-    `;
-    const pathImg = pathBox.querySelector('.path-img');
-    setTimeout(() => { pathImg.style.opacity = 1; }, 50);
 }
 
 function renderShips() {
@@ -536,7 +506,8 @@ function renderShips() {
             (s.tonnage && s.tonnage.includes(t)) || 
             (s.type && s.type.includes(t)) || 
             (s.number && s.number.includes(t)) || 
-            (s.tags && s.tags.includes(t))
+            (s.owner && s.owner.includes(t)) ||
+            (s.history && s.history.some(h => h.tags && h.tags.includes(t)))
         );
     });
 
@@ -555,8 +526,14 @@ function renderShips() {
         const currentImgIdx = shipSliderState[shipIdx] || 0;
         const isEditing = editingShipIdx === shipIdx;
 
-        // 톤수 표시 로직 (숫자일 때만 't' 붙임)
+        // 톤수 표시 로직
         const displayTonnage = (ship.tonnage && !isNaN(ship.tonnage)) ? ship.tonnage + 't' : (ship.tonnage || '-');
+        
+        // 연락처(선주) 표시 로직
+        const displayContact = ship.tel ? `${ship.tel} ${ship.owner ? '(' + ship.owner + ')' : ''}` : (ship.owner || '-');
+
+        // 특징 표시 로직 (최신 히스토리의 태그들)
+        const latestFeatures = (ship.history && ship.history.length > 0) ? ship.history[0].tags.join(' ') : '-';
 
         return `
             <div class="ship-card" data-idx="${shipIdx}">
@@ -579,35 +556,43 @@ function renderShips() {
                         </div>
                         <div class="ship-meta-group" style="${isEditing ? 'gap: 2px;' : ''}">
                             ${isEditing ? `
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
-                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">톤수</label>
-                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
+                                <div class="edit-group edit-row">
+                                    <label>선종</label>
+                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
-                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">선종</label>
-                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
+                                <div class="edit-group edit-row">
+                                    <label>톤수</label>
+                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
-                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">어선번호</label>
-                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
+                                <div class="edit-group edit-row">
+                                    <label>어선번호</label>
+                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
-                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">연락처</label>
-                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
+                                <div class="edit-group edit-row">
+                                    <label>선주</label>
+                                    <input type="text" id="edit-owner" value="${ship.owner || ''}" placeholder="-">
+                                </div>
+                                <div class="edit-group edit-row">
+                                    <label>연락처</label>
+                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-">
                                 </div>
                                 <div class="history-actions" style="margin-top: 4px; padding-top: 0; justify-content: flex-end; gap: 4px;">
                                     <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 2px 8px; font-size: 0.7rem;">확인</button>
                                     <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()" style="padding: 2px 8px; font-size: 0.7rem;">취소</button>
                                 </div>
                             ` : `
-                                <p class="ship-detail"><strong>톤수</strong> ${displayTonnage}</p>
                                 <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
+                                <p class="ship-detail"><strong>톤수</strong> ${displayTonnage}</p>
                                 <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
-                                <p class="ship-detail"><strong>연락처</strong> ${ship.tel || '-'}</p>
+                                <p class="ship-detail"><strong>연락처</strong> ${displayContact}</p>
                             `}
                         </div>
                     </div>
                     <div class="ship-info-tags">
+                        <div class="features-summary">
+                            <label>특징</label>
+                            <span class="features-text">${latestFeatures}</span>
+                        </div>
                         <div class="ship-tags">
                             ${(ship.tags || []).map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="event.stopPropagation(); deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
                             ${editingTagsShipIdx === shipIdx ? 
@@ -630,8 +615,9 @@ function renderShips() {
                         ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
                         <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 추가</div>
                     </div>
-                    <div class="history-detail-view"></div>
-                    <div class="history-path-box"><div class="path-img-container"><img src="" class="path-img fade-in"></div></div>
+                    <div class="history-detail-view-wrapper">
+                        <div class="history-detail-view"></div>
+                    </div>
                 </div>
             </div>`;
     }).join('');
