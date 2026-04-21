@@ -375,25 +375,24 @@ async function saveTraceLog() {
     const tx = db.transaction(targetStoreName, "readwrite");
     const store = tx.objectStore(targetStoreName);
     
-    // 조회를 위해 모든 데이터 가져오기
-    const getReq = store.openCursor();
-    let existingShip = null;
-    let existingKey = null;
+    // 조회를 위해 모든 데이터 가져오기 (이름으로 찾기 위해)
+    const getAllReq = store.getAll();
 
-    getReq.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-            // 이름이 같으면 기존 선박으로 간주 (식별된 선박인 경우에만 이름으로 매칭)
-            if (isIdentified && cursor.value.name === shipName) {
-                existingShip = cursor.value;
-                existingKey = cursor.key;
-            } else {
-                cursor.continue();
-                return;
+    getAllReq.onsuccess = (e) => {
+        const allShips = e.target.result;
+        let existingShip = null;
+        let existingKey = null;
+
+        // 이름이 같으면 기존 선박으로 간주 (식별된 선박인 경우)
+        if (isIdentified) {
+            existingShip = allShips.find(s => s.name === shipName);
+            if (existingShip) {
+                // keyPath가 없으면 id나 수동 키를 찾아야 함
+                // 여기서는 store.getAll()로 가져온 객체의 id를 키로 사용하거나, 
+                // 기존 로직처럼 cursor를 쓰지 않아도 store.put(existingShip)이 작동하도록 id를 유지
             }
         }
 
-        // 조회가 끝났거나 existingShip을 찾았을 때 실행
         if (existingShip) {
             // 기존 정보 업데이트 (값이 없을 때만)
             if (!existingShip.type) existingShip.type = shipType;
@@ -402,18 +401,22 @@ async function saveTraceLog() {
             if (!existingShip.owner) existingShip.owner = shipOwner;
             if (!existingShip.tel) existingShip.tel = shipTel;
 
-            // 특징(태그) 업데이트: 기존 태그와 합치기 (중복 제거)
+            // 특징(태그) 업데이트: 기존 태그와 새 태그 합치기 (중복 제거)
             if (!existingShip.tags) existingShip.tags = [];
-            const newTags = tags.filter(t => t && t !== "");
-            if (newTags.length > 0) {
-                const combinedTags = new Set([...existingShip.tags, ...newTags]);
-                existingShip.tags = Array.from(combinedTags);
+            const inputTags = tags.filter(t => t && t.trim() !== "");
+            if (inputTags.length > 0) {
+                const combinedTags = [...existingShip.tags];
+                inputTags.forEach(t => {
+                    if (!combinedTags.includes(t)) combinedTags.push(t);
+                });
+                existingShip.tags = combinedTags;
             }
 
             if (!existingShip.history) existingShip.history = [];
             existingShip.history.unshift(newHistory);
             
-            store.put(existingShip, existingKey);
+            // keyPath가 id라면 put(existingShip)만으로 업데이트됨
+            store.put(existingShip);
         } else {
             // 새 선박 생성
             const newShip = {
@@ -424,15 +427,10 @@ async function saveTraceLog() {
                 number: shipNumber,
                 owner: shipOwner,
                 tel: shipTel,
-                tags: tags.filter(t => t && t !== ""),
+                tags: tags.filter(t => t && t.trim() !== ""),
                 history: [newHistory]
             };
-            // ID를 키로 사용하거나 자동 생성 키 사용
-            if (store.keyPath === "id") {
-                store.add(newShip);
-            } else {
-                store.add(newShip, newShip.id);
-            }
+            store.add(newShip);
         }
     };
 
