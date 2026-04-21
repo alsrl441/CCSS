@@ -243,9 +243,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                         <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
                     </div>
                 </div>
-                <div class="edit-group"><label>특징 (콤마 구분)</label>
-                    <input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}">
-                </div>
                 <div class="history-actions" style="margin-top: auto;">
                     <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
                     <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
