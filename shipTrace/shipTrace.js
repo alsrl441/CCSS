@@ -399,6 +399,13 @@ async function saveTraceLog() {
             if (!existingShip.owner) existingShip.owner = shipOwner;
             if (!existingShip.tel) existingShip.tel = shipTel;
 
+            // 특징(태그) 업데이트: 기존 태그와 합치기 (중복 제거)
+            if (!existingShip.tags) existingShip.tags = [];
+            if (tags && tags.length > 0 && tags[0] !== "") {
+                const combinedTags = new Set([...existingShip.tags, ...tags]);
+                existingShip.tags = Array.from(combinedTags).filter(t => t);
+            }
+
             if (!existingShip.history) existingShip.history = [];
             existingShip.history.unshift(newHistory);
             
@@ -412,6 +419,7 @@ async function saveTraceLog() {
                 number: shipNumber,
                 owner: shipOwner,
                 tel: shipTel,
+                tags: (tags && tags[0] !== "") ? tags : [],
                 history: [newHistory]
             };
             store.add(newShip, newShip.id);
