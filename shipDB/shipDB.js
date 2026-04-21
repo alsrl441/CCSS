@@ -455,12 +455,36 @@ async function initShipSearch() {
     const termsSet = new Set();
     shipData.forEach(ship => {
         ['name', 'tonnage', 'type', 'number', 'tags'].forEach(field => {
-            const val = ship[field];
+            let val = ship[field];
+            if (field === 'tonnage' && val && !String(val).toLowerCase().endsWith('t')) {
+                val = String(val) + 't';
+            }
             if (Array.isArray(val)) val.forEach(v => { if (v) termsSet.add(String(v).trim()); });
             else if (val) termsSet.add(String(val).trim());
         });
     });
     const allTerms = Array.from(termsSet);
+
+    // 방향키 페이지 이동 추가
+    document.addEventListener('keydown', (e) => {
+        const activeElement = document.activeElement;
+        const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+        if (isInput) return;
+
+        if (e.key === 'ArrowLeft') {
+            if (currentPage > 1) {
+                currentPage--;
+                renderShips();
+            }
+        } else if (e.key === 'ArrowRight') {
+            const totalItems = getFilteredShips().length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderShips();
+            }
+        }
+    });
 
     input.addEventListener('input', function() {
         let val = this.value;
@@ -555,8 +579,8 @@ function showHistoryDetail(shipIdx, historyIdx) {
                     <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
                     
                     <div class="history-actions" style="margin-top: auto; display: flex; gap: 8px;">
-                        <button class="btn-custom btn-outline-primary" style="flex:1;" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
-                        <button class="btn-custom btn-outline-danger" style="flex:1;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
+                        <button class="btn-custom" style="width: 50px; height: 30px; padding: 0; font-size: 0.8rem; background-color: #0d6efd; color: white; border: none; border-radius: 4px;" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
+                        <button class="btn-custom" style="width: 50px; height: 30px; padding: 0; font-size: 0.8rem; background-color: #dc3545; color: white; border: none; border-radius: 4px;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
                     </div>
                 </div>
                 <div class="history-mid-right">
@@ -594,7 +618,7 @@ function renderShips() {
         if (selectedTags.length === 0) return true;
         return selectedTags.every(t => 
             (s.name && s.name.includes(t)) || 
-            (s.tonnage && s.tonnage.includes(t)) || 
+            (s.tonnage && (s.tonnage.includes(t) || (s.tonnage + 't').includes(t))) || 
             (s.type && s.type.includes(t)) || 
             (s.number && s.number.includes(t)) || 
             (s.owner && s.owner.includes(t)) ||
