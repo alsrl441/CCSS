@@ -100,16 +100,15 @@ function compressImage(file, maxWidth = 800, maxHeight = 600) {
 // 이미지 드래그 앤 드롭 및 미리보기 핸들러
 function setupImageHandlers() {
     const zones = [
-        { dropZone: 'ship-drop-zone', input: 'ship-image-path', preview: 'ship-preview' },
-        { dropZone: 'path-drop-zone', input: 'path-image-path', preview: 'path-preview' }
+        { dropZone: 'ship-drop-zone', preview: 'ship-preview' },
+        { dropZone: 'path-drop-zone', preview: 'path-preview' }
     ];
 
     zones.forEach(zone => {
         const dropZone = document.getElementById(zone.dropZone);
-        const input = document.getElementById(zone.input);
         const preview = document.getElementById(zone.preview);
 
-        if (!dropZone || !input || !preview) return;
+        if (!dropZone || !preview) return;
 
         // 드래그 이벤트 처리
         dropZone.addEventListener('dragover', (e) => {
@@ -131,24 +130,8 @@ function setupImageHandlers() {
                 if (file.type.startsWith('image/')) {
                     // 이미지 압축 후 저장
                     const compressedData = await compressImage(file);
-                    input.value = compressedData; // 압축된 데이터(Base64) 저장
                     preview.src = compressedData; // 미리보기 업데이트
                 }
-            }
-        });
-
-        // 경로 입력창 변경 시 미리보기 업데이트
-        input.addEventListener('input', () => {
-            const path = input.value.trim();
-            if (path) {
-                // 데이터 URL인지 파일 경로인지 확인
-                if (path.startsWith('data:image')) {
-                    preview.src = path;
-                } else {
-                    preview.src = `../shipDB/identified/${path}`;
-                }
-            } else {
-                preview.src = `../shipDB/identified/Images/no-image.jpg`;
             }
         });
     });
@@ -296,7 +279,32 @@ async function saveTraceLog() {
     }
 
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
-    
+
+    // 필수 입력 체크
+    const firstTime = document.getElementById('first-time').value;
+    const lastTime = document.getElementById('last-time').value;
+    const firstAzEl = document.getElementById('first-az-el').value.trim();
+    const lastAzEl = document.getElementById('last-az-el').value.trim();
+    const firstPos = document.getElementById('first-pos').value.trim();
+    const lastPos = document.getElementById('last-pos').value.trim();
+    const moveDirCommon = document.getElementById('move-dir-common').value.trim();
+    const shipPreview = document.getElementById('ship-preview');
+    const pathPreview = document.getElementById('path-preview');
+
+    if (!firstTime || !lastTime || !firstAzEl || !lastAzEl || !firstPos || !lastPos || !moveDirCommon) {
+        alert("최초/최종 식별 시간, 방위각/고각/위치, 이동 방향은 필수 입력 항목입니다.");
+        return;
+    }
+
+    if (!shipPreview.src || shipPreview.src.includes('no-image.jpg') || shipPreview.src === window.location.href) {
+        alert("선박 이미지를 등록해주세요.");
+        return;
+    }
+    if (!pathPreview.src || pathPreview.src.includes('no-image.jpg') || pathPreview.src === window.location.href) {
+        alert("항로 이미지를 등록해주세요.");
+        return;
+    }
+
     // 기본 정보
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
     const shipType = document.getElementById('ship-type').value.trim() || "";
@@ -304,7 +312,7 @@ async function saveTraceLog() {
     const shipNumber = document.getElementById('ship-number').value.trim() || "";
     const shipOwner = document.getElementById('ship-owner').value.trim() || "";
     const shipTel = document.getElementById('ship-tel').value.trim() || "";
-    
+
     // 식별 기록 정보
     const worker = document.getElementById('worker').value.trim() || "미입력";
     const telephonee = document.getElementById('telephonee').value.trim() || "";
@@ -317,11 +325,8 @@ async function saveTraceLog() {
 
     const identificationDate = new Date().toISOString().split('T')[0];
 
-    const firstPos = document.getElementById('first-pos').value.trim() || "";
-    const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "";
-    const lastPos = document.getElementById('last-pos').value.trim() || "";
     const terminationReason = document.getElementById('termination-reason').value;
-    
+
     const autoMovementPath = getAutoMovementPath(firstPos, moveDirCommon, lastPos, terminationReason);
 
     // 거리 환산 (km로 저장)
@@ -343,11 +348,11 @@ async function saveTraceLog() {
         distance: distKm + "km",
         traceNumber: mode === 'inquiry' ? (document.getElementById('radar-station-select').value + "-" + document.getElementById('trace-num').value.trim()) : "",
         firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "",
-        firstTime: document.getElementById('first-time').value || "00:00",
-        firstAzEl: document.getElementById('first-az-el').value || "",
+        firstTime: firstTime || "00:00",
+        firstAzEl: firstAzEl || "",
         firstPos: firstPos,
-        lastTime: document.getElementById('last-time').value || "00:00",
-        lastAzEl: document.getElementById('last-az-el').value || "",
+        lastTime: lastTime || "00:00",
+        lastAzEl: lastAzEl || "",
         lastPos: lastPos,
         tags: tags,
         moveDirOverall: moveDirCommon,
@@ -356,15 +361,14 @@ async function saveTraceLog() {
         crewCount: document.getElementById('crew-count').value.trim().replace(/명/g, '') || "식별불가",
         externalName: document.getElementById('external-name').value.trim() || "X",
         handoverDetails: mode === 'inquiry' ? (document.getElementById('handover-details').value || "X") : "X",
-        shipImage: document.getElementById('ship-image-path').value.trim() || "Images/no-image.jpg",
-        pathImage: document.getElementById('path-image-path').value.trim() || "Images/no-image.jpg",
+        shipImage: shipPreview.src,
+        pathImage: pathPreview.src,
         violation: fullViolationText,
         worker: worker,
         telephonee: telephonee,
         timestamp: new Date().getTime(),
         cameraNum: document.getElementById('camera-num').value
     };
-
     const isIdentified = (shipName !== "식별불가");
     const targetStoreName = isIdentified ? STORE_IDENTIFIED : STORE_UNIDENTIFIED;
     

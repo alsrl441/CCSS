@@ -12,7 +12,7 @@
 
 .trace-body {
     background-color: var(--bg-color);
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    font-family: "Malgun Gothic", sans-serif;
     color: var(--text-main);
     margin: 0;
 }

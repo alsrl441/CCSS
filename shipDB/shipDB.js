@@ -395,8 +395,8 @@ async function saveHistoryData(shipIdx, historyIdx) {
         externalName: document.getElementById('edit-external').value,
         worker: document.getElementById('edit-worker').value,
         telephonee: document.getElementById('edit-telephonee').value,
-        shipImage: document.getElementById('edit-ship-img').value,
-        pathImage: document.getElementById('edit-path-img').value,
+        shipImage: document.getElementById('edit-ship-preview').src,
+        pathImage: document.getElementById('edit-path-preview').src,
         timestamp: isEdit ? (ship.history[historyIdx].timestamp || new Date().getTime()) : new Date().getTime()
     };
     
@@ -588,6 +588,7 @@ function showHistoryDetail(shipIdx, historyIdx) {
                         <label>어선법 위반 여부</label>
                         <div class="scroll-box">${h.violation || 'X'}</div>
                     </div>
+                    <div class="h-item"><label>외부명칭 / 깃발</label><span>${h.externalName || 'X'}</span></div>
                     <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
                     <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
                 </div>
@@ -758,6 +759,11 @@ function renderPagination(totalItems) {
             container.appendChild(createBtn(i, i, i === currentPage));
         }
         container.appendChild(createBtn('>', Math.min(totalPages, currentPage + 1), false, currentPage === totalPages));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initShipSearch);
+ + 1), false, currentPage === totalPages));
     }
 }
 
