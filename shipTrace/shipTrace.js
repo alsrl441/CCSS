@@ -15,10 +15,10 @@ function initDB() {
             upgradeRequest.onupgradeneeded = (ev) => {
                 const upgradeDb = ev.target.result;
                 if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
-                    upgradeDb.createObjectStore(STORE_IDENTIFIED);
+                    upgradeDb.createObjectStore(STORE_IDENTIFIED, { keyPath: 'id' });
                 }
                 if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
-                    upgradeDb.createObjectStore(STORE_UNIDENTIFIED);
+                    upgradeDb.createObjectStore(STORE_UNIDENTIFIED, { keyPath: 'id' });
                 }
             };
             upgradeRequest.onsuccess = (ev) => {
@@ -33,10 +33,10 @@ function initDB() {
     request.onupgradeneeded = (e) => {
         const upgradeDb = e.target.result;
         if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
-            upgradeDb.createObjectStore(STORE_IDENTIFIED);
+            upgradeDb.createObjectStore(STORE_IDENTIFIED, { keyPath: 'id' });
         }
         if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
-            upgradeDb.createObjectStore(STORE_UNIDENTIFIED);
+            upgradeDb.createObjectStore(STORE_UNIDENTIFIED, { keyPath: 'id' });
         }
     };
 
