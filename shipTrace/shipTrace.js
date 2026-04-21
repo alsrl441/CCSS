@@ -381,46 +381,37 @@ async function saveTraceLog() {
     getAllReq.onsuccess = (e) => {
         const allShips = e.target.result;
         let existingShip = null;
-        let existingKey = null;
 
-        // 이름이 같으면 기존 선박으로 간주 (식별된 선박인 경우)
         if (isIdentified) {
             existingShip = allShips.find(s => s.name === shipName);
-            if (existingShip) {
-                // keyPath가 없으면 id나 수동 키를 찾아야 함
-                // 여기서는 store.getAll()로 가져온 객체의 id를 키로 사용하거나, 
-                // 기존 로직처럼 cursor를 쓰지 않아도 store.put(existingShip)이 작동하도록 id를 유지
-            }
         }
 
         if (existingShip) {
-            // 기존 정보 업데이트 (값이 없을 때만)
+            // 기존 정보 업데이트
             if (!existingShip.type) existingShip.type = shipType;
             if (!existingShip.tonnage) existingShip.tonnage = tonnage;
             if (!existingShip.number) existingShip.number = shipNumber;
             if (!existingShip.owner) existingShip.owner = shipOwner;
             if (!existingShip.tel) existingShip.tel = shipTel;
 
-            // 특징(태그) 업데이트: 기존 태그와 새 태그 합치기 (중복 제거)
-            if (!existingShip.tags) existingShip.tags = [];
-            const inputTags = tags.filter(t => t && t.trim() !== "");
-            if (inputTags.length > 0) {
-                const combinedTags = [...existingShip.tags];
-                inputTags.forEach(t => {
-                    if (!combinedTags.includes(t)) combinedTags.push(t);
-                });
-                existingShip.tags = combinedTags;
-            }
+            // 특징(태그) 업데이트
+            let currentTags = Array.isArray(existingShip.tags) ? existingShip.tags : [];
+            const newInputTags = tags.filter(t => t && t.trim() !== "");
+            
+            newInputTags.forEach(t => {
+                if (!currentTags.includes(t)) currentTags.push(t);
+            });
+            existingShip.tags = currentTags;
 
             if (!existingShip.history) existingShip.history = [];
             existingShip.history.unshift(newHistory);
             
-            // keyPath가 id라면 put(existingShip)만으로 업데이트됨
+            // keyPath가 "id"로 설정되어 있으므로 객체만 넘겨도 됨
             store.put(existingShip);
         } else {
             // 새 선박 생성
             const newShip = {
-                id: Date.now().toString(),
+                id: Date.now().toString(), // 고유 ID 생성
                 name: shipName,
                 type: shipType,
                 tonnage: tonnage,
@@ -430,7 +421,7 @@ async function saveTraceLog() {
                 tags: tags.filter(t => t && t.trim() !== ""),
                 history: [newHistory]
             };
-            store.add(newShip);
+            store.put(newShip); // add 대신 put 사용 (안전성)
         }
     };
 
