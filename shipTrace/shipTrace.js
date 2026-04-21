@@ -58,6 +58,45 @@ function toggleTraceMode() {
 }
 window.toggleTraceMode = toggleTraceMode;
 
+// 이미지 압축 및 리사이징 함수
+function compressImage(file, maxWidth = 800, maxHeight = 600) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // 비율 유지하며 리사이징
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // JPEG 0.7 화질로 압축 (용량 최적화)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            };
+        };
+    });
+}
+
 // 이미지 드래그 앤 드롭 및 미리보기 핸들러
 function setupImageHandlers() {
     const zones = [
@@ -82,7 +121,7 @@ function setupImageHandlers() {
             dropZone.classList.remove('drag-over');
         });
 
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', async (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             
@@ -90,15 +129,10 @@ function setupImageHandlers() {
             if (files && files.length > 0) {
                 const file = files[0];
                 if (file.type.startsWith('image/')) {
-                    // 파일명을 경로로 입력 (로컬 환경이므로 Images/ 폴더 내에 있다고 가정)
-                    input.value = `Images/${file.name}`;
-                    
-                    // 미리보기 업데이트
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        preview.src = ev.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                    // 이미지 압축 후 저장
+                    const compressedData = await compressImage(file);
+                    input.value = compressedData; // 압축된 데이터(Base64) 저장
+                    preview.src = compressedData; // 미리보기 업데이트
                 }
             }
         });
@@ -106,11 +140,13 @@ function setupImageHandlers() {
         // 경로 입력창 변경 시 미리보기 업데이트
         input.addEventListener('input', () => {
             const path = input.value.trim();
-            // 기본 경로는 ../shipDB/identified/Images/no-image.jpg
-            // 입력된 경로가 있다면 해당 경로를 사용 (상대 경로 고려)
             if (path) {
-                // DB에서 읽어올 때와 동일한 경로 규칙 적용을 위해 '../shipDB/identified/' 추가
-                preview.src = `../shipDB/identified/${path}`;
+                // 데이터 URL인지 파일 경로인지 확인
+                if (path.startsWith('data:image')) {
+                    preview.src = path;
+                } else {
+                    preview.src = `../shipDB/identified/${path}`;
+                }
             } else {
                 preview.src = `../shipDB/identified/Images/no-image.jpg`;
             }

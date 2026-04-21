@@ -289,6 +289,42 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     setTimeout(() => setupHistoryImageHandlers(), 0);
 }
 
+// 이미지 압축 및 리사이징 함수
+function compressImage(file, maxWidth = 800, maxHeight = 600) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            };
+        };
+    });
+}
+
 function setupHistoryImageHandlers() {
     const zones = [
         { dropZone: 'edit-ship-drop-zone', input: 'edit-ship-img', preview: 'edit-ship-preview' },
@@ -313,7 +349,7 @@ function setupHistoryImageHandlers() {
             dropZone.style.background = '#f9f9f9';
         });
 
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', async (e) => {
             e.preventDefault();
             dropZone.style.borderColor = '#ddd';
             dropZone.style.background = '#f9f9f9';
@@ -322,18 +358,20 @@ function setupHistoryImageHandlers() {
             if (files && files.length > 0) {
                 const file = files[0];
                 if (file.type.startsWith('image/')) {
-                    input.value = `Images/${file.name}`;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        preview.src = ev.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                    const compressedData = await compressImage(file);
+                    input.value = compressedData;
+                    preview.src = compressedData;
                 }
             }
         });
 
         input.addEventListener('input', () => {
-            preview.src = input.value.trim() || "Images/no-image.jpg";
+            const val = input.value.trim();
+            if (val.startsWith('data:image')) {
+                preview.src = val;
+            } else {
+                preview.src = val || "Images/no-image.jpg";
+            }
         });
     });
 }
