@@ -1,0 +1,145 @@
+.profile-layout {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.profile-photo-container {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    background-color: #f1f3f5;
+}
+
+.rank-badge {
+    background-color: #0d6efd;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.display-name {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #343a40;
+    vertical-align: middle;
+}
+
+.nickname {
+    font-size: 1rem;
+    font-style: italic;
+}
+
+.realtime-percent {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.progress-bar-container {
+    height: 12px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #495057;
+}
+
+.info-table td {
+    padding: 8px 4px;
+    font-size: 0.95rem;
+}
+
+.table-label {
+    width: 30%;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.preview-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.preview-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.preview-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    object-fit: cover;
+    background-color: #f8f9fa;
+}
+
+.preview-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.preview-info {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.hidden { display: none !important; }
+.ml-2 { margin-left: 0.5rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.ml-2 { margin-left: 0.5rem !important; }
+.font-weight-bold { font-weight: 700; }
+.text-muted { color: #6c757d !important; }
+.text-primary { color: #0d6efd !important; }
+.text-danger { color: #dc3545 !important; }
+
+@media (max-width: 768px) {
+    .profile-header {
+        text-align: center;
+    }
+    .col-md-6 {
+        margin-bottom: 2rem;
+    }
+}

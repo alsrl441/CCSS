@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const selectEl = document.getElementById('memberSelect');
     const displayEl = document.getElementById('resultDisplay');
+    const noDataEl = document.getElementById('noDataMessage');
     const previewEl = document.getElementById('previewDisplay');
     let timerId = null; 
     let members = [];
@@ -12,29 +13,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             const request = indexedDB.open("IMS_database");
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                const tx = db.transaction(STORE_NAME, "readwrite");
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    resolve([]);
+                    return;
+                }
+                const tx = db.transaction(STORE_NAME, "readonly");
                 const store = tx.objectStore(STORE_NAME);
-
-                const countReq = store.count();
-                countReq.onsuccess = () => {
-                    if (countReq.result === 0) {
-                        const initialMemberTemplate = {
-                            "id": "0",
-                            "name": "홍길동",
-                            "nickName": "길동이",
-                            "start": "2024-01-01",
-                            "end": "2025-06-30",
-                            "vacation": "2024-05-01",
-                            "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 }
-                        };
-                        store.put(initialMemberTemplate);
-                        console.log("Initial members template inserted.");
-                    }
-                    
-                    const getReq = store.getAll();
-                    getReq.onsuccess = () => resolve(getReq.result || []);
-                    getReq.onerror = () => resolve([]);
-                };
+                const getReq = store.getAll();
+                getReq.onsuccess = () => resolve(getReq.result || []);
+                getReq.onerror = () => resolve([]);
             };
             request.onerror = () => resolve([]);
         });
@@ -46,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
-            opt.textContent = m.name;
+            opt.textContent = `${m.name} (${m.nickName || ''})`;
             selectEl.appendChild(opt);
         });
         renderPreview();
@@ -63,13 +50,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (val === "") {
             displayEl.classList.add('hidden');
+            noDataEl.classList.remove('hidden');
             previewEl.classList.remove('hidden');
             renderPreview();
         } else {
             const user = members[val];
             displayEl.classList.remove('hidden');
+            noDataEl.classList.add('hidden');
             previewEl.classList.add('hidden');
             
+            updateStaticProfile(user);
             calculateMilitary(user);
             timerId = setInterval(() => calculateMilitary(user), 10); 
         }
@@ -77,29 +67,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderPreview() {
         previewEl.innerHTML = '';
-        const now = new Date();
-
         members.forEach((user, idx) => {
-            const start = new Date(user.start);
-            const end = new Date(user.end);
-            const totalTime = end - start;
-            const passedTime = now - start;
-            const percent = Math.min(100, Math.max(0, (passedTime / totalTime) * 100)).toFixed(2);
-            const remainDays = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-
             const card = document.createElement('div');
             card.className = 'preview-card';
             card.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="preview-name">${user.name}</span>
-                    <span class="preview-percent">${percent}%</span>
-                </div>
-                <div class="progress-bar-container" style="height: 6px; margin-bottom: 8px;">
-                    <div class="progress-bar-fill" style="width: ${percent}%"></div>
-                </div>
-                <div class="text-secondary small">
-                    ${remainDays > 0 ? '전역까지 D-' + remainDays : '전역 완료'}
-                </div>
+                <img src="${user.photo || '../img/default-profile.png'}" class="preview-photo shadow-sm">
+                <span class="preview-name">${user.name}</span>
+                <div class="preview-info">${user.affiliation || '-'}</div>
+                <div class="preview-info text-primary">${user.position || '-'}</div>
             `;
             card.addEventListener('click', () => {
                 selectEl.value = idx;
@@ -107,6 +82,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             previewEl.appendChild(card);
         });
+    }
+
+    function updateStaticProfile(user) {
+        document.getElementById('resPhoto').src = user.photo || '../img/default-profile.png';
+        document.getElementById('resName').innerText = user.name;
+        document.getElementById('resNickName').innerText = user.nickName ? `(${user.nickName})` : '';
+        document.getElementById('resAffiliation').innerText = user.affiliation || '정보 없음';
+        document.getElementById('resPosition').innerText = user.position || '정보 없음';
+        document.getElementById('resHobby').innerText = user.hobby || '정보 없음';
+        document.getElementById('resSpecialty').innerText = user.specialty || '정보 없음';
+        document.getElementById('resServicePeriod').innerText = `${user.start} ~ ${user.end}`;
     }
 
     function calculateMilitary(user) {
@@ -152,39 +138,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             promoMonthOffset = -1;
         }
 
+        document.getElementById('resRankTop').innerText = rank;
+        document.getElementById('resRankStatus').innerText = remainTime > 0 ? `${rank} ${hobong}호봉` : "병장 (전역 완료)";
+        document.getElementById('resPercent').innerText = `${percent}%`;
+        document.getElementById('progressBarFill').style.width = `${percent}%`;
+        document.getElementById('resDday').innerText = remainTime > 0 ? `D-${remainDays}` : "전역 완료";
+
         let nextPromoDate = null;
         if (promoMonthOffset !== -1) {
             nextPromoDate = new Date(startFirstDay.getFullYear(), startFirstDay.getMonth() + promoMonthOffset, 1);
         }
 
-        document.getElementById('resName').innerText = remainTime > 0 ? `${rank} ${user.nickName}` : `병장 ${user.nickName}`;
-        document.getElementById('resPercent').innerText = `${percent}%`;
-        document.getElementById('progressBarFill').style.width = `${percent}%`;
-        
-        document.getElementById('resRank').innerText = remainTime > 0 ? `${rank} ${hobong}호봉` : "병장 (전역 완료)";
-        document.getElementById('resStartDate').innerText = user.start;
-        document.getElementById('resEndDate').innerText = user.end;
-        document.getElementById('resDday').innerText = remainTime > 0 ? `D-${remainDays}` : "전역 완료";
-
         if (rank === "병장" || !nextPromoDate || remainTime <= 0) {
-            document.getElementById('resNextPromo').innerText = "일정 없음";
-            document.getElementById('resPromoDday').innerText = "-";
+            document.getElementById('resPromoInfo').innerText = "일정 없음";
         } else {
             const promoDday = Math.ceil((nextPromoDate - now) / (1000 * 60 * 60 * 24));
-            const py = nextPromoDate.getFullYear();
-            const pm = String(nextPromoDate.getMonth() + 1).padStart(2, '0');
-            const pd = String(nextPromoDate.getDate()).padStart(2, '0');
-            document.getElementById('resNextPromo').innerText = `${py}-${pm}-${pd}`;
-            document.getElementById('resPromoDday').innerText = `D-${promoDday}`;
+            document.getElementById('resPromoInfo').innerText = `D-${promoDday} (${nextPromoDate.toLocaleDateString()})`;
         }
 
         if (vac && vac > now) {
             const vacDday = Math.ceil((vac - now) / (1000 * 60 * 60 * 24));
-            document.getElementById('resNextVac').innerText = user.vacation;
-            document.getElementById('resVacDday').innerText = `D-${vacDday}`;
+            document.getElementById('resVacInfo').innerText = `D-${vacDday} (${user.vacation})`;
         } else {
-            document.getElementById('resNextVac').innerText = "일정 없음";
-            document.getElementById('resVacDday').innerText = "-";
+            document.getElementById('resVacInfo').innerText = "일정 없음";
         }
     }
 });

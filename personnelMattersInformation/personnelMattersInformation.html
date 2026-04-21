@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인사 정보 조회</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="personnelMattersInformation.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../index.html" class="nav-link">대시보드</a>
+                <a href="personnelMattersInformation.html" class="nav-link active">인사 정보</a>
+                <div class="nav-item-dropdown">
+                    <a href="#" class="nav-link">선박 DB</a>
+                    <div class="dropdown-menu">
+                        <a href="../shipDB/identified/identified.html" class="dropdown-item">식별 선박</a>
+                        <a href="../shipDB/unidentified/unidentified.html" class="dropdown-item">미식별 선박</a>
+                    </div>
+                </div>
+                <a href="../shipTrace/shipTrace.html" class="nav-link">선박 추적</a>
+            </div>
+            <div class="navbar-right">
+                <div id="clock" class="clock"></div>
+                <a href="../game/game.html" class="nav-link game-link">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="profile-layout">
+            <section class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">인사 정보 상세</h5>
+                    <div class="selector-wrapper">
+                        <select id="memberSelect" class="form-select">
+                            <option value="">인원을 선택하세요</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="resultDisplay" class="result-content hidden">
+                        <!-- Profile Header -->
+                        <div class="profile-header text-center mb-4">
+                            <div class="profile-photo-container">
+                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile Photo" class="profile-photo shadow">
+                            </div>
+                            <div class="profile-basic-info mt-3">
+                                <div class="rank-name">
+                                    <span id="resRankTop" class="rank-badge"></span>
+                                    <h2 id="resName" class="display-name d-inline-block ml-2 mb-0"></h2>
+                                    <span id="resNickName" class="nickname text-muted ml-2"></span>
+                                </div>
+                                <div id="resPercent" class="realtime-percent mt-2"></div>
+                                <div class="progress-bar-container mt-2 mx-auto" style="max-width: 400px;">
+                                    <div id="progressBarFill" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <!-- Left: Personal Info -->
+                            <div class="col-md-6">
+                                <div class="info-section">
+                                    <h6 class="section-title border-bottom pb-2 mb-3">신상 정보</h6>
+                                    <table class="info-table table table-borderless">
+                                        <tbody>
+                                            <tr><td class="table-label">소속</td><td><span id="resAffiliation" class="font-weight-bold"></span></td></tr>
+                                            <tr><td class="table-label">보직</td><td><span id="resPosition"></span></td></tr>
+                                            <tr><td class="table-label">취미</td><td><span id="resHobby"></span></td></tr>
+                                            <tr><td class="table-label">특기</td><td><span id="resSpecialty"></span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Right: Military Info -->
+                            <div class="col-md-6">
+                                <div class="info-section">
+                                    <h6 class="section-title border-bottom pb-2 mb-3">복무 및 일정</h6>
+                                    <table class="info-table table table-borderless">
+                                        <tbody>
+                                            <tr><td class="table-label">현재 상태</td><td><span id="resRankStatus" class="text-primary font-weight-bold"></span></td></tr>
+                                            <tr><td class="table-label">입대 / 전역</td><td><span id="resServicePeriod"></span></td></tr>
+                                            <tr><td class="table-label">전역 D-day</td><td><span id="resDday" class="text-danger font-weight-bold"></span></td></tr>
+                                            <tr><td class="table-label">진급 D-day</td><td><span id="resPromoInfo"></span></td></tr>
+                                            <tr><td class="table-label">휴가 D-day</td><td><span id="resVacInfo"></span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="noDataMessage" class="text-center py-5 text-muted">
+                        <i class="fas fa-user-circle fa-4x mb-3"></i>
+                        <p>상단에서 인원을 선택하여 상세 정보를 확인하세요.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div id="previewDisplay" class="preview-grid"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="footer-links">
+                <a href="../databaseManager/databaseManager.html" target="_blank">DBM 관리</a>
+                <span class="sep">|</span>
+                <a href="#">국방인사정보체계</a>
+                <span class="sep">|</span>
+                <a href="#">제96보병여단</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script src="personnelMattersInformation.js"></script>
+</body>
+</html>
