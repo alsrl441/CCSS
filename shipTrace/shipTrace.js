@@ -58,6 +58,66 @@ function toggleTraceMode() {
 }
 window.toggleTraceMode = toggleTraceMode;
 
+// 이미지 드래그 앤 드롭 및 미리보기 핸들러
+function setupImageHandlers() {
+    const zones = [
+        { dropZone: 'ship-drop-zone', input: 'ship-image-path', preview: 'ship-preview' },
+        { dropZone: 'path-drop-zone', input: 'path-image-path', preview: 'path-preview' }
+    ];
+
+    zones.forEach(zone => {
+        const dropZone = document.getElementById(zone.dropZone);
+        const input = document.getElementById(zone.input);
+        const preview = document.getElementById(zone.preview);
+
+        if (!dropZone || !input || !preview) return;
+
+        // 드래그 이벤트 처리
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    // 파일명을 경로로 입력 (로컬 환경이므로 Images/ 폴더 내에 있다고 가정)
+                    input.value = `Images/${file.name}`;
+                    
+                    // 미리보기 업데이트
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        preview.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // 경로 입력창 변경 시 미리보기 업데이트
+        input.addEventListener('input', () => {
+            const path = input.value.trim();
+            // 기본 경로는 ../shipDB/identified/Images/no-image.jpg
+            // 입력된 경로가 있다면 해당 경로를 사용 (상대 경로 고려)
+            if (path) {
+                // DB에서 읽어올 때와 동일한 경로 규칙 적용을 위해 '../shipDB/identified/' 추가
+                preview.src = `../shipDB/identified/${path}`;
+            } else {
+                preview.src = `../shipDB/identified/Images/no-image.jpg`;
+            }
+        });
+    });
+}
+
 // 이벤트 리스너 등록 및 초기화
 document.addEventListener('DOMContentLoaded', () => {
     const modeRadios = document.querySelectorAll('input[name="trace-mode"]');
@@ -67,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 초기 실행
     toggleTraceMode();
+    setupImageHandlers(); // 이미지 핸들러 초기화
 });
 
 const distValue = document.getElementById('dist-value');
@@ -259,8 +320,8 @@ async function saveTraceLog() {
         crewCount: document.getElementById('crew-count').value.trim().replace(/명/g, '') || "식별불가",
         externalName: document.getElementById('external-name').value.trim() || "X",
         handoverDetails: mode === 'inquiry' ? (document.getElementById('handover-details').value || "X") : "X",
-        shipImage: "Images/no-image.jpg",
-        pathImage: "Images/no-image.jpg",
+        shipImage: document.getElementById('ship-image-path').value.trim() || "Images/no-image.jpg",
+        pathImage: document.getElementById('path-image-path').value.trim() || "Images/no-image.jpg",
         violation: fullViolationText,
         worker: worker,
         telephonee: telephonee,
@@ -320,6 +381,11 @@ async function saveTraceLog() {
     tx.oncomplete = () => {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
+        
+        // 이미지 미리보기 초기화
+        document.getElementById('ship-preview').src = "../shipDB/identified/Images/no-image.jpg";
+        document.getElementById('path-preview').src = "../shipDB/identified/Images/no-image.jpg";
+        
         toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();

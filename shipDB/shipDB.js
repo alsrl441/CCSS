@@ -265,11 +265,77 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             </div>
             <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                 <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
-                <div class="edit-group"><label>선박 이미지 경로</label><input type="text" id="edit-ship-img" value="${h.shipImage}"></div>
-                <div class="edit-group"><label>항로 이미지 경로</label><input type="text" id="edit-path-img" value="${h.pathImage}"></div>
+                
+                <div class="edit-group"><label>선박 이미지 (경로 입력/드래그)</label>
+                    <div class="history-drop-zone" id="edit-ship-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
+                        <img id="edit-ship-preview" src="${h.shipImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        <div style="position: absolute; bottom: 5px; font-size: 0.6rem; color: #666; background: rgba(255,255,255,0.7); padding: 2px 5px;">드래그</div>
+                    </div>
+                    <input type="text" id="edit-ship-img" value="${h.shipImage}" style="font-size: 0.7rem; margin-top: 4px;">
+                </div>
+
+                <div class="edit-group"><label>항로 이미지 (경로 입력/드래그)</label>
+                    <div class="history-drop-zone" id="edit-path-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
+                        <img id="edit-path-preview" src="${h.pathImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        <div style="position: absolute; bottom: 5px; font-size: 0.6rem; color: #666; background: rgba(255,255,255,0.7); padding: 2px 5px;">드래그</div>
+                    </div>
+                    <input type="text" id="edit-path-img" value="${h.pathImage}" style="font-size: 0.7rem; margin-top: 4px;">
+                </div>
             </div>
         </div>
     `;
+    
+    // 이미지 핸들러 즉시 설정
+    setTimeout(() => setupHistoryImageHandlers(), 0);
+}
+
+function setupHistoryImageHandlers() {
+    const zones = [
+        { dropZone: 'edit-ship-drop-zone', input: 'edit-ship-img', preview: 'edit-ship-preview' },
+        { dropZone: 'edit-path-drop-zone', input: 'edit-path-img', preview: 'edit-path-preview' }
+    ];
+
+    zones.forEach(zone => {
+        const dropZone = document.getElementById(zone.dropZone);
+        const input = document.getElementById(zone.input);
+        const preview = document.getElementById(zone.preview);
+
+        if (!dropZone || !input || !preview) return;
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#0d6efd';
+            dropZone.style.background = '#eff6ff';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#ddd';
+            dropZone.style.background = '#f9f9f9';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ddd';
+            dropZone.style.background = '#f9f9f9';
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    input.value = `Images/${file.name}`;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        preview.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        input.addEventListener('input', () => {
+            preview.src = input.value.trim() || "Images/no-image.jpg";
+        });
+    });
 }
 
 async function saveHistoryData(shipIdx, historyIdx) {
