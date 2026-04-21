@@ -375,6 +375,7 @@ async function saveTraceLog() {
     const tx = db.transaction(targetStoreName, "readwrite");
     const store = tx.objectStore(targetStoreName);
     
+    // 조회를 위해 모든 데이터 가져오기
     const getReq = store.openCursor();
     let existingShip = null;
     let existingKey = null;
@@ -382,7 +383,8 @@ async function saveTraceLog() {
     getReq.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
-            if (cursor.value.name === shipName && isIdentified) {
+            // 이름이 같으면 기존 선박으로 간주 (식별된 선박인 경우에만 이름으로 매칭)
+            if (isIdentified && cursor.value.name === shipName) {
                 existingShip = cursor.value;
                 existingKey = cursor.key;
             } else {
@@ -391,6 +393,7 @@ async function saveTraceLog() {
             }
         }
 
+        // 조회가 끝났거나 existingShip을 찾았을 때 실행
         if (existingShip) {
             // 기존 정보 업데이트 (값이 없을 때만)
             if (!existingShip.type) existingShip.type = shipType;
@@ -401,9 +404,10 @@ async function saveTraceLog() {
 
             // 특징(태그) 업데이트: 기존 태그와 합치기 (중복 제거)
             if (!existingShip.tags) existingShip.tags = [];
-            if (tags && tags.length > 0 && tags[0] !== "") {
-                const combinedTags = new Set([...existingShip.tags, ...tags]);
-                existingShip.tags = Array.from(combinedTags).filter(t => t);
+            const newTags = tags.filter(t => t && t !== "");
+            if (newTags.length > 0) {
+                const combinedTags = new Set([...existingShip.tags, ...newTags]);
+                existingShip.tags = Array.from(combinedTags);
             }
 
             if (!existingShip.history) existingShip.history = [];
@@ -411,6 +415,7 @@ async function saveTraceLog() {
             
             store.put(existingShip, existingKey);
         } else {
+            // 새 선박 생성
             const newShip = {
                 id: Date.now().toString(),
                 name: shipName,
@@ -419,10 +424,15 @@ async function saveTraceLog() {
                 number: shipNumber,
                 owner: shipOwner,
                 tel: shipTel,
-                tags: (tags && tags[0] !== "") ? tags : [],
+                tags: tags.filter(t => t && t !== ""),
                 history: [newHistory]
             };
-            store.add(newShip, newShip.id);
+            // ID를 키로 사용하거나 자동 생성 키 사용
+            if (store.keyPath === "id") {
+                store.add(newShip);
+            } else {
+                store.add(newShip, newShip.id);
+            }
         }
     };
 
