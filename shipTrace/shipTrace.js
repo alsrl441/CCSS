@@ -9,7 +9,6 @@ function initDB() {
         const tempDb = e.target.result;
         let needsUpgrade = false;
 
-        // 스토어가 없거나 keyPath가 설정되지 않은 경우 확인
         if (!tempDb.objectStoreNames.contains(STORE_IDENTIFIED) || !tempDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
             needsUpgrade = true;
         } else {

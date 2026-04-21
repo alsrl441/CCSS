@@ -609,12 +609,8 @@ function showHistoryDetail(shipIdx, historyIdx) {
     `;
 }
 
-function renderShips() {
-    const results = document.getElementById('ship-results');
-    const paginationContainer = document.getElementById('pagination-container');
-    if (!results) return;
-
-    const filtered = shipData.filter(s => {
+function getFilteredShips() {
+    return shipData.filter(s => {
         if (selectedTags.length === 0) return true;
         return selectedTags.every(t => 
             (s.name && s.name.includes(t)) || 
@@ -625,6 +621,14 @@ function renderShips() {
             (s.tags && s.tags.includes(t))
         );
     });
+}
+
+function renderShips() {
+    const results = document.getElementById('ship-results');
+    const paginationContainer = document.getElementById('pagination-container');
+    if (!results) return;
+
+    const filtered = getFilteredShips();
 
     const totalItems = filtered.length;
     const startIndex = (currentPage - 1) * itemsPerPage;
