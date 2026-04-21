@@ -580,8 +580,8 @@ function showHistoryDetail(shipIdx, historyIdx) {
                     <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
                     
                     <div class="history-actions" style="margin-top: auto; display: flex; gap: 8px;">
-                        <button class="btn-custom btn-outline-primary" style="flex:1;" onclick="editHistory(${shipIdx}, ${historyIdx})">기록 수정</button>
-                        <button class="btn-custom btn-outline-danger" style="flex:1;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">기록 삭제</button>
+                        <button class="btn-custom btn-outline-primary" style="flex:1;" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
+                        <button class="btn-custom btn-outline-danger" style="flex:1;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
                     </div>
                 </div>
                 <div class="history-mid-right">
