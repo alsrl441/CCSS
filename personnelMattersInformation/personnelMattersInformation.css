@@ -1,233 +1,197 @@
 .profile-layout {
-    max-width: 1000px;
+    max-width: 1200px; /* 더 넓게 설정 */
     margin: 0 auto;
 }
 
-/* Profile Header */
+/* Profile Header - Simple & Clean */
 .profile-photo-container {
-    width: 180px;
-    height: 180px;
+    width: 140px;
+    height: 140px;
     margin: 0 auto;
     position: relative;
-    border-radius: 50%;
 }
 
 .profile-photo {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%;
-    border: 5px solid #fff;
-    background-color: #f1f3f5;
-    transition: transform 0.3s ease;
-}
-
-.profile-photo:hover {
-    transform: scale(1.02);
+    border-radius: 8px; /* 둥근 사각형으로 변경 */
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
 }
 
 .rank-badge-overlay {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: #0d6efd;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #343a40; /* 차분한 다크 그레이 */
     color: #fff;
-    padding: 6px 15px;
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
-    border: 3px solid #fff;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 .display-name {
-    font-size: 2.2rem;
-    font-weight: 800;
+    font-size: 1.6rem;
+    font-weight: 700;
     color: #212529;
-    letter-spacing: -0.5px;
+    margin-top: 15px;
 }
 
 .nickname {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    color: #adb5bd;
 }
 
-/* Progress Section */
+/* Progress Section - Minimal */
+.progress-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #f1f3f5;
+}
+
 .realtime-percent {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .progress-bar-container {
-    height: 14px;
-    background-color: #e9ecef;
-    border-radius: 10px;
+    height: 6px;
+    background-color: #f1f3f5;
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    background-color: #495057; /* 다크 그레이 */
     width: 0%;
-    transition: width 0.1s linear;
 }
 
-/* Info Grid Layout */
+/* Info Grid Layout - Simplified */
 .info-sections-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-top: 20px;
+    gap: 40px;
+    margin-top: 40px;
 }
 
 .group-title {
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: 700;
-    color: #343a40;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f1f3f5;
-    display: flex;
-    align-items: center;
-}
-
-.group-title i {
-    color: #0d6efd;
-    font-size: 1.25rem;
+    color: #212529;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #212529;
 }
 
 .info-cards-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* 간격 제거하여 리스트 느낌으로 */
 }
 
 .info-item-card {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 12px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f3f5;
+    background: transparent;
 }
 
 .info-item-card:hover {
-    background: #fff;
-    border-color: #dee2e6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: transparent;
+    box-shadow: none;
 }
 
+/* 아이콘 제거 또는 극도로 단순화 */
 .info-item-card i {
-    font-size: 1.4rem;
-    width: 40px;
-    text-align: center;
-    margin-right: 15px;
+    display: none; 
 }
 
 .info-text {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
 }
 
 .info-text label {
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-weight: 600;
-    margin-bottom: 2px;
+    font-size: 0.85rem;
+    color: #868e96;
+    font-weight: 500;
+    margin-bottom: 0;
 }
 
 .info-text span {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #212529;
+    color: #495057;
 }
 
-/* Special Card Styles */
-.info-item-card.highlight {
-    background: #e7f1ff;
-    border-color: #cfe2ff;
-}
-
+/* Remove Highlight Styles */
+.info-item-card.highlight, 
 .info-item-card.highlight-danger {
-    background: #fff5f5;
-    border-color: #ffe3e3;
+    background: transparent;
+    border-color: transparent;
+    border-bottom: 1px solid #f1f3f5;
 }
 
-.text-sm { font-size: 0.9rem !important; }
-
-/* Preview Grid */
+/* Preview Grid - Minimal */
 .preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
 }
 
 .preview-card {
     background: #fff;
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #e9ecef;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
 }
 
 .preview-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-    border-color: #0d6efd;
+    border-color: #adb5bd;
+    transform: none;
+    box-shadow: none;
 }
 
 .preview-photo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-    object-fit: cover;
-    background-color: #f8f9fa;
-    border: 3px solid #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-bottom: 0;
 }
 
 .preview-name {
-    display: block;
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: #212529;
-    margin-bottom: 5px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 2px;
 }
 
 .preview-info {
-    font-size: 0.85rem;
-    color: #6c757d;
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: #adb5bd;
 }
 
 /* Utils */
 .hidden { display: none !important; }
-.mr-2 { margin-right: 0.5rem !important; }
-.mb-1 { margin-bottom: 0.25rem !important; }
-.mb-2 { margin-bottom: 0.5rem !important; }
-.mb-3 { margin-bottom: 1rem !important; }
-.mb-4 { margin-bottom: 1.5rem !important; }
-.mb-5 { margin-bottom: 3rem !important; }
-.mt-4 { margin-top: 1.5rem !important; }
-.mx-auto { margin-left: auto !important; margin-right: auto !important; }
-.d-flex { display: flex !important; }
-.justify-content-between { justify-content: space-between !important; }
-.justify-content-start { justify-content: flex-start !important; }
-.text-center { text-align: center !important; }
-.opacity-20 { opacity: 0.2; }
+.text-sm { font-size: 0.8rem !important; }
+.text-primary { color: #495057 !important; }
+.text-danger { color: #fa5252 !important; }
 .font-weight-bold { font-weight: 700; }
-.text-primary { color: #0d6efd !important; }
-.text-success { color: #198754 !important; }
-.text-danger { color: #dc3545 !important; }
-.text-warning { color: #ffc107 !important; }
-.text-info { color: #0dcaf0 !important; }
-.text-muted { color: #6c757d !important; }
 
 @media (max-width: 850px) {
     .info-sections-grid {
