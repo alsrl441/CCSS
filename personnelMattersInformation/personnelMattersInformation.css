@@ -17,8 +17,8 @@
 }
 
 .profile-photo-square {
-    width: 175px;
-    height: 225px;
+    width: 160px;
+    height: 210px;
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid #ddd;
