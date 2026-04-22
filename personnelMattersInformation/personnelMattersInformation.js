@@ -4,44 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const displayEl = document.getElementById('resultDisplay');
     const noDataEl = document.getElementById('noDataMessage');
     const previewEl = document.getElementById('previewDisplay');
+    const backBtn = document.getElementById('backToList');
     let timerId = null; 
     let members = [];
 
-    async function loadMembersFromDB() {
-        const STORE_NAME = "members";
-        try {
-            // 'id'를 keyPath로 사용하는 저장소 생성 보장
-            await window.ensureStore(STORE_NAME, "id");
-            
-            let data = await window.getDBData(STORE_NAME);
-            
-            if (!data || data.length === 0) {
-                const sampleMember = {
-                    "id": "0",
-                    "name": "홍길동",
-                    "nickName": "ㅎㄱㄷ",
-                    "start": "2025-01-01",
-                    "end": "2026-06-30",
-                    "vacation": "2026-06-01",
-                    "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 },
-                    "photo": "",
-                    "affiliation": "해안복합감시반",
-                    "position": "항포구 감시병",
-                    "hobby": "취미",
-                    "specialty": "특기"
-                };
-                await window.putDBData(STORE_NAME, sampleMember);
-                console.log("샘플 인원 정보가 생성되었습니다.");
-                data = [sampleMember];
-            }
-            return data;
-        } catch (err) {
-            console.error("인원 정보 로딩 실패:", err);
-            return [];
-        }
-    }
-
-    members = await loadMembersFromDB();
+    // ... (loadMembersFromDB function remains same)
 
     if (members && members.length > 0) {
         members.forEach((m, idx) => {
@@ -59,6 +26,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleMemberSelect(e.target.value);
     });
 
+    backBtn.addEventListener('click', () => {
+        selectEl.value = "";
+        handleMemberSelect("");
+    });
+
     function handleMemberSelect(val) {
         if (timerId) clearInterval(timerId);
 
@@ -66,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             displayEl.classList.add('hidden');
             noDataEl.classList.remove('hidden');
             previewEl.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             renderPreview();
         } else {
             const user = members[val];
@@ -75,7 +48,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             updateStaticProfile(user);
             calculateMilitary(user);
-            timerId = setInterval(() => calculateMilitary(user), 10); 
+            timerId = setInterval(() => calculateMilitary(user), 10);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 

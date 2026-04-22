@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>인사 정보</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="personnelMattersInformation.css">
 </head>
@@ -42,57 +43,113 @@
                 </div>
                 <div class="card-body">
                     <div id="resultDisplay" class="result-content hidden">
-                        <div class="profile-header text-center mb-4">
+                        <div class="d-flex justify-content-start mb-3">
+                            <button id="backToList" class="btn-outline">
+                                <i class="fas fa-arrow-left mr-2"></i>목록으로 돌아가기
+                            </button>
+                        </div>
+                        <div class="profile-header text-center mb-5">
                             <div class="profile-photo-container">
-                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile Photo" class="profile-photo shadow">
+                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile Photo" class="profile-photo shadow-lg">
+                                <div id="resRankTop" class="rank-badge-overlay"></div>
                             </div>
-                            <div class="profile-basic-info mt-3">
-                                <div class="rank-name">
-                                    <span id="resRankTop" class="rank-badge"></span>
-                                    <h2 id="resName" class="display-name d-inline-block ml-2 mb-0"></h2>
-                                    <span id="resNickName" class="nickname text-muted ml-2"></span>
-                                </div>
-                                <div id="resPercent" class="realtime-percent mt-2"></div>
-                                <div class="progress-bar-container mt-2 mx-auto" style="max-width: 400px;">
-                                    <div id="progressBarFill" class="progress-bar-fill"></div>
+                            <div class="profile-basic-info mt-4">
+                                <h2 id="resName" class="display-name mb-1"></h2>
+                                <p id="resNickName" class="nickname text-muted"></p>
+                                
+                                <div class="progress-section mt-4 mx-auto" style="max-width: 500px;">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-sm font-weight-bold">복무 진행률</span>
+                                        <span id="resPercent" class="realtime-percent text-primary"></span>
+                                    </div>
+                                    <div class="progress-bar-container shadow-sm">
+                                        <div id="progressBarFill" class="progress-bar-fill"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="info-section">
-                                    <h6 class="section-title border-bottom pb-2 mb-3">신상 정보</h6>
-                                    <table class="info-table table table-borderless">
-                                        <tbody>
-                                            <tr><td class="table-label">소속</td><td><span id="resAffiliation" class="font-weight-bold"></span></td></tr>
-                                            <tr><td class="table-label">보직</td><td><span id="resPosition"></span></td></tr>
-                                            <tr><td class="table-label">취미</td><td><span id="resHobby"></span></td></tr>
-                                            <tr><td class="table-label">특기</td><td><span id="resSpecialty"></span></td></tr>
-                                        </tbody>
-                                    </table>
+                        <div class="info-sections-grid">
+                            <div class="info-group">
+                                <h6 class="group-title"><i class="fas fa-user-circle mr-2"></i>기본 신상 정보</h6>
+                                <div class="info-cards-container">
+                                    <div class="info-item-card">
+                                        <i class="fas fa-building text-primary"></i>
+                                        <div class="info-text">
+                                            <label>소속</label>
+                                            <span id="resAffiliation"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-briefcase text-primary"></i>
+                                        <div class="info-text">
+                                            <label>보직</label>
+                                            <span id="resPosition"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-palette text-primary"></i>
+                                        <div class="info-text">
+                                            <label>취미</label>
+                                            <span id="resHobby"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-star text-primary"></i>
+                                        <div class="info-text">
+                                            <label>특기</label>
+                                            <span id="resSpecialty"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="info-section">
-                                    <h6 class="section-title border-bottom pb-2 mb-3">복무 및 일정</h6>
-                                    <table class="info-table table table-borderless">
-                                        <tbody>
-                                            <tr><td class="table-label">현재 상태</td><td><span id="resRankStatus" class="text-primary font-weight-bold"></span></td></tr>
-                                            <tr><td class="table-label">입대 / 전역</td><td><span id="resServicePeriod"></span></td></tr>
-                                            <tr><td class="table-label">전역 D-day</td><td><span id="resDday" class="text-danger font-weight-bold"></span></td></tr>
-                                            <tr><td class="table-label">진급 D-day</td><td><span id="resPromoInfo"></span></td></tr>
-                                            <tr><td class="table-label">휴가 D-day</td><td><span id="resVacInfo"></span></td></tr>
-                                        </tbody>
-                                    </table>
+
+                            <div class="info-group">
+                                <h6 class="group-title"><i class="fas fa-calendar-alt mr-2"></i>복무 및 주요 일정</h6>
+                                <div class="info-cards-container">
+                                    <div class="info-item-card highlight">
+                                        <i class="fas fa-shield-alt text-success"></i>
+                                        <div class="info-text">
+                                            <label>현재 상태</label>
+                                            <span id="resRankStatus" class="font-weight-bold"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-clock text-info"></i>
+                                        <div class="info-text">
+                                            <label>복무 기간</label>
+                                            <span id="resServicePeriod" class="text-sm"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card highlight-danger">
+                                        <i class="fas fa-flag-checkered text-danger"></i>
+                                        <div class="info-text">
+                                            <label>전역일</label>
+                                            <span id="resDday" class="font-weight-bold"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-arrow-up text-warning"></i>
+                                        <div class="info-text">
+                                            <label>진급 예정</label>
+                                            <span id="resPromoInfo"></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item-card">
+                                        <i class="fas fa-plane-departure text-info"></i>
+                                        <div class="info-text">
+                                            <label>휴가 예정</label>
+                                            <span id="resVacInfo"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div id="noDataMessage" class="text-center py-5 text-muted">
-                        <i class="fas fa-user-circle fa-4x mb-3"></i>
-                        <p>상단에서 인원을 선택하여 상세 정보를 확인하세요.</p>
+                        <i class="fas fa-id-card fa-4x mb-3 opacity-20"></i>
+                        <p class="lead">인원을 선택하면 상세 프로필이 표시됩니다.</p>
                     </div>
                 </div>
             </section>
