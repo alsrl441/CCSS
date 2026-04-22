@@ -1,184 +1,150 @@
 .profile-layout {
-    max-width: 1200px; /* 더 넓게 설정 */
+    max-width: 1300px;
     margin: 0 auto;
 }
 
-/* Profile Header - Simple & Clean */
-.profile-photo-container {
-    width: 140px;
-    height: 140px;
-    margin: 0 auto;
-    position: relative;
+/* Header Section */
+.profile-header-minimal {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
 }
 
-.profile-photo {
-    width: 100%;
-    height: 100%;
+.profile-photo-area {
+    flex-shrink: 0;
+}
+
+.profile-photo-square {
+    width: 120px;
+    height: 120px;
     object-fit: cover;
-    border-radius: 8px; /* 둥근 사각형으로 변경 */
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-}
-
-.rank-badge-overlay {
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #343a40; /* 차분한 다크 그레이 */
-    color: #fff;
-    padding: 3px 12px;
     border-radius: 4px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    white-space: nowrap;
+    border: 1px solid #ddd;
 }
 
-.display-name {
-    font-size: 1.6rem;
+.profile-title-area {
+    flex-grow: 1;
+    padding-top: 10px;
+}
+
+.nickname-top {
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #212529;
-    margin-top: 15px;
+    color: #495057;
+    margin-bottom: 15px;
 }
 
-.nickname {
-    font-size: 0.9rem;
-    color: #adb5bd;
+/* Progress Section */
+.progress-wrapper-minimal {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
 }
 
-/* Progress Section - Minimal */
-.progress-section {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #f1f3f5;
-}
-
-.realtime-percent {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.progress-bar-container {
-    height: 6px;
+.progress-bar-container-minimal {
+    height: 8px;
     background-color: #f1f3f5;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
-.progress-bar-fill {
+.progress-bar-fill-minimal {
     height: 100%;
-    background-color: #495057; /* 다크 그레이 */
+    background-color: #343a40;
     width: 0%;
 }
 
-/* Info Grid Layout - Simplified */
-.info-sections-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    margin-top: 40px;
-}
-
-.group-title {
-    font-size: 1rem;
+.percent-label-minimal {
+    position: absolute;
+    top: -22px;
+    right: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: #212529;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #212529;
+    color: #343a40;
 }
 
-.info-cards-container {
+/* Info Grid Section */
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 1fr;
+    gap: 50px;
+    margin-top: 30px;
+}
+
+.info-column {
     display: flex;
     flex-direction: column;
-    gap: 0; /* 간격 제거하여 리스트 느낌으로 */
 }
 
-.info-item-card {
+.info-row-minimal {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #f1f3f5;
-    background: transparent;
+    border-bottom: 1px dotted #e9ecef;
 }
 
-.info-item-card:hover {
-    background: transparent;
-    box-shadow: none;
+.info-row-minimal:last-child {
+    border-bottom: none;
 }
 
-/* 아이콘 제거 또는 극도로 단순화 */
-.info-item-card i {
-    display: none; 
-}
-
-.info-text {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-}
-
-.info-text label {
+.info-row-minimal label {
     font-size: 0.85rem;
     color: #868e96;
     font-weight: 500;
     margin-bottom: 0;
 }
 
-.info-text span {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #495057;
+.info-row-minimal span {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #212529;
 }
 
-/* Remove Highlight Styles */
-.info-item-card.highlight, 
-.info-item-card.highlight-danger {
-    background: transparent;
-    border-color: transparent;
-    border-bottom: 1px solid #f1f3f5;
+/* Highlights */
+.highlight-dday span {
+    color: #fa5252 !important;
+    font-size: 1.1rem !important;
 }
 
-/* Preview Grid - Minimal */
+/* Preview Grid */
 .preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
+    margin-top: 40px;
 }
 
 .preview-card {
     background: #fff;
-    padding: 15px;
+    padding: 12px;
     border-radius: 4px;
     border: 1px solid #eee;
-    text-align: left;
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
 .preview-card:hover {
-    border-color: #adb5bd;
-    transform: none;
-    box-shadow: none;
+    background: #f8f9fa;
+    border-color: #dee2e6;
 }
 
 .preview-photo {
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    margin-bottom: 0;
+    object-fit: cover;
 }
 
 .preview-name {
     font-size: 0.9rem;
     font-weight: 700;
-    margin-bottom: 2px;
 }
 
 .preview-info {
@@ -188,13 +154,17 @@
 
 /* Utils */
 .hidden { display: none !important; }
-.text-sm { font-size: 0.8rem !important; }
-.text-primary { color: #495057 !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.text-center { text-align: center !important; }
+.text-muted { color: #adb5bd !important; }
+.text-sm { font-size: 0.85rem !important; }
+.opacity-10 { opacity: 0.1; }
 .text-danger { color: #fa5252 !important; }
-.font-weight-bold { font-weight: 700; }
 
-@media (max-width: 850px) {
-    .info-sections-grid {
+@media (max-width: 1000px) {
+    .profile-info-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 }

@@ -43,104 +43,80 @@
                 </div>
                 <div class="card-body">
                     <div id="resultDisplay" class="result-content hidden">
-                        <div class="d-flex justify-content-start mb-3">
-                            <button id="backToList" class="btn-outline">
-                                <i class="fas fa-arrow-left mr-2"></i>목록으로 돌아가기
-                            </button>
-                        </div>
-                        <div class="profile-header text-center mb-5">
-                            <div class="profile-photo-container">
-                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile Photo" class="profile-photo shadow-lg">
-                                <div id="resRankTop" class="rank-badge-overlay"></div>
+                        <!-- Top Profile Section -->
+                        <div class="profile-header-minimal mb-4">
+                            <div class="profile-photo-area">
+                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile" class="profile-photo-square">
                             </div>
-                            <div class="profile-basic-info mt-4">
-                                <h2 id="resName" class="display-name mb-1"></h2>
-                                <p id="resNickName" class="nickname text-muted"></p>
-                                
-                                <div class="progress-section mt-4 mx-auto" style="max-width: 500px;">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="text-sm font-weight-bold">복무 진행률</span>
-                                        <span id="resPercent" class="realtime-percent text-primary"></span>
+                            <div class="profile-title-area">
+                                <div id="resNickName" class="nickname-top"></div>
+                                <div class="progress-wrapper-minimal mt-2">
+                                    <div class="progress-bar-container-minimal">
+                                        <div id="progressBarFill" class="progress-bar-fill-minimal"></div>
                                     </div>
-                                    <div class="progress-bar-container shadow-sm">
-                                        <div id="progressBarFill" class="progress-bar-fill"></div>
-                                    </div>
+                                    <div id="resPercent" class="percent-label-minimal"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="info-sections-grid">
-                            <div class="info-group">
-                                <h6 class="group-title">기본 정보</h6>
-                                <div class="info-cards-container">
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>소속</label>
-                                            <span id="resAffiliation"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>보직</label>
-                                            <span id="resPosition"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>취미</label>
-                                            <span id="resHobby"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>특기</label>
-                                            <span id="resSpecialty"></span>
-                                        </div>
-                                    </div>
+                        <!-- Info Grid Section -->
+                        <div class="profile-info-grid">
+                            <div class="info-column">
+                                <div class="info-row-minimal">
+                                    <label>이름</label>
+                                    <span id="resName"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>계급</label>
+                                    <span id="resRankStatus"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>소속</label>
+                                    <span id="resAffiliation"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>보직</label>
+                                    <span id="resPosition"></span>
                                 </div>
                             </div>
-
-                            <div class="info-group">
-                                <h6 class="group-title">복무 및 일정</h6>
-                                <div class="info-cards-container">
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>현재 상태</label>
-                                            <span id="resRankStatus"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>복무 기간</label>
-                                            <span id="resServicePeriod" class="text-sm"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>전역일</label>
-                                            <span id="resDday" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>진급 예정</label>
-                                            <span id="resPromoInfo"></span>
-                                        </div>
-                                    </div>
-                                    <div class="info-item-card">
-                                        <div class="info-text">
-                                            <label>휴가 예정</label>
-                                            <span id="resVacInfo"></span>
-                                        </div>
-                                    </div>
+                            <div class="info-column">
+                                <div class="info-row-minimal">
+                                    <label>입대일</label>
+                                    <span id="resStartDate"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>전역일</label>
+                                    <span id="resEndDate"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>다음 진급일</label>
+                                    <span id="resPromoDate"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>다음 휴가일</label>
+                                    <span id="resVacationRange"></span>
+                                </div>
+                            </div>
+                            <div class="info-column">
+                                <div class="info-row-minimal highlight-dday">
+                                    <label>전역 D-day</label>
+                                    <span id="resDday"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>진급 D-day</label>
+                                    <span id="resPromoDday"></span>
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>휴가 D-day</label>
+                                    <span id="resVacDday"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div id="noDataMessage" class="text-center py-5 text-muted">
-                        <i class="fas fa-id-card fa-4x mb-3 opacity-20"></i>
-                        <p class="lead">인원을 선택하면 상세 프로필이 표시됩니다.</p>
+                        <i class="fas fa-user-circle fa-4x mb-3 opacity-10"></i>
+                        <p class="text-sm">인원을 선택하면 상세 프로필이 표시됩니다.</p>
                     </div>
                 </div>
             </section>
