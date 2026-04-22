@@ -120,36 +120,52 @@
 
 .preview-card {
     background: #fff;
-    padding: 12px;
+    padding: 15px;
     border-radius: 4px;
     border: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    gap: 12px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .preview-card:hover {
-    background: #f8f9fa;
-    border-color: #dee2e6;
+    background: #fcfcfc;
+    border-color: #adb5bd;
 }
 
-.preview-photo {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    object-fit: cover;
+.preview-text {
+    width: 100%;
+}
+
+.preview-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .preview-name {
     font-size: 0.9rem;
     font-weight: 700;
+    color: #212529;
 }
 
-.preview-info {
+.preview-percent-text {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
-    color: #adb5bd;
+    font-weight: 700;
+    color: #495057;
+}
+
+.preview-progress-container {
+    height: 4px;
+    background-color: #f1f3f5;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.preview-progress-fill {
+    height: 100%;
+    background-color: #495057;
 }
 
 /* Utils */

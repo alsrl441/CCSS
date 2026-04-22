@@ -79,12 +79,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderPreview() {
         previewEl.innerHTML = '';
         members.forEach((user, idx) => {
+            const start = new Date(user.start);
+            const end = new Date(user.end);
+            const now = new Date();
+            const percent = Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)).toFixed(1);
+
             const card = document.createElement('div');
             card.className = 'preview-card';
             card.innerHTML = `
                 <div class="preview-text">
-                    <div class="preview-name">${user.name}</div>
-                    <div class="preview-info">${user.rank || ''} ${user.affiliation || ''}</div>
+                    <div class="preview-header-row">
+                        <div class="preview-name">${user.name}</div>
+                        <div class="preview-percent-text">${percent}%</div>
+                    </div>
+                    <div class="preview-progress-container">
+                        <div class="preview-progress-fill" style="width: ${percent}%"></div>
+                    </div>
                 </div>
             `;
             card.addEventListener('click', () => {
