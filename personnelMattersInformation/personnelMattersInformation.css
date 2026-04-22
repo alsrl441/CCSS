@@ -169,14 +169,94 @@
 }
 
 /* Utils */
-.hidden { display: none !important; }
-.mb-4 { margin-bottom: 1.5rem !important; }
-.mt-2 { margin-top: 0.5rem !important; }
-.text-center { text-align: center !important; }
-.text-muted { color: #adb5bd !important; }
-.text-sm { font-size: 0.85rem !important; }
-.opacity-10 { opacity: 0.1; }
-.text-danger { color: #fa5252 !important; }
+/* Buttons */
+.btn-minimal-sm {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #495057;
+}
+
+.btn-minimal-sm:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.gap-2 { gap: 0.5rem !important; }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000;
+}
+
+.modal-content-minimal {
+    background: #fff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f1f3f5;
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.modal-header h5 { margin: 0; font-weight: 700; font-size: 1rem; }
+
+.btn-close {
+    border: none; background: none; font-size: 1.5rem; cursor: pointer; color: #adb5bd;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex; flex-direction: column; gap: 5px;
+}
+
+.form-group.full-width { grid-column: span 2; }
+
+.form-group label { font-size: 0.75rem; color: #868e96; font-weight: 600; }
+
+.form-group input {
+    padding: 8px 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #f1f3f5;
+    text-align: right;
+}
+
+.btn-save {
+    background: #343a40; color: #fff; border: none;
+    padding: 8px 24px; border-radius: 4px;
+    font-weight: 600; cursor: pointer;
+}
+
+.btn-save:hover { background: #212529; }
 
 @media (max-width: 1000px) {
     .profile-info-grid {

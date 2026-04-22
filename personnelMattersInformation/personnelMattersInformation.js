@@ -4,17 +4,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     const displayEl = document.getElementById('resultDisplay');
     const noDataEl = document.getElementById('noDataMessage');
     const previewEl = document.getElementById('previewDisplay');
+    
+    const modal = document.getElementById('memberModal');
+    const memberForm = document.getElementById('memberForm');
+    const addBtn = document.getElementById('addMemberBtn');
+    const editBtn = document.getElementById('editMemberBtn');
+    const deleteBtn = document.getElementById('deleteMemberBtn');
+    const closeBtn = document.getElementById('closeModal');
+    
     let timerId = null; 
     let members = [];
+    const STORE_NAME = "members";
+
+    async function init() {
+        members = await loadMembersFromDB();
+        refreshUI();
+    }
 
     async function loadMembersFromDB() {
-        const STORE_NAME = "members";
         try {
             await window.ensureStore(STORE_NAME, "id");
             let data = await window.getDBData(STORE_NAME);
             if (!data || data.length === 0) {
                 const sampleMember = {
-                    "id": "0",
+                    "id": Date.now().toString(),
                     "name": "홍길동",
                     "nickName": "ㅎㄱㄷ",
                     "start": "2025-07-15",
@@ -37,19 +50,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    members = await loadMembersFromDB();
-
-    if (members && members.length > 0) {
+    function refreshUI() {
+        selectEl.innerHTML = '<option value="">인원을 선택하세요</option>';
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
             opt.textContent = m.name;
             selectEl.appendChild(opt);
         });
-        // 초기 상태 로드
         handleMemberSelect("");
-    } else {
-        previewEl.innerHTML = '<div class="text-center py-5 text-muted">DB에 등록된 인원 정보가 없습니다.</div>';
     }
 
     selectEl.addEventListener('change', (e) => {
@@ -64,7 +73,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             noDataEl.classList.remove('hidden');
             previewEl.classList.remove('hidden');
             renderPreview();
-            // 목록 실시간 업데이트 시작
             timerId = setInterval(updateAllPreviews, 10);
         } else {
             const user = members[val];
@@ -74,7 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             updateStaticProfile(user);
             calculateMilitary(user);
-            // 상세 정보 실시간 업데이트 시작
             timerId = setInterval(() => calculateMilitary(user), 10);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -119,6 +126,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Modal Operations
+    addBtn.onclick = () => {
+        modalTitle.innerText = "인원 추가";
+        memberForm.reset();
+        document.getElementById('editId').value = "";
+        modal.classList.remove('hidden');
+    };
+
+    editBtn.onclick = () => {
+        const idx = selectEl.value;
+        if (idx === "") return;
+        const user = members[idx];
+        
+        modalTitle.innerText = "인원 수정";
+        document.getElementById('editId').value = user.id;
+        document.getElementById('mName').value = user.name;
+        document.getElementById('mNickName').value = user.nickName || "";
+        document.getElementById('mAffiliation').value = user.affiliation || "";
+        document.getElementById('mPosition').value = user.position || "";
+        document.getElementById('mStart').value = user.start;
+        document.getElementById('mEnd').value = user.end;
+        document.getElementById('mVacStart').value = (user.vacation && user.vacation[0]) || "";
+        document.getElementById('mVacEnd').value = (user.vacation && user.vacation[1]) || "";
+        document.getElementById('mPfc2cpl').value = (user.promotion && user.promotion.pfc2cpl) || 0;
+        document.getElementById('mCpl2sgt').value = (user.promotion && user.promotion.cpl2sgt) || 0;
+        document.getElementById('mPhoto').value = user.photo || "";
+        
+        modal.classList.remove('hidden');
+    };
+
+    deleteBtn.onclick = async () => {
+        const idx = selectEl.value;
+        if (idx === "") return;
+        if (confirm(`'${members[idx].name}' 인원 정보를 정말 삭제하시겠습니까?`)) {
+            await window.deleteDBData(STORE_NAME, members[idx].id);
+            await init();
+        }
+    };
+
+    closeBtn.onclick = () => modal.classList.add('hidden');
+    window.onclick = (e) => { if (e.target == modal) modal.classList.add('hidden'); };
+
+    memberForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editId').value || Date.now().toString();
+        
+        const newMember = {
+            id: id,
+            name: document.getElementById('mName').value,
+            nickName: document.getElementById('mNickName').value,
+            affiliation: document.getElementById('mAffiliation').value,
+            position: document.getElementById('mPosition').value,
+            start: document.getElementById('mStart').value,
+            end: document.getElementById('mEnd').value,
+            vacation: [document.getElementById('mVacStart').value, document.getElementById('mVacEnd').value],
+            promotion: {
+                pfc2cpl: parseInt(document.getElementById('mPfc2cpl').value) || 0,
+                cpl2sgt: parseInt(document.getElementById('mCpl2sgt').value) || 0
+            },
+            photo: document.getElementById('mPhoto').value
+        };
+
+        await window.putDBData(STORE_NAME, newMember);
+        modal.classList.add('hidden');
+        await init();
+        
+        // 방금 추가/수정한 인원 자동 선택
+        const newIdx = members.findIndex(m => m.id === id);
+        if (newIdx !== -1) {
+            selectEl.value = newIdx;
+            handleMemberSelect(newIdx);
+        }
+    };
+
+    // (formatDate, updateStaticProfile, calculateMilitary functions remain unchanged)
     function formatDate(date) {
         const d = new Date(date);
         const year = d.getFullYear();
@@ -137,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resEndDate').innerText = user.end || '-';
         
         const vacRangeEl = document.getElementById('resVacationRange');
-        if (Array.isArray(user.vacation) && user.vacation.length === 2) {
+        if (Array.isArray(user.vacation) && user.vacation[0] && user.vacation[1]) {
             const vStart = new Date(user.vacation[0]);
             const vEnd = new Date(user.vacation[1]);
             const diffTime = Math.abs(vEnd - vStart);
@@ -214,4 +296,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             vacDdayEl.innerText = "-";
         }
     }
+
+    init();
 });

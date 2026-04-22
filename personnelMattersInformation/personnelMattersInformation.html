@@ -35,14 +35,23 @@
             <section class="card shadow-sm mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">인사 정보</h5>
-                    <div class="selector-wrapper">
-                        <select id="memberSelect" class="form-select">
-                            <option value="">인원을 선택하세요</option>
-                        </select>
+                    <div class="d-flex align-items-center gap-2">
+                        <button id="addMemberBtn" class="btn-minimal-sm"><i class="fas fa-plus mr-1"></i>추가</button>
+                        <div class="selector-wrapper">
+                            <select id="memberSelect" class="form-select">
+                                <option value="">인원을 선택하세요</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div id="resultDisplay" class="result-content hidden">
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mb-3">
+                            <button id="editMemberBtn" class="btn-minimal-sm text-primary">수정</button>
+                            <button id="deleteMemberBtn" class="btn-minimal-sm text-danger">삭제</button>
+                        </div>
+                        
                         <!-- Top Profile Section -->
                         <div class="profile-header-minimal mb-4">
                             <div class="profile-photo-area">
@@ -132,6 +141,68 @@
             </div>
         </div>
     </footer>
+
+    <!-- Member Management Modal -->
+    <div id="memberModal" class="modal-overlay hidden">
+        <div class="modal-content-minimal">
+            <div class="modal-header">
+                <h5 id="modalTitle">인원 추가</h5>
+                <button id="closeModal" class="btn-close">&times;</button>
+            </div>
+            <form id="memberForm" class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>이름</label>
+                        <input type="text" id="mName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>별명</label>
+                        <input type="text" id="mNickName">
+                    </div>
+                    <div class="form-group">
+                        <label>소속</label>
+                        <input type="text" id="mAffiliation">
+                    </div>
+                    <div class="form-group">
+                        <label>보직</label>
+                        <input type="text" id="mPosition">
+                    </div>
+                    <div class="form-group">
+                        <label>입대일</label>
+                        <input type="date" id="mStart" required>
+                    </div>
+                    <div class="form-group">
+                        <label>전역일</label>
+                        <input type="date" id="mEnd" required>
+                    </div>
+                    <div class="form-group">
+                        <label>휴가 시작</label>
+                        <input type="date" id="mVacStart">
+                    </div>
+                    <div class="form-group">
+                        <label>휴가 종료</label>
+                        <input type="date" id="mVacEnd">
+                    </div>
+                    <div class="form-group">
+                        <label>일병 진급 보정 (개월)</label>
+                        <input type="number" id="mPfc2cpl" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>상병 진급 보정 (개월)</label>
+                        <input type="number" id="mCpl2sgt" value="0">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>사진 URL</label>
+                        <input type="text" id="mPhoto" placeholder="../img/default-profile.png">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="../script.js"></script>
     <script src="personnelMattersInformation.js"></script>
