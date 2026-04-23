@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const noDataEl = document.getElementById('noDataMessage');
     const previewEl = document.getElementById('previewDisplay');
     
-    const addBtn = document.getElementById('addMemberBtn');
     const editBtn = document.getElementById('editMemberBtn');
     const deleteBtn = document.getElementById('deleteMemberBtn');
     const saveBtn = document.getElementById('saveMemberBtn');
@@ -58,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function refreshUI() {
-        selectEl.innerHTML = '<option value="">인원을 선택하세요</option>';
+        selectEl.innerHTML = '<option value="">인원 선택</option>';
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         addCard.className = 'preview-card preview-card-add';
         addCard.innerHTML = `
             <i class="fas fa-plus"></i>
-            <span>인원 추가</span>
+            <span>추가</span>
         `;
         addCard.addEventListener('click', () => {
             startAddMember();
@@ -206,8 +205,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             toggleEditMode(false);
         }
     });
-
-    addBtn.addEventListener('click', startAddMember);
 
     saveBtn.addEventListener('click', async () => {
         const name = document.getElementById('editName').value.trim();
