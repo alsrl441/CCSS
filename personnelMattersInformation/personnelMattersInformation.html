@@ -47,12 +47,20 @@
                     <div id="resultDisplay" class="result-content hidden">
                         <!-- Top Profile Section -->
                         <div class="profile-header-minimal mb-4">
-                            <div class="profile-photo-area">
+                            <div class="profile-photo-area" id="photoEditArea">
                                 <img id="resPhoto" src="../img/default-profile.png" alt="Profile" class="profile-photo-square">
+                                <div id="photoOverlay" class="photo-overlay hidden">
+                                    <i class="fas fa-camera"></i>
+                                    <span>변경</span>
+                                    <input type="file" id="photoInput" accept="image/*" class="hidden">
+                                </div>
                             </div>
                             <div class="profile-title-area">
-                                <div id="resNickName" class="nickname-top"></div>
-                                <div class="progress-wrapper-minimal mt-2">
+                                <div class="nickname-edit-wrapper">
+                                    <div id="resNickName" class="nickname-top view-mode"></div>
+                                    <input type="text" id="editNickName" class="form-control-minimal edit-mode hidden" placeholder="별명">
+                                </div>
+                                <div class="progress-wrapper-minimal mt-2 view-mode">
                                     <div class="progress-bar-container-minimal">
                                         <div id="progressBarFill" class="progress-bar-fill-minimal"></div>
                                     </div>
@@ -66,57 +74,77 @@
                             <div class="info-column">
                                 <div class="info-row-minimal">
                                     <label>이름</label>
-                                    <span id="resName"></span>
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>계급</label>
-                                    <span id="resRankStatus"></span>
+                                    <span id="resName" class="view-mode"></span>
+                                    <input type="text" id="editName" class="form-control-minimal edit-mode hidden">
                                 </div>
                                 <div class="info-row-minimal">
                                     <label>소속</label>
-                                    <span id="resAffiliation"></span>
+                                    <span id="resAffiliation" class="view-mode"></span>
+                                    <input type="text" id="editAffiliation" class="form-control-minimal edit-mode hidden">
                                 </div>
                                 <div class="info-row-minimal">
                                     <label>보직</label>
-                                    <span id="resPosition"></span>
+                                    <span id="resPosition" class="view-mode"></span>
+                                    <input type="text" id="editPosition" class="form-control-minimal edit-mode hidden">
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>취미</label>
+                                    <span id="resHobby" class="view-mode"></span>
+                                    <input type="text" id="editHobby" class="form-control-minimal edit-mode hidden">
+                                </div>
+                                <div class="info-row-minimal">
+                                    <label>특기</label>
+                                    <span id="resSpecialty" class="view-mode"></span>
+                                    <input type="text" id="editSpecialty" class="form-control-minimal edit-mode hidden">
                                 </div>
                             </div>
                             <div class="info-column">
                                 <div class="info-row-minimal">
                                     <label>입대일</label>
-                                    <span id="resStartDate"></span>
+                                    <span id="resStartDate" class="view-mode"></span>
+                                    <input type="date" id="editStartDate" class="form-control-minimal edit-mode hidden">
                                 </div>
                                 <div class="info-row-minimal">
                                     <label>전역일</label>
-                                    <span id="resEndDate"></span>
+                                    <span id="resEndDate" class="view-mode"></span>
+                                    <input type="date" id="editEndDate" class="form-control-minimal edit-mode hidden">
                                 </div>
-                                <div class="info-row-minimal highlight-dday">
+                                <div class="info-row-minimal highlight-dday view-mode">
                                     <label>전역 D-day</label>
                                     <span id="resDday"></span>
                                 </div>
                                 <div class="info-row-minimal">
-                                    <label>다음 진급일</label>
-                                    <span id="resPromoDate"></span>
+                                    <label>일병 진급일</label>
+                                    <span id="resPfcDate" class="view-mode"></span>
+                                    <input type="date" id="editPfcDate" class="form-control-minimal edit-mode hidden">
                                 </div>
                                 <div class="info-row-minimal">
-                                    <label>진급 D-day</label>
-                                    <span id="resPromoDday"></span>
+                                    <label>상병 진급일</label>
+                                    <span id="resCplDate" class="view-mode"></span>
+                                    <input type="date" id="editCplDate" class="form-control-minimal edit-mode hidden">
                                 </div>
                                 <div class="info-row-minimal">
+                                    <label>병장 진급일</label>
+                                    <span id="resSgtDate" class="view-mode"></span>
+                                    <input type="date" id="editSgtDate" class="form-control-minimal edit-mode hidden">
+                                </div>
+                                <div class="info-row-minimal view-mode">
                                     <label>다음 휴가일</label>
                                     <span id="resVacationRange"></span>
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>휴가 D-day</label>
-                                    <span id="resVacDday"></span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Action Buttons at Bottom Right -->
+                        <!-- Action Buttons -->
                         <div class="profile-actions-footer mt-4">
-                            <button id="editMemberBtn" class="btn-minimal-sm text-primary">수정</button>
-                            <button id="deleteMemberBtn" class="btn-minimal-sm text-danger">삭제</button>
+                            <div class="view-mode">
+                                <button id="editMemberBtn" class="btn-minimal-sm text-primary">수정</button>
+                                <button id="deleteMemberBtn" class="btn-minimal-sm text-danger">삭제</button>
+                            </div>
+                            <div class="edit-mode hidden">
+                                <button id="saveMemberBtn" class="btn-minimal-sm text-success">저장</button>
+                                <button id="cancelEditBtn" class="btn-minimal-sm text-secondary">취소</button>
+                            </div>
                         </div>
                     </div>
 
@@ -140,72 +168,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Member Management Modal -->
-    <div id="memberModal" class="modal-overlay hidden">
-        <div class="modal-content-minimal">
-            <div class="modal-header">
-                <h5 id="modalTitle">인원 추가</h5>
-                <button id="closeModal" class="btn-close">&times;</button>
-            </div>
-            <form id="memberForm" class="modal-body">
-                <input type="hidden" id="editId">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>이름</label>
-                        <input type="text" id="mName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>별명</label>
-                        <input type="text" id="mNickName">
-                    </div>
-                    <div class="form-group">
-                        <label>소속</label>
-                        <input type="text" id="mAffiliation">
-                    </div>
-                    <div class="form-group">
-                        <label>보직</label>
-                        <input type="text" id="mPosition">
-                    </div>
-                    <div class="form-group">
-                        <label>입대일</label>
-                        <input type="date" id="mStart" required>
-                    </div>
-                    <div class="form-group">
-                        <label>전역일</label>
-                        <input type="date" id="mEnd" required>
-                    </div>
-                    <div class="form-group">
-                        <label>휴가 시작</label>
-                        <input type="date" id="mVacStart">
-                    </div>
-                    <div class="form-group">
-                        <label>휴가 종료</label>
-                        <input type="date" id="mVacEnd">
-                    </div>
-                    <div class="form-group">
-                        <label>일병 진급 보정 (개월)</label>
-                        <input type="number" id="mPfc2cpl" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>상병 진급 보정 (개월)</label>
-                        <input type="number" id="mCpl2sgt" value="0">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>프로필 사진 (드래그 & 드랍)</label>
-                        <div id="photoDropZone" class="photo-drop-zone">
-                            <img id="modalPhotoPreview" src="../img/default-profile.png" class="modal-photo-preview">
-                            <p class="drop-zone-text">사진을 여기에 드래그하거나 클릭하여 선택</p>
-                            <input type="file" id="mPhotoFile" accept="image/*" hidden>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-save">저장</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script src="../script.js"></script>
     <script src="personnelMattersInformation.js"></script>
