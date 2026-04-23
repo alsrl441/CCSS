@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const photoInput = document.getElementById('photoInput');
     const resPhoto = document.getElementById('resPhoto');
     const photoOverlay = document.getElementById('photoOverlay');
+    const photoEditArea = document.getElementById('photoEditArea');
     
     let timerId = null; 
     let members = [];
@@ -34,17 +35,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "id": Date.now().toString(),
                     "name": "홍길동",
                     "nickName": "ㅎㄱㄷ",
-                    "start": "2025-07-15",
-                    "end": "2027-01-14",
-                    "vacation": [],
-                    "pfcDate": "2025-10-01",
-                    "cplDate": "2026-04-01",
-                    "sgtDate": "2026-10-01",
+                    "start": "2024-03-15",
+                    "end": "2025-09-14",
+                    "pfcAdj": 0, "cplAdj": 0, "sgtAdj": 0,
                     "photo": "",
                     "affiliation": "해안복합감시반",
                     "position": "항포구 감시병",
                     "hobby": "취미",
-                    "specialty": "특기"
+                    "specialty": "특기",
+                    "vacation": []
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
@@ -156,13 +155,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resSpecialty').textContent = user.specialty || "-";
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resEndDate').textContent = user.end;
-        document.getElementById('resPfcDate').textContent = user.pfcDate || "-";
-        document.getElementById('resCplDate').textContent = user.cplDate || "-";
-        document.getElementById('resSgtDate').textContent = user.sgtDate || "-";
+        document.getElementById('resPfcAdj').textContent = (user.pfcAdj || 0) + "개월";
+        document.getElementById('resCplAdj').textContent = (user.cplAdj || 0) + "개월";
+        document.getElementById('resSgtAdj').textContent = (user.sgtAdj || 0) + "개월";
+        
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // Fill inputs for editing
+        // Fill inputs
         document.getElementById('editName').value = user.name;
         document.getElementById('editNickName').value = user.nickName || "";
         document.getElementById('editAffiliation').value = user.affiliation || "";
@@ -171,9 +171,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editSpecialty').value = user.specialty || "";
         document.getElementById('editStartDate').value = user.start;
         document.getElementById('editEndDate').value = user.end;
-        document.getElementById('editPfcDate').value = user.pfcDate || "";
-        document.getElementById('editCplDate').value = user.cplDate || "";
-        document.getElementById('editSgtDate').value = user.sgtDate || "";
+        document.getElementById('editPfcAdj').value = user.pfcAdj || 0;
+        document.getElementById('editCplAdj').value = user.cplAdj || 0;
+        document.getElementById('editSgtAdj').value = user.sgtAdj || 0;
     }
 
     function startAddMember() {
@@ -185,8 +185,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         noDataEl.classList.add('hidden');
         previewEl.classList.add('hidden');
         
-        // Clear all inputs
-        document.querySelectorAll('.edit-mode input').forEach(input => input.value = "");
+        document.querySelectorAll('.edit-mode input').forEach(input => {
+            if (input.type === 'number') input.value = 0;
+            else input.value = "";
+        });
         resPhoto.src = "../img/default-profile.png";
         currentPhotoBase64 = "";
         
@@ -194,25 +196,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editName').focus();
     }
 
-    editBtn.addEventListener('click', () => {
-        toggleEditMode(true);
+    // Drag and Drop implementation
+    photoEditArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        photoEditArea.style.borderColor = "#212529";
     });
 
-    cancelBtn.addEventListener('click', () => {
-        if (isAdding) {
-            handleMemberSelect("");
-        } else {
-            toggleEditMode(false);
+    photoEditArea.addEventListener('dragleave', () => {
+        photoEditArea.style.borderColor = "#eee";
+    });
+
+    photoEditArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoEditArea.style.borderColor = "#eee";
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handlePhoto(file);
         }
     });
+
+    photoOverlay.addEventListener('click', () => photoInput.click());
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handlePhoto(file);
+    });
+
+    function handlePhoto(file) {
+        const reader = new FileReader();
+        reader.onload = (rev) => {
+            currentPhotoBase64 = rev.target.result;
+            resPhoto.src = currentPhotoBase64;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    editBtn.addEventListener('click', () => toggleEditMode(true));
+    cancelBtn.addEventListener('click', () => isAdding ? handleMemberSelect("") : toggleEditMode(false));
 
     saveBtn.addEventListener('click', async () => {
         const name = document.getElementById('editName').value.trim();
         if (!name) return alert("이름을 입력하세요.");
 
-        const userIdx = selectEl.value;
-        const id = isAdding ? Date.now().toString() : members[userIdx].id;
-
+        const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
             id,
             name,
@@ -223,31 +248,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             specialty: document.getElementById('editSpecialty').value.trim(),
             start: document.getElementById('editStartDate').value,
             end: document.getElementById('editEndDate').value,
-            pfcDate: document.getElementById('editPfcDate').value,
-            cplDate: document.getElementById('editCplDate').value,
-            sgtDate: document.getElementById('editSgtDate').value,
+            pfcAdj: parseInt(document.getElementById('editPfcAdj').value) || 0,
+            cplAdj: parseInt(document.getElementById('editCplAdj').value) || 0,
+            sgtAdj: parseInt(document.getElementById('editSgtAdj').value) || 0,
             photo: currentPhotoBase64,
-            vacation: isAdding ? [] : members[userIdx].vacation
+            vacation: isAdding ? [] : members[selectEl.value].vacation
         };
 
         try {
             await window.putDBData(STORE_NAME, updatedUser);
             members = await loadMembersFromDB();
             refreshUI();
-            
-            // Re-select saved member
             const newIdx = members.findIndex(m => m.id === id);
             selectEl.value = newIdx;
             handleMemberSelect(newIdx);
-        } catch (err) {
-            alert("저장 실패: " + err);
-        }
+        } catch (err) { alert("저장 실패"); }
     });
 
     deleteBtn.addEventListener('click', async () => {
         const idx = selectEl.value;
         if (idx === "" || !confirm("정말 삭제하시겠습니까?")) return;
-
         try {
             const db = await window.getDB();
             const tx = db.transaction(STORE_NAME, "readwrite");
@@ -257,23 +277,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 members = await loadMembersFromDB();
                 refreshUI();
             };
-        } catch (err) {
-            alert("삭제 실패");
-        }
+        } catch (err) { alert("삭제 실패"); }
     });
 
-    // Photo selection
-    photoOverlay.addEventListener('click', () => photoInput.click());
-    photoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (rev) => {
-            currentPhotoBase64 = rev.target.result;
-            resPhoto.src = currentPhotoBase64;
-        };
-        reader.readAsDataURL(file);
-    });
+    function getPromotionDate(startDateStr, plusMonths, adj) {
+        if (!startDateStr) return null;
+        let date = new Date(startDateStr);
+        // 진급은 보통 입대 X개월 후 다음달 1일임
+        date.setMonth(date.getMonth() + plusMonths + 1);
+        date.setDate(1);
+        // 보정치 적용
+        if (adj) date.setMonth(date.getMonth() + adj);
+        return date;
+    }
 
     function calculateMilitary(user) {
         if (!user.start || !user.end) return;
@@ -281,31 +297,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         const start = new Date(user.start);
         const end = new Date(user.end);
 
+        // 복무율
         const totalMs = end - start;
         const elapsedMs = now - start;
         let percent = (elapsedMs / totalMs) * 100;
-
         if (percent < 0) percent = 0;
         if (percent > 100) percent = 100;
-
         document.getElementById('resPercent').textContent = percent.toFixed(8) + "%";
         document.getElementById('progressBarFill').style.width = percent + "%";
 
-        const remainMs = end - now;
-        const dday = Math.ceil(remainMs / (1000 * 60 * 60 * 24));
+        // 전역 D-day
+        const dday = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
+
+        // 진급일 계산
+        const pfcDate = getPromotionDate(user.start, 2, user.pfcAdj);
+        const cplDate = getPromotionDate(user.start, 8, user.cplAdj);
+        const sgtDate = getPromotionDate(user.start, 14, user.sgtAdj);
+
+        const promoDates = [
+            { name: "일병", date: pfcDate },
+            { name: "상병", date: cplDate },
+            { name: "병장", date: sgtDate },
+            { name: "전역", date: end }
+        ];
+
+        let nextPromo = promoDates.find(p => p.date > now) || promoDates[3];
+        
+        document.getElementById('resNextPromoDate').textContent = `${nextPromo.name} (${nextPromo.date.toISOString().split('T')[0]})`;
+        const pDday = Math.ceil((nextPromo.date - now) / (1000 * 60 * 60 * 24));
+        document.getElementById('resNextPromoDday').textContent = pDday > 0 ? `D-${pDday}` : "D-Day";
     }
 
     function updateAllPreviews() {
         members.forEach((user, idx) => {
+            if (!user.start || !user.end) return;
             const start = new Date(user.start);
             const end = new Date(user.end);
             const now = new Date();
-            const total = end - start;
-            const elapsed = now - start;
-            let p = (elapsed / total) * 100;
+            let p = ((now - start) / (end - start)) * 100;
             if (p < 0) p = 0; if (p > 100) p = 100;
-
             const pText = document.getElementById(`preview-percent-${idx}`);
             const pBar = document.getElementById(`preview-bar-${idx}`);
             if (pText) pText.textContent = p.toFixed(8) + "%";

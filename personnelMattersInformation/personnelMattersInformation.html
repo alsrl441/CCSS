@@ -114,19 +114,27 @@
                                     <span id="resDday"></span>
                                 </div>
                                 <div class="info-row-minimal">
-                                    <label>일병 진급일</label>
-                                    <span id="resPfcDate" class="view-mode"></span>
-                                    <input type="date" id="editPfcDate" class="form-control-minimal edit-mode hidden">
+                                    <label>일병 진급 보정</label>
+                                    <span id="resPfcAdj" class="view-mode">0개월</span>
+                                    <input type="number" id="editPfcAdj" class="form-control-minimal edit-mode hidden" placeholder="개월 (예: -1, 1)">
                                 </div>
                                 <div class="info-row-minimal">
-                                    <label>상병 진급일</label>
-                                    <span id="resCplDate" class="view-mode"></span>
-                                    <input type="date" id="editCplDate" class="form-control-minimal edit-mode hidden">
+                                    <label>상병 진급 보정</label>
+                                    <span id="resCplAdj" class="view-mode">0개월</span>
+                                    <input type="number" id="editCplAdj" class="form-control-minimal edit-mode hidden" placeholder="개월">
                                 </div>
                                 <div class="info-row-minimal">
-                                    <label>병장 진급일</label>
-                                    <span id="resSgtDate" class="view-mode"></span>
-                                    <input type="date" id="editSgtDate" class="form-control-minimal edit-mode hidden">
+                                    <label>병장 진급 보정</label>
+                                    <span id="resSgtAdj" class="view-mode">0개월</span>
+                                    <input type="number" id="editSgtAdj" class="form-control-minimal edit-mode hidden" placeholder="개월">
+                                </div>
+                                <div class="info-row-minimal view-mode highlight-promotion">
+                                    <label>다음 진급일</label>
+                                    <span id="resNextPromoDate"></span>
+                                </div>
+                                <div class="info-row-minimal view-mode">
+                                    <label>진급 D-day</label>
+                                    <span id="resNextPromoDday"></span>
                                 </div>
                                 <div class="info-row-minimal view-mode">
                                     <label>다음 휴가일</label>
