@@ -98,41 +98,43 @@
                                 <div id="customFieldsEditContainer" class="edit-mode hidden mt-2"></div>
                             </div>
 
-                            <!-- 복무 정보 -->
+                            <!-- 일정 정보 -->
                             <div class="info-section">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="section-title mb-0"><i class="fas fa-calendar-alt"></i> 복무 정보</h6>
+                                    <h6 class="section-title mb-0"><i class="fas fa-calendar-check"></i> 일정</h6>
                                     <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden"><i class="fas fa-plus"></i> 일정 추가</button>
                                 </div>
-                                <div class="info-grid-minimal" id="serviceInfoGrid">
+                                <div class="info-grid-minimal" id="scheduleInfoGrid">
+                                    <!-- 입대일 (D-day 계산 제외) -->
                                     <div class="info-row-minimal">
                                         <label>입대일</label>
                                         <span id="resStartDate" class="view-mode"></span>
                                         <input type="date" id="editStartDate" class="form-control-minimal edit-mode hidden">
                                     </div>
+                                    <!-- 전입일 -->
                                     <div class="info-row-minimal">
-                                        <label>전입일</label>
+                                        <label id="labelTransfer">전입일</label>
                                         <span id="resTransferDate" class="view-mode"></span>
                                         <input type="date" id="editTransferDate" class="form-control-minimal edit-mode hidden">
                                     </div>
-                                    <div class="info-row-minimal">
-                                        <label>전역일</label>
+                                    <!-- 전역일 -->
+                                    <div class="info-row-minimal highlight-dday">
+                                        <label id="labelEnd">전역일</label>
                                         <span id="resEndDate" class="view-mode"></span>
                                         <input type="date" id="editEndDate" class="form-control-minimal edit-mode hidden">
                                     </div>
-                                    <div class="info-row-minimal highlight-dday view-mode">
-                                        <label>전역</label>
-                                        <span id="resDday"></span>
+                                    <!-- 진급일 (자동 계산) -->
+                                    <div class="info-row-minimal highlight-promotion view-mode">
+                                        <label id="labelPromo">진급일</label>
+                                        <span id="resPromoStatus"></span>
                                     </div>
-                                    <!-- 커스텀 일정들이 여기에 추가됨 -->
-                                </div>
-                                <div id="customSchedulesEditContainer" class="edit-mode hidden mt-2"></div>
-                            </div>
-
-                            <!-- 진급 및 휴가 -->
-                            <div class="info-section">
-                                <h6 class="section-title"><i class="fas fa-medal"></i> 진급 및 휴가</h6>
-                                <div class="info-grid-minimal">
+                                    <!-- 휴가일 (자동 계산) -->
+                                    <div class="info-row-minimal view-mode">
+                                        <label id="labelVacation">휴가일</label>
+                                        <span id="resVacationStatus"></span>
+                                    </div>
+                                    
+                                    <!-- 진급 보정 (편집 모드에서만) -->
                                     <div class="info-row-minimal edit-mode hidden">
                                         <label>일병 > 상병 보정</label>
                                         <input type="number" id="editPfc2cpl" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
@@ -141,24 +143,9 @@
                                         <label>상병 > 병장 보정</label>
                                         <input type="number" id="editCpl2sgt" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
                                     </div>
-                                    
-                                    <div class="info-row-minimal view-mode highlight-promotion">
-                                        <label>진급일</label>
-                                        <span id="resNextPromoDate"></span>
-                                    </div>
-                                    <div class="info-row-minimal view-mode">
-                                        <label>진급</label>
-                                        <span id="resNextPromoDday"></span>
-                                    </div>
-                                    <div class="info-row-minimal view-mode">
-                                        <label>휴가일</label>
-                                        <span id="resVacationRange"></span>
-                                    </div>
-                                    <div class="info-row-minimal view-mode">
-                                        <label>휴가</label>
-                                        <span id="resVacDday"></span>
-                                    </div>
+                                    <!-- 커스텀 일정들이 여기에 추가됨 -->
                                 </div>
+                                <div id="customSchedulesEditContainer" class="edit-mode hidden mt-2"></div>
                             </div>
                         </div>
 

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const addScheduleBtn = document.getElementById('addCustomScheduleBtn');
     const scheduleEditContainer = document.getElementById('customSchedulesEditContainer');
-    const serviceInfoGrid = document.getElementById('serviceInfoGrid');
+    const scheduleInfoGrid = document.getElementById('scheduleInfoGrid');
     
     let timerId = null; 
     let members = [];
@@ -40,62 +40,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             let data = await window.getDBData(STORE_NAME);
             if (!data || data.length === 0) {
                 const sampleMember = {
-                    "id": Date.now().toString(),
-                    "name": "홍길동",
-                    "affiliation": "1소대",
-                    "position": "운전병",
-                    "start": "2024-03-15",
-                    "transfer": "2024-05-10",
-                    "end": "2025-09-14",
-                    "pfc2cpl": 0, "cpl2sgt": 0,
-                    "photo": "",
-                    "vacation": ["2024-12-01", "2024-12-05"],
-                    "customFields": [],
-                    "customSchedules": []
+                    "id": Date.now().toString(), "name": "홍길동", "affiliation": "1소대", "position": "운전병",
+                    "start": "2024-03-15", "transfer": "2024-05-10", "end": "2025-09-14",
+                    "pfc2cpl": 0, "cpl2sgt": 0, "photo": "",
+                    "vacation": ["2024-12-01", "2024-12-05"], "customFields": [], "customSchedules": []
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
             }
             return data;
-        } catch (err) {
-            console.error("인원 정보 로딩 실패:", err);
-            return [];
-        }
+        } catch (err) { return []; }
     }
 
     function refreshUI() {
         selectEl.innerHTML = '<option value="">인원 선택</option>';
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = m.name;
+            opt.value = idx; opt.textContent = m.name;
             selectEl.appendChild(opt);
         });
         handleMemberSelect("");
     }
 
-    selectEl.addEventListener('change', (e) => {
-        handleMemberSelect(e.target.value);
-    });
+    selectEl.addEventListener('change', (e) => handleMemberSelect(e.target.value));
 
     function handleMemberSelect(val) {
         if (timerId) clearInterval(timerId);
         toggleEditMode(false);
-
         if (val === "") {
-            displayEl.classList.add('hidden');
-            noDataEl.classList.remove('hidden');
-            previewEl.classList.remove('hidden');
-            renderPreview();
-            timerId = setInterval(updateAllPreviews, 10);
+            displayEl.classList.add('hidden'); noDataEl.classList.remove('hidden'); previewEl.classList.remove('hidden');
+            renderPreview(); timerId = setInterval(updateAllPreviews, 10);
         } else {
             const user = members[val];
-            displayEl.classList.remove('hidden');
-            noDataEl.classList.add('hidden');
-            previewEl.classList.add('hidden');
-            
-            updateStaticProfile(user);
-            calculateMilitary(user);
+            displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
+            updateStaticProfile(user); calculateMilitary(user);
             timerId = setInterval(() => calculateMilitary(user), 10);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -112,50 +90,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="preview-name">${user.name}</div>
                         <div id="preview-percent-${idx}" class="preview-percent-text">0.00000000%</div>
                     </div>
-                    <div class="preview-progress-container">
-                        <div id="preview-bar-${idx}" class="preview-progress-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-            `;
-            card.addEventListener('click', () => {
-                selectEl.value = idx;
-                handleMemberSelect(idx);
-            });
+                    <div class="preview-progress-container"><div id="preview-bar-${idx}" class="preview-progress-fill" style="width: 0%"></div></div>
+                </div>`;
+            card.addEventListener('click', () => { selectEl.value = idx; handleMemberSelect(idx); });
             previewEl.appendChild(card);
         });
-
         const addCard = document.createElement('div');
         addCard.className = 'preview-card preview-card-add';
-        addCard.innerHTML = `
-            <i class="fas fa-plus"></i>
-            <span>추가</span>
-        `;
-        addCard.addEventListener('click', () => {
-            startAddMember();
-        });
+        addCard.innerHTML = `<i class="fas fa-plus"></i><span>추가</span>`;
+        addCard.addEventListener('click', startAddMember);
         previewEl.appendChild(addCard);
-
         updateAllPreviews();
     }
 
     function toggleEditMode(isEdit) {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
-        
         if (isEdit) {
-            viewElements.forEach(el => el.classList.add('hidden'));
-            editElements.forEach(el => el.classList.remove('hidden'));
+            viewElements.forEach(el => el.classList.add('hidden')); editElements.forEach(el => el.classList.remove('hidden'));
             photoOverlay.classList.remove('hidden');
         } else {
-            viewElements.forEach(el => el.classList.remove('hidden'));
-            editElements.forEach(el => el.classList.add('hidden'));
-            photoOverlay.classList.add('hidden');
-            isAdding = false;
+            viewElements.forEach(el => el.classList.remove('hidden')); editElements.forEach(el => el.classList.add('hidden'));
+            photoOverlay.classList.add('hidden'); isAdding = false;
         }
     }
 
     function updateStaticProfile(user) {
-        // 기본 필드
         document.getElementById('resName').textContent = user.name;
         document.getElementById('resAffiliation').textContent = user.affiliation || "-";
         document.getElementById('resPosition').textContent = user.position || "-";
@@ -169,8 +129,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.custom-field-row').forEach(el => el.remove());
         fieldEditContainer.innerHTML = '';
         (user.customFields || []).forEach(f => {
-            addCustomFieldRow(f.key, f.value); // 편집용
-            const row = document.createElement('div'); // 보기용
+            addCustomFieldRow(f.key, f.value);
+            const row = document.createElement('div');
             row.className = 'info-row-minimal custom-field-row view-mode';
             row.innerHTML = `<label>${f.key}</label><span>${f.value}</span>`;
             basicInfoGrid.appendChild(row);
@@ -180,11 +140,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.custom-schedule-row').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
-            addCustomScheduleRow(s.label, s.date, s.type); // 편집용
-            const row = document.createElement('div'); // 보기용
+            addCustomScheduleRow(s.label, s.date);
+            const row = document.createElement('div');
             row.className = 'info-row-minimal custom-schedule-row view-mode';
-            row.innerHTML = `<label>${s.label}</label><span id="custom-sched-${s.label.replace(/\s/g, '')}">-</span>`;
-            serviceInfoGrid.appendChild(row);
+            row.innerHTML = `<label id="label-cust-${s.label.replace(/\s/g, '')}">${s.label}</label><span id="val-cust-${s.label.replace(/\s/g, '')}">-</span>`;
+            scheduleInfoGrid.appendChild(row);
         });
 
         // 입력창 채우기
@@ -204,24 +164,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.innerHTML = `
             <input type="text" class="form-control-minimal custom-key" placeholder="항목명" value="${key}">
             <input type="text" class="form-control-minimal custom-value" placeholder="내용" value="${value}">
-            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>
-        `;
+            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         fieldEditContainer.appendChild(row);
     }
 
-    function addCustomScheduleRow(label = "", date = "", type = "D-") {
+    function addCustomScheduleRow(label = "", date = "") {
         const row = document.createElement('div');
         row.className = 'custom-edit-row';
         row.innerHTML = `
             <input type="text" class="form-control-minimal custom-label" placeholder="일정명" value="${label}">
             <input type="date" class="form-control-minimal custom-date" value="${date}">
-            <select class="custom-type">
-                <option value="D-" ${type === 'D-' ? 'selected' : ''}>D-</option>
-                <option value="D+" ${type === 'D+' ? 'selected' : ''}>D+</option>
-            </select>
-            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>
-        `;
+            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         scheduleEditContainer.appendChild(row);
     }
@@ -230,31 +184,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     addScheduleBtn.addEventListener('click', () => addCustomScheduleRow());
 
     function startAddMember() {
-        isAdding = true;
-        selectEl.value = "";
-        handleMemberSelect("");
-        displayEl.classList.remove('hidden');
-        noDataEl.classList.add('hidden');
-        previewEl.classList.add('hidden');
+        isAdding = true; selectEl.value = ""; handleMemberSelect("");
+        displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
         document.querySelectorAll('.edit-mode input').forEach(input => {
-            if (input.type === 'number') input.value = 0;
-            else input.value = "";
+            if (input.type === 'number') input.value = 0; else input.value = "";
         });
-        fieldEditContainer.innerHTML = '';
-        scheduleEditContainer.innerHTML = '';
-        resPhoto.src = "../img/default-profile.png";
-        currentPhotoBase64 = "";
-        toggleEditMode(true);
-        document.getElementById('editName').focus();
+        fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = '';
+        resPhoto.src = "../img/default-profile.png"; currentPhotoBase64 = "";
+        toggleEditMode(true); document.getElementById('editName').focus();
     }
 
-    // Drag and Drop
+    // Drag and Drop & Photo
     photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
     photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#eee"; });
     photoEditArea.addEventListener('drop', (e) => {
         e.preventDefault(); photoEditArea.style.borderColor = "#eee";
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) handlePhoto(file);
+        const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handlePhoto(file);
     });
     photoOverlay.addEventListener('click', () => photoInput.click());
     photoInput.addEventListener('change', (e) => { if (e.target.files[0]) handlePhoto(e.target.files[0]); });
@@ -271,20 +216,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveBtn.addEventListener('click', async () => {
         const name = document.getElementById('editName').value.trim();
         if (!name) return alert("이름을 입력하세요.");
-
         const customFields = [];
         fieldEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const key = row.querySelector('.custom-key').value.trim();
-            const value = row.querySelector('.custom-value').value.trim();
-            if (key) customFields.push({ key, value });
+            const k = row.querySelector('.custom-key').value.trim();
+            const v = row.querySelector('.custom-value').value.trim();
+            if (k) customFields.push({ key: k, value: v });
         });
-
         const customSchedules = [];
         scheduleEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const label = row.querySelector('.custom-label').value.trim();
-            const date = row.querySelector('.custom-date').value;
-            const type = row.querySelector('.custom-type').value;
-            if (label && date) customSchedules.push({ label, date, type });
+            const l = row.querySelector('.custom-label').value.trim();
+            const d = row.querySelector('.custom-date').value;
+            if (l && d) customSchedules.push({ label: l, date: d });
         });
 
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
@@ -299,106 +241,97 @@ document.addEventListener('DOMContentLoaded', async () => {
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
             photo: currentPhotoBase64,
             vacation: isAdding ? [] : (members[selectEl.value].vacation || []),
-            customFields,
-            customSchedules
+            customFields, customSchedules
         };
-
         try {
-            await window.putDBData(STORE_NAME, updatedUser);
-            members = await loadMembersFromDB();
-            refreshUI();
-            const newIdx = members.findIndex(m => m.id === id);
-            selectEl.value = newIdx;
-            handleMemberSelect(newIdx);
+            await window.putDBData(STORE_NAME, updatedUser); members = await loadMembersFromDB();
+            refreshUI(); const nIdx = members.findIndex(m => m.id === id);
+            selectEl.value = nIdx; handleMemberSelect(nIdx);
         } catch (err) { alert("저장 실패"); }
     });
 
     deleteBtn.addEventListener('click', async () => {
-        const idx = selectEl.value;
-        if (idx === "" || !confirm("정말 삭제하시겠습니까?")) return;
+        const idx = selectEl.value; if (idx === "" || !confirm("삭제하시겠습니까?")) return;
         try {
-            const db = await window.getDB();
-            const tx = db.transaction(STORE_NAME, "readwrite");
+            const db = await window.getDB(); const tx = db.transaction(STORE_NAME, "readwrite");
             tx.objectStore(STORE_NAME).delete(members[idx].id);
-            tx.oncomplete = async () => {
-                db.close();
-                members = await loadMembersFromDB();
-                refreshUI();
-            };
+            tx.oncomplete = async () => { db.close(); members = await loadMembersFromDB(); refreshUI(); };
         } catch (err) { alert("삭제 실패"); }
     });
 
-    function getPromotionDate(startDateStr, plusMonths, adj) {
-        if (!startDateStr) return null;
-        let date = new Date(startDateStr);
-        date.setMonth(date.getMonth() + plusMonths + 1);
-        date.setDate(1);
-        if (adj) date.setMonth(date.getMonth() - adj);
-        return date;
+    function getDday(dateStr) {
+        if (!dateStr) return "-";
+        const target = new Date(dateStr); target.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diff = Math.ceil((target - today) / 86400000);
+        if (diff > 0) return `D-${diff}`;
+        if (diff === 0) return "D-Day";
+        return `D+${Math.abs(diff)}`;
     }
 
     function calculateMilitary(user) {
         if (!user.start || !user.end) return;
         const now = new Date();
-        const start = new Date(user.start);
-        const end = new Date(user.end);
+        const start = new Date(user.start); const end = new Date(user.end);
+        
+        // 복무율
+        let p = ((now - start) / (end - start)) * 100;
+        if (p < 0) p = 0; if (p > 100) p = 100;
+        document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
+        document.getElementById('progressBarFill').style.width = p + "%";
 
-        // 전역/복무율
-        const totalMs = end - start;
-        const elapsedMs = now - start;
-        let percent = (elapsedMs / totalMs) * 100;
-        if (percent < 0) percent = 0; if (percent > 100) percent = 100;
-        document.getElementById('resPercent').textContent = percent.toFixed(8) + "%";
-        document.getElementById('progressBarFill').style.width = percent + "%";
-        const dday = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-        document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
+        // 일정별 D-day 맵핑
+        document.getElementById('labelTransfer').textContent = `전입일 (${user.transfer || "-"})`;
+        document.getElementById('resTransferDate').textContent = getDday(user.transfer);
+        
+        document.getElementById('labelEnd').textContent = `전역일 (${user.end})`;
+        document.getElementById('resEndDate').textContent = getDday(user.end);
 
-        // 진급/휴가 계산 (중략)
-        const pfcDate = getPromotionDate(user.start, 2, 0); 
-        const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl);
-        const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt);
-        const promoDates = [{name:"일병",date:pfcDate},{name:"상병",date:cplDate},{name:"병장",date:sgtDate},{name:"전역",date:end}];
-        let nextPromo = promoDates.find(p => p.date > now) || promoDates[3];
-        document.getElementById('resNextPromoDate').textContent = nextPromo.date.toISOString().split('T')[0];
-        const pDday = Math.ceil((nextPromo.date - now) / (1000 * 60 * 60 * 24));
-        document.getElementById('resNextPromoDday').textContent = pDday > 0 ? `D-${pDday}` : "D-Day";
+        const pfc = getPromotionDate(user.start, 2, 0);
+        const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
+        const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
+        const promoDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
+        const nextP = promoDates.find(x => x.d > now) || promoDates[3];
+        document.getElementById('labelPromo').textContent = `${nextP.n} 진급 (${nextP.d.toISOString().split('T')[0]})`;
+        document.getElementById('resPromoStatus').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
-        const vacRangeEl = document.getElementById('resVacationRange');
-        const vacDdayEl = document.getElementById('resVacDday');
+        const vacEl = document.getElementById('resVacationStatus');
         if (user.vacation && user.vacation.length === 2) {
-            const vStart = new Date(user.vacation[0]); const vEnd = new Date(user.vacation[1]);
-            const vDays = Math.round((vEnd - vStart) / 86400000) + 1;
-            vacRangeEl.textContent = `${user.vacation[0]} ~ ${user.vacation[1]} (${vDays}일)`;
-            const vDday = Math.ceil((vStart - now) / 86400000);
-            vacDdayEl.textContent = vDday > 0 ? `D-${vDday}` : (now <= new Date(vEnd.getTime() + 86400000) ? "휴가 중" : "종료");
+            const vS = new Date(user.vacation[0]); const vE = new Date(user.vacation[1]);
+            const days = Math.round((vE - vS) / 86400000) + 1;
+            document.getElementById('labelVacation').textContent = `휴가 (${user.vacation[0]} ~ ${user.vacation[1]}, ${days}일)`;
+            const vD = Math.ceil((vS - now) / 86400000);
+            vacEl.textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
+        } else {
+            document.getElementById('labelVacation').textContent = "휴가일";
+            vacEl.textContent = "-";
         }
 
-        // 커스텀 일정 계산
+        // 커스텀 일정
         (user.customSchedules || []).forEach(s => {
-            const target = new Date(s.date);
-            const el = document.getElementById(`custom-sched-${s.label.replace(/\s/g, '')}`);
-            if (!el) return;
-            const msPerDay = 86400000;
-            if (s.type === 'D-') {
-                const diff = Math.ceil((target - now) / msPerDay);
-                el.textContent = diff > 0 ? `D-${diff}` : (diff === 0 ? "D-Day" : `D+${Math.abs(diff)}`);
-            } else {
-                const diff = Math.floor((now - target) / msPerDay);
-                el.textContent = diff >= 0 ? `D+${diff}` : `D-${Math.abs(diff)}`;
+            const lEl = document.getElementById(`label-cust-${s.label.replace(/\s/g, '')}`);
+            const vEl = document.getElementById(`val-cust-${s.label.replace(/\s/g, '')}`);
+            if (lEl && vEl) {
+                lEl.textContent = `${s.label} (${s.date})`;
+                vEl.textContent = getDday(s.date);
             }
         });
+    }
+
+    function getPromotionDate(sStr, m, a) {
+        if (!sStr) return null;
+        let d = new Date(sStr); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
+        if (a) d.setMonth(d.getMonth() - a); return d;
     }
 
     function updateAllPreviews() {
         members.forEach((user, idx) => {
             if (!user.start || !user.end) return;
-            const start = new Date(user.start); const end = new Date(user.end); const now = new Date();
-            let p = ((now - start) / (end - start)) * 100;
-            if (p < 0) p = 0; if (p > 100) p = 100;
-            const pText = document.getElementById(`preview-percent-${idx}`);
-            const pBar = document.getElementById(`preview-bar-${idx}`);
-            if (pText) pText.textContent = p.toFixed(8) + "%";
-            if (pBar) pBar.style.width = p + "%";
+            const s = new Date(user.start); const e = new Date(user.end); const n = new Date();
+            let p = ((n - s) / (e - s)) * 100; if (p < 0) p = 0; if (p > 100) p = 100;
+            const pt = document.getElementById(`preview-percent-${idx}`);
+            const pb = document.getElementById(`preview-bar-${idx}`);
+            if (pt) pt.textContent = p.toFixed(8) + "%"; if (pb) pb.style.width = p + "%";
         });
     }
 
