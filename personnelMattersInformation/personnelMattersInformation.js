@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         addCard.className = 'preview-card preview-card-add';
         addCard.innerHTML = `
             <i class="fas fa-plus"></i>
-            <span>인원 추가</span>
+            <span>추가</span>
         `;
         addCard.addEventListener('click', () => {
             addBtn.click();
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     deleteBtn.onclick = async () => {
         const idx = selectEl.value;
         if (idx === "") return;
-        if (confirm(`'${members[idx].name}' 인원 정보를 정말 삭제하시겠습니까?`)) {
+        if (confirm(`'${members[idx].name}'(을)를 정말 삭제하시겠습니까?`)) {
             await window.deleteDBData(STORE_NAME, members[idx].id);
             await init();
         }
