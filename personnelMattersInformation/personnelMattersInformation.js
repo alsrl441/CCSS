@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "nickName": "ㅎㄱㄷ",
                     "start": "2024-03-15",
                     "end": "2025-09-14",
-                    "pfcAdj": 0, "cplAdj": 0, "sgtAdj": 0,
+                    "pfc2cpl": 0, "cpl2sgt": 0,
                     "photo": "",
                     "affiliation": "해안복합감시반",
                     "position": "항포구 감시병",
@@ -155,9 +155,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resSpecialty').textContent = user.specialty || "-";
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resEndDate').textContent = user.end;
-        document.getElementById('resPfcAdj').textContent = (user.pfcAdj || 0) + "개월";
-        document.getElementById('resCplAdj').textContent = (user.cplAdj || 0) + "개월";
-        document.getElementById('resSgtAdj').textContent = (user.sgtAdj || 0) + "개월";
+        document.getElementById('resPfc2cpl').textContent = (user.pfc2cpl || 0) + "개월";
+        document.getElementById('resCpl2sgt').textContent = (user.cpl2sgt || 0) + "개월";
         
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
@@ -171,9 +170,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editSpecialty').value = user.specialty || "";
         document.getElementById('editStartDate').value = user.start;
         document.getElementById('editEndDate').value = user.end;
-        document.getElementById('editPfcAdj').value = user.pfcAdj || 0;
-        document.getElementById('editCplAdj').value = user.cplAdj || 0;
-        document.getElementById('editSgtAdj').value = user.sgtAdj || 0;
+        document.getElementById('editPfc2cpl').value = user.pfc2cpl || 0;
+        document.getElementById('editCpl2sgt').value = user.cpl2sgt || 0;
     }
 
     function startAddMember() {
@@ -248,9 +246,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             specialty: document.getElementById('editSpecialty').value.trim(),
             start: document.getElementById('editStartDate').value,
             end: document.getElementById('editEndDate').value,
-            pfcAdj: parseInt(document.getElementById('editPfcAdj').value) || 0,
-            cplAdj: parseInt(document.getElementById('editCplAdj').value) || 0,
-            sgtAdj: parseInt(document.getElementById('editSgtAdj').value) || 0,
+            pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
+            cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
             photo: currentPhotoBase64,
             vacation: isAdding ? [] : members[selectEl.value].vacation
         };
@@ -286,7 +283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 진급은 보통 입대 X개월 후 다음달 1일임
         date.setMonth(date.getMonth() + plusMonths + 1);
         date.setDate(1);
-        // 보정치 적용
+        // 보정치 적용 (조기진급: -1, 누락: 1 등)
         if (adj) date.setMonth(date.getMonth() + adj);
         return date;
     }
@@ -310,10 +307,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dday = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
 
-        // 진급일 계산
-        const pfcDate = getPromotionDate(user.start, 2, user.pfcAdj);
-        const cplDate = getPromotionDate(user.start, 8, user.cplAdj);
-        const sgtDate = getPromotionDate(user.start, 14, user.sgtAdj);
+        // 진급일 계산 (일병: 입대+2, 상병: 입대+8, 병장: 입대+14 개월 후 다음달 1일)
+        const pfcDate = getPromotionDate(user.start, 2, 0); // 일병 진급은 보정 없음
+        const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl); // 일병>상병 보정
+        const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt); // 상병>병장 보정
 
         const promoDates = [
             { name: "일병", date: pfcDate },
