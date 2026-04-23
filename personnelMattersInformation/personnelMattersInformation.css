@@ -1,54 +1,44 @@
-/* Personnel Matters Information - Clean & Professional Style */
-
-:root {
-    --text-main: #212529;
-    --text-muted: #868e96;
-    --border-color: #e9ecef;
-    --bg-light: #f8f9fa;
-    --accent-color: #212529; /* 무채색 포인트 */
-}
+/* Personnel Matters Information CSS - Restored Style */
 
 .profile-layout {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    color: var(--text-main);
 }
 
-/* Header Section */
 .profile-header-minimal {
     display: flex;
     gap: 30px;
-    padding-bottom: 25px;
-    margin-bottom: 25px;
-    border-bottom: 2px solid var(--text-main);
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
     align-items: flex-start;
 }
 
 .profile-photo-area {
+    position: relative;
+    cursor: pointer;
     width: 126px;
     height: 162px;
     flex-shrink: 0;
-    background: var(--bg-light);
-    border: 1px solid var(--border-color);
-    border-radius: 2px;
+    border: 1px solid #eee;
+    border-radius: 4px;
     overflow: hidden;
-    position: relative;
+    background: #f8f9fa;
 }
 
 .profile-photo-square {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .photo-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     color: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     opacity: 0; transition: opacity 0.2s;
-    cursor: pointer;
 }
 
 .profile-photo-area:hover .photo-overlay { opacity: 1; }
@@ -58,64 +48,72 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 162px;
+    min-height: 162px;
 }
 
 .nickname-top {
     font-size: 1.5rem;
     font-weight: 800;
-    margin-bottom: 15px;
+    color: #212529;
 }
 
 .nickname-edit-wrapper input {
     font-size: 1.2rem;
     font-weight: 700;
-    border: 1px solid var(--border-color);
-    padding: 5px 10px;
+    max-width: 200px;
 }
 
-/* Progress Bar */
 .progress-wrapper-minimal {
     position: relative;
     width: 100%;
-    max-width: 350px;
+    max-width: 400px;
+    margin-top: 15px;
 }
 
 .progress-bar-container-minimal {
-    height: 6px;
-    background-color: var(--border-color);
-    border-radius: 3px;
+    height: 8px;
+    background-color: #f1f3f5;
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .progress-bar-fill-minimal {
     height: 100%;
-    background-color: var(--text-main);
+    background-color: #212529;
 }
 
 .percent-label-minimal {
     position: absolute;
-    top: -22px;
+    top: -24px;
     right: 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
     font-weight: 700;
 }
 
-/* Sections */
+/* Info Sections */
 .profile-sections {
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.info-section {
+    border-top: 1px solid #f1f3f5;
+    padding-top: 20px;
+}
+
+.info-section:first-child {
+    border-top: none;
+    padding-top: 0;
 }
 
 .section-title {
     font-size: 0.9rem;
     font-weight: 800;
-    color: var(--text-main);
+    color: #495057;
     margin-bottom: 15px;
-    padding-left: 8px;
-    border-left: 3px solid var(--text-main);
 }
 
 .info-grid-minimal {
@@ -129,101 +127,76 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px dotted #eee;
+}
+
+.info-row-minimal:last-child {
+    border-bottom: none;
 }
 
 .info-row-minimal label {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: #868e96;
     font-weight: 500;
 }
 
 .info-row-minimal span {
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text-main);
+    color: #212529;
 }
 
-/* Highlights - No bright colors, just weight/contrast */
+/* Row-specific overrides */
 .highlight-dday span, .highlight-promotion span {
-    font-size: 0.95rem;
-    color: #000;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-}
-
-/* Custom & Edit Elements */
-.custom-edit-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
+    color: #000 !important;
+    font-weight: 800;
 }
 
 .form-control-minimal {
-    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 220px;
     padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     font-size: 0.85rem;
-    border-radius: 2px;
-}
-
-.form-control-minimal:focus {
-    outline: none;
-    border-color: var(--text-main);
 }
 
 .btn-minimal-sm, .btn-minimal-xs {
     background: #fff;
-    border: 1px solid var(--border-color);
+    border: 1px solid #dee2e6;
     padding: 5px 12px;
+    border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 2px;
+    transition: all 0.2s;
 }
 
-.btn-minimal-sm:hover {
-    background: var(--bg-light);
-}
+.btn-minimal-sm:hover { background: #f8f9fa; }
 
-.profile-actions-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Preview Cards */
 .preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 15px;
     margin-top: 40px;
 }
 
 .preview-card {
     background: #fff;
-    border: 1px solid var(--border-color);
-    padding: 15px;
-    border-radius: 2px;
+    padding: 18px;
+    border-radius: 6px;
+    border: 1px solid #eee;
     cursor: pointer;
-    transition: border-color 0.2s;
 }
 
-.preview-card:hover {
-    border-color: var(--text-main);
-}
+.preview-card:hover { border-color: #212529; }
 
 .preview-name { font-size: 0.9rem; font-weight: 800; }
-.preview-percent-text { font-size: 0.7rem; color: var(--text-muted); }
+.preview-percent-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
 
-/* Utils */
 .hidden { display: none !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
 .mt-2 { margin-top: 0.5rem !important; }
-.mb-0 { margin-bottom: 0 !important; }
-.text-danger { color: #dc3545 !important; }
-.text-primary { color: #0d6efd !important; }
-.text-success { color: #198754 !important; }
 
 @media (max-width: 800px) {
     .info-grid-minimal { grid-template-columns: 1fr; }
