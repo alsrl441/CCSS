@@ -89,11 +89,17 @@
     color: #adb5bd;
     font-size: 1.1rem;}
 .remove-tag:hover {color: #dc3545;}
+.ship-results-list {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    background-color: white;
+    overflow: hidden;
+}
+
 .ship-card {
     background: white;
     border: none;
     border-bottom: 1px solid #eee;
-    box-shadow: none;
     margin-bottom: 0;
     overflow: hidden;
     border-radius: 0;
