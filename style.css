@@ -167,20 +167,20 @@ main {
 
 .mega-menu-item {
     display: block;
-    padding: 0.6rem 0.8rem;
+    padding: 0.6rem 1.25rem; /* 좌우 여백을 기본적으로 확보해서 안정감 부여 */
     color: #4b5563;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.15s ease-in-out;
     border-radius: 0.5rem;
     white-space: nowrap;
 }
 
 .mega-menu-item:hover {
     color: var(--bs-primary);
-    background-color: var(--bs-gray-100);
-    padding-left: 1rem; /* 호버 시 들여쓰기 효과로 더 역동적이게 */
+    background-color: #f3f4f6; /* 호버 시 배경색만 변경 */
+    /* padding-left 를 제거해서 텍스트 위치 고정 */
 }
 
 /* Hidden Playground 유지 */
