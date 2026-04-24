@@ -76,21 +76,14 @@ main {
     display: flex;
     gap: 0;
     height: 100%;
+    position: relative;
 }
 
 .nav-item {
     height: 100%;
     display: flex;
     align-items: center;
-    width: 160px; /* 대시보드 */
-}
-
-.nav-item:nth-child(2) {
-    width: 250px; /* 업무 */
-}
-
-.nav-item:nth-child(3) {
-    width: 250px; /* 비업무 */
+    width: 200px;
 }
 
 .nav-link {
@@ -128,23 +121,16 @@ main {
 }
 
 /* Full Mega Menu Styles */
-.navbar-nav {
-    display: flex;
-    gap: 0;
-    height: 100%;
-    position: relative;
-}
-
 .mega-menu {
     position: absolute;
-    top: 60px; /* navbar-container height */
+    top: 60px; 
     left: 0;
     width: 100%;
     background-color: var(--bs-white);
     border-bottom: 1px solid var(--bs-gray-200);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
     display: none;
-    padding: 1.5rem 0;
+    padding: 2rem 0;
     z-index: 1000;
 }
 
@@ -161,11 +147,19 @@ main {
 }
 
 .mega-menu-column {
-    width: 160px; /* 대시보드 열 */
+    width: 200px;
 }
 
-.mega-menu-column:nth-child(2) {
-    width: 250px; /* 업무 열 */
+.mega-menu-item {
+    display: block;
+    padding: 0.6rem 1rem;
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+    border-radius: 0.5rem;
+    white-space: nowrap;
 }
 
 .mega-menu-column:nth-child(3) {
