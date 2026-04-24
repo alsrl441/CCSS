@@ -147,36 +147,38 @@ main {
     display: flex;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 1rem 1.5rem;
 }
 
 .mega-menu-column {
-    /* 각 메인 메뉴 너비에 맞게 조정 (대략적인 비율) */
-    width: 120px; /* 대시보드 쪽 */
-    margin-right: 40px;
+    /* 각 메뉴 항목이 충분한 공간을 갖도록 너비 확장 */
+    width: 200px; 
+    margin-right: 60px;
 }
 
 .mega-menu-column:nth-child(2) {
-    width: 180px; /* 업무 쪽 */
+    width: 250px; /* 업무 쪽은 항목이 많으므로 더 넓게 */
 }
 
 .mega-menu-column:nth-child(3) {
-    width: 180px; /* 비업무 쪽 */
+    width: 250px; /* 비업무 쪽 */
 }
 
 .mega-menu-item {
     display: block;
-    padding: 0.6rem 0;
-    color: #6b7280;
+    padding: 0.8rem 0; /* 상하 여백을 늘려 더 시원하게 */
+    color: #4b5563;
     text-decoration: none;
-    font-size: 0.9375rem;
+    font-size: 1rem; /* 폰트 사이즈도 살짝 키움 */
     font-weight: 500;
     transition: all 0.2s;
+    border-radius: 0.5rem;
 }
 
 .mega-menu-item:hover {
     color: var(--bs-primary);
-    padding-left: 5px;
+    background-color: var(--bs-gray-100);
+    padding-left: 1rem; /* 호버 시 들여쓰기 효과로 더 역동적이게 */
 }
 
 /* Hidden Playground 유지 */
