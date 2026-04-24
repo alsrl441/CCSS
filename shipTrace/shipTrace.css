@@ -10,7 +10,7 @@
     --required-color: #ef4444;}
 .trace-body {
     background-color: #fff;
-    font-family: "Malgun Gothic", sans-serif;
+    font-family: inherit;
     color: var(--text-main);
     margin: 0;}
 .trace-container {
