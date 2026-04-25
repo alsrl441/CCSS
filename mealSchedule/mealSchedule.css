@@ -21,9 +21,34 @@
     font-weight: 700;
 }
 
-.meal-table td {
-    height: 100px;
+.meal-table.weekly td {
+    height: auto;
     text-align: left;
+    min-height: 60px;
+}
+
+.meal-type-label {
+    background-color: #f8f9fa;
+    font-weight: 700;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.date-row td {
+    height: auto !important;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: center !important;
+}
+
+.week-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meal-table.weekly .meal-text {
+    min-height: 40px;
 }
 
 .meal-table .date-num {

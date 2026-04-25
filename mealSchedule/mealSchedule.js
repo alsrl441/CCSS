@@ -1,32 +1,43 @@
 const STORE_NAME = "mealSchedule";
 
 async function initMealSchedule() {
-    const monthPicker = document.getElementById('month-picker');
-    const displayEl = document.getElementById('monthly-meal-display');
+    const weekPicker = document.getElementById('week-picker');
+    const displayEl = document.getElementById('weekly-meal-display');
     const mealModal = document.getElementById('meal-modal');
     const btnAddMeal = document.getElementById('btn-add-meal');
     const closeModal = document.querySelector('.close-modal');
     const mealForm = document.getElementById('meal-form');
     const btnDeleteMeal = document.getElementById('btn-delete-meal');
+    const prevWeekBtn = document.getElementById('prev-week');
+    const nextWeekBtn = document.getElementById('next-week');
 
-    const now = new Date();
-    if (!monthPicker.value) {
-        monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    let currentAnchorDate = new Date();
+
+    const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
+    };
+
+    const getSunday = (date) => {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day;
+        return new Date(d.setDate(diff));
+    };
+
+    if (!weekPicker.value) {
+        weekPicker.value = formatDate(currentAnchorDate);
     }
 
-    const renderCalendar = async () => {
-        const [year, month] = monthPicker.value.split('-').map(Number);
-        const firstDay = new Date(year, month - 1, 1);
-        const lastDay = new Date(year, month, 0);
-        const daysInMonth = lastDay.getDate();
-        const startDayOfWeek = firstDay.getDay();
-
+    const renderWeeklySchedule = async () => {
+        const selectedDate = new Date(weekPicker.value);
+        const sunday = getSunday(selectedDate);
         const allMenus = await window.getDBData(STORE_NAME);
         
         let html = `
-            <table class="meal-table">
+            <table class="meal-table weekly">
                 <thead>
                     <tr>
+                        <th style="width: 10%;">구분</th>
                         <th class="sunday">일</th>
                         <th>월</th>
                         <th>화</th>
@@ -39,49 +50,60 @@ async function initMealSchedule() {
                 <tbody>
         `;
 
-        let dateCounter = 1;
-        for (let i = 0; i < 6; i++) {
-            html += '<tr>';
-            for (let j = 0; j < 7; j++) {
-                if ((i === 0 && j < startDayOfWeek) || dateCounter > daysInMonth) {
-                    html += '<td></td>';
-                } else {
-                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(dateCounter).padStart(2, '0')}`;
-                    const menu = allMenus.find(m => m.date === dateStr);
-                    const dayOfWeek = new Date(year, month - 1, dateCounter).getDay();
-                    const dayClass = dayOfWeek === 0 ? 'sunday' : (dayOfWeek === 6 ? 'saturday' : '');
-                    
-                    html += `
-                        <td class="clickable-cell" data-date="${dateStr}">
-                            <span class="date-num ${dayClass}">${dateCounter}</span>
-                            <div class="meal-content">
-                    `;
+        const mealTypes = [
+            { id: 'breakfast', label: '아침' },
+            { id: 'brunch', label: '브런치' },
+            { id: 'lunch', label: '점심' },
+            { id: 'dinner', label: '저녁' }
+        ];
 
-                    if (menu) {
-                        if (dayOfWeek === 0 && menu.brunch) {
-                            html += `<div class="meal-item"><span class="meal-label">브런치</span><span class="meal-text">${menu.brunch}</span></div>`;
-                        } else {
-                            if (menu.breakfast) html += `<div class="meal-item"><span class="meal-label">조</span><span class="meal-text">${menu.breakfast}</span></div>`;
-                            if (menu.lunch) html += `<div class="meal-item"><span class="meal-label">중</span><span class="meal-text">${menu.lunch}</span></div>`;
-                        }
-                        if (menu.dinner) html += `<div class="meal-item"><span class="meal-label">석</span><span class="meal-text">${menu.dinner}</span></div>`;
+        mealTypes.forEach(type => {
+            html += `<tr><td class="meal-type-label">${type.label}</td>`;
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(sunday);
+                d.setDate(sunday.getDate() + i);
+                const dateStr = formatDate(d);
+                const menu = allMenus.find(m => m.date === dateStr);
+                const isSunday = i === 0;
+                
+                let content = '-';
+                if (menu) {
+                    if (type.id === 'brunch') {
+                        content = isSunday ? (menu.brunch || '-') : 'X';
+                    } else if (type.id === 'breakfast') {
+                        content = isSunday ? 'X' : (menu.breakfast || '-');
+                    } else if (type.id === 'lunch') {
+                        content = isSunday ? 'X' : (menu.lunch || '-');
+                    } else {
+                        content = menu.dinner || '-';
                     }
-
-                    html += `
-                            </div>
-                        </td>
-                    `;
-                    dateCounter++;
+                } else {
+                    if (type.id === 'brunch' && !isSunday) content = 'X';
+                    if (isSunday && (type.id === 'breakfast' || type.id === 'lunch')) content = 'X';
                 }
+
+                const cellClass = isSunday ? 'sunday' : (i === 6 ? 'saturday' : '');
+                html += `
+                    <td class="clickable-cell ${cellClass}" data-date="${dateStr}">
+                        <div class="meal-text">${content}</div>
+                    </td>
+                `;
             }
             html += '</tr>';
-            if (dateCounter > daysInMonth) break;
+        });
+
+        // 날짜 표시줄 추가 (헤더 아래 또는 푸터)
+        html += '<tr class="date-row"><td>날짜</td>';
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(sunday);
+            d.setDate(sunday.getDate() + i);
+            html += `<td class="text-center small">${d.getMonth() + 1}/${d.getDate()}</td>`;
         }
+        html += '</tr>';
 
         html += '</tbody></table>';
         displayEl.innerHTML = html;
 
-        // 셀 클릭 이벤트 추가
         document.querySelectorAll('.clickable-cell').forEach(cell => {
             cell.addEventListener('click', () => {
                 openMealModal(cell.dataset.date);
@@ -102,8 +124,7 @@ async function initMealSchedule() {
     };
 
     btnAddMeal.addEventListener('click', () => {
-        const todayStr = new Date().toISOString().split('T')[0];
-        openMealModal(todayStr);
+        openMealModal(weekPicker.value);
     });
 
     closeModal.addEventListener('click', () => {
@@ -123,7 +144,7 @@ async function initMealSchedule() {
         
         await window.putDBData(STORE_NAME, data);
         mealModal.classList.add('hidden');
-        renderCalendar();
+        renderWeeklySchedule();
     });
 
     btnDeleteMeal.addEventListener('click', async () => {
@@ -131,12 +152,27 @@ async function initMealSchedule() {
             const date = document.getElementById('meal-date').value;
             await window.deleteDBData(STORE_NAME, date);
             mealModal.classList.add('hidden');
-            renderCalendar();
+            renderWeeklySchedule();
         }
     });
 
-    monthPicker.addEventListener('change', renderCalendar);
-    renderCalendar();
+    weekPicker.addEventListener('change', renderWeeklySchedule);
+
+    prevWeekBtn.addEventListener('click', () => {
+        const d = new Date(weekPicker.value);
+        d.setDate(d.getDate() - 7);
+        weekPicker.value = formatDate(d);
+        renderWeeklySchedule();
+    });
+
+    nextWeekBtn.addEventListener('click', () => {
+        const d = new Date(weekPicker.value);
+        d.setDate(d.getDate() + 7);
+        weekPicker.value = formatDate(d);
+        renderWeeklySchedule();
+    });
+
+    renderWeeklySchedule();
 }
 
 document.addEventListener('DOMContentLoaded', initMealSchedule);

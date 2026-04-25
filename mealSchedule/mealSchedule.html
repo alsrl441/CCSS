@@ -50,11 +50,15 @@
                 <h2 class="section-title">식단 관리</h2>
                 <div class="header-actions">
                     <button id="btn-add-meal" class="btn btn-primary btn-sm">식단 추가/수정</button>
-                    <input type="month" id="month-picker" class="form-control-sm">
+                    <div class="week-selector">
+                        <button id="prev-week" class="btn btn-secondary btn-sm"><</button>
+                        <input type="date" id="week-picker" class="form-control-sm">
+                        <button id="next-week" class="btn btn-secondary btn-sm">></button>
+                    </div>
                 </div>
             </div>
             <div class="section-body">
-                <div id="monthly-meal-display" class="table-responsive">
+                <div id="weekly-meal-display" class="table-responsive">
                     <div class="text-center py-5 text-muted">데이터를 로딩 중...</div>
                 </div>
             </div>
