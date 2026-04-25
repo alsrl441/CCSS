@@ -240,7 +240,7 @@ async function initFullMealSchedule() {
         if (isEditMode) {
             await saveAllChanges();
             isEditMode = false;
-            btnToggleEdit.innerText = '수정 모드 시작';
+            btnToggleEdit.innerText = '시작';
             btnToggleEdit.classList.replace('btn-success', 'btn-primary');
         } else {
             isEditMode = true;
