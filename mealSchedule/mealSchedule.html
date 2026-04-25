@@ -49,7 +49,7 @@
             <div class="section-header">
                 <h2 class="section-title">식단 관리</h2>
                 <div class="header-actions">
-                    <button id="btn-add-meal" class="btn btn-primary btn-sm">식단 추가/수정</button>
+                    <button id="btn-toggle-edit" class="btn btn-primary btn-sm">수정 모드 시작</button>
                     <div class="week-selector">
                         <button id="prev-week" class="btn btn-secondary btn-sm"><</button>
                         <input type="date" id="week-picker" class="form-control-sm">
@@ -64,44 +64,6 @@
             </div>
         </section>
     </main>
-
-    <!-- 식단 추가/수정 모달 -->
-    <div id="meal-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>식단 추가/수정</h3>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="meal-form">
-                    <div class="form-group mb-3">
-                        <label for="meal-date">날짜</label>
-                        <input type="date" id="meal-date" class="form-control" required>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="meal-brunch">브런치 (일요일 전용)</label>
-                        <textarea id="meal-brunch" class="form-control" rows="2" placeholder="일요일인 경우에만 입력하세요."></textarea>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="meal-breakfast">아침</label>
-                        <textarea id="meal-breakfast" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="meal-lunch">점심</label>
-                        <textarea id="meal-lunch" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="meal-dinner">저녁</label>
-                        <textarea id="meal-dinner" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-actions text-right">
-                        <button type="button" id="btn-delete-meal" class="btn btn-danger">삭제</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <footer class="footer">
         <div class="container text-center">

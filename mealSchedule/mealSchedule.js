@@ -7,7 +7,7 @@ const formatDate = (date) => {
 
 // 콤마를 줄바꿈으로 변환하는 헬퍼
 function formatMealText(text) {
-    if (!text || text === "정보 없음") return "식단 정보가 없습니다.";
+    if (!text || text === "정보 없음") return "";
     return text.split(',').map(item => item.trim()).join('\n');
 }
 
@@ -19,7 +19,7 @@ async function initDashboardMeal() {
     const searchMealSelect = document.getElementById('search-meal');
     const mealSearchUi = document.getElementById('meal-search-ui');
 
-    if (!mealDisplayEl) return; // 대시보드 요소가 없으면 중단
+    if (!mealDisplayEl) return; 
 
     async function getMealData(dateStr) {
         const allMeals = await window.getDBData(STORE_NAME);
@@ -52,7 +52,7 @@ async function initDashboardMeal() {
         const mealData = await getMealData(dateStr);
         const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
         if (mealTypeEl) mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
-        mealDisplayEl.innerText = formatMealText(mealData?.[mealKey]);
+        mealDisplayEl.innerText = formatMealText(mealData?.[mealKey]) || "식단 정보가 없습니다.";
     }
 
     async function setAutoMeal() {
@@ -94,7 +94,7 @@ async function initDashboardMeal() {
         }
         const mealData = await getMealData(targetDateStr);
         if (mealTypeEl) mealTypeEl.innerText = mealData ? displayLabel : "정보 없음";
-        mealDisplayEl.innerText = mealData ? formatMealText(mealData[mealKey]) : "식단 정보가 없습니다.";
+        mealDisplayEl.innerText = mealData ? (formatMealText(mealData[mealKey]) || "식단 정보가 없습니다.") : "식단 정보가 없습니다.";
         if (searchMealSelect) searchMealSelect.value = mealKey;
     }
 
@@ -121,15 +121,13 @@ async function initDashboardMeal() {
 async function initFullMealSchedule() {
     const weekPicker = document.getElementById('week-picker');
     const displayEl = document.getElementById('weekly-meal-display');
-    const mealModal = document.getElementById('meal-modal');
-    if (!displayEl) return; 
-
-    const btnAddMeal = document.getElementById('btn-add-meal');
-    const closeModal = document.querySelector('.close-modal');
-    const mealForm = document.getElementById('meal-form');
-    const btnDeleteMeal = document.getElementById('btn-delete-meal');
+    const btnToggleEdit = document.getElementById('btn-toggle-edit');
     const prevWeekBtn = document.getElementById('prev-week');
     const nextWeekBtn = document.getElementById('next-week');
+
+    if (!displayEl) return; 
+
+    let isEditMode = false;
 
     const getSunday = (date) => {
         const d = new Date(date);
@@ -147,25 +145,14 @@ async function initFullMealSchedule() {
         const allMenus = await window.getDBData(STORE_NAME);
         
         const days = ['일', '월', '화', '수', '목', '금', '토'];
-        let html = `
-            <table class="meal-table weekly">
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">구분</th>
-        `;
+        let html = `<table class="meal-table weekly ${isEditMode ? 'edit-mode' : ''}"><thead><tr><th style="width: 10%;">구분</th>`;
 
         for (let i = 0; i < 7; i++) {
             const d = new Date(sunday);
             d.setDate(sunday.getDate() + i);
-            const dayClass = i === 0 ? 'sunday' : (i === 6 ? 'saturday' : '');
-            html += `<th class="${dayClass}">${days[i]} (${d.getMonth() + 1}/${d.getDate()})</th>`;
+            html += `<th class="${i === 0 ? 'sunday' : (i === 6 ? 'saturday' : '')}">${days[i]} (${d.getMonth() + 1}/${d.getDate()})</th>`;
         }
-
-        html += `
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        html += `</tr></thead><tbody>`;
 
         const mealTypes = [
             { id: 'breakfast', label: '아침' },
@@ -184,31 +171,35 @@ async function initFullMealSchedule() {
 
                 if (isSunday) {
                     if (rowIndex === 0) {
-                        // 일요일 아침 행: 아침+점심 병합하여 브런치 표시
+                        const content = menu?.brunch || '';
                         html += `
-                            <td rowspan="2" class="clickable-cell sunday text-center" style="vertical-align: middle;" data-date="${dateStr}">
-                                <div class="meal-label" style="font-size: 0.8rem; color: #6c757d; margin-bottom: 5px;">[브런치]</div>
-                                <div class="meal-text">${menu?.brunch || '-'}</div>
+                            <td rowspan="2" class="sunday text-center" style="vertical-align: middle;">
+                                ${isEditMode ? 
+                                    `<div class="small text-muted mb-1">[브런치]</div><textarea class="edit-input" data-date="${dateStr}" data-type="brunch" rows="4">${content}</textarea>` : 
+                                    `<div class="meal-label" style="font-size: 0.8rem; color: #6c757d; margin-bottom: 5px;">[브런치]</div><div class="meal-text">${formatMealText(content)}</div>`
+                                }
                             </td>
                         `;
-                    } else if (rowIndex === 1) {
-                        // 일요일 점심 행: 건너뜀 (병합됨)
-                        continue;
-                    } else {
-                        // 일요일 저녁 행
+                    } else if (rowIndex === 1) continue;
+                    else {
+                        const content = menu?.dinner || '';
                         html += `
-                            <td class="clickable-cell sunday" data-date="${dateStr}">
-                                <div class="meal-text">${menu?.dinner || '-'}</div>
+                            <td class="sunday">
+                                ${isEditMode ? 
+                                    `<textarea class="edit-input" data-date="${dateStr}" data-type="dinner" rows="2">${content}</textarea>` : 
+                                    `<div class="meal-text">${formatMealText(content)}</div>`
+                                }
                             </td>
                         `;
                     }
                 } else {
-                    // 평일
-                    const content = menu ? (menu[type.id] || '-') : '-';
-                    const cellClass = i === 6 ? 'saturday' : '';
+                    const content = menu ? (menu[type.id] || '') : '';
                     html += `
-                        <td class="clickable-cell ${cellClass}" data-date="${dateStr}">
-                            <div class="meal-text">${content}</div>
+                        <td class="${i === 6 ? 'saturday' : ''}">
+                            ${isEditMode ? 
+                                `<textarea class="edit-input" data-date="${dateStr}" data-type="${type.id}" rows="2">${content}</textarea>` : 
+                                `<div class="meal-text">${formatMealText(content)}</div>`
+                            }
                         </td>
                     `;
                 }
@@ -218,56 +209,57 @@ async function initFullMealSchedule() {
 
         html += '</tbody></table>';
         displayEl.innerHTML = html;
+    };
 
-        document.querySelectorAll('.clickable-cell').forEach(cell => {
-            cell.addEventListener('click', () => openMealModal(cell.dataset.date));
+    const saveAllChanges = async () => {
+        const inputs = document.querySelectorAll('.edit-input');
+        const dataByDate = {};
+
+        inputs.forEach(input => {
+            const date = input.dataset.date;
+            const type = input.dataset.type;
+            const val = input.value.trim();
+
+            if (!dataByDate[date]) dataByDate[date] = { date };
+            dataByDate[date][type] = val;
         });
+
+        for (const date in dataByDate) {
+            const data = dataByDate[date];
+            // 데이터가 완전히 비어있는지 확인 (date 제외)
+            const hasData = Object.keys(data).some(key => key !== 'date' && data[key] !== '');
+            if (hasData) {
+                await window.putDBData(STORE_NAME, data);
+            } else {
+                await window.deleteDBData(STORE_NAME, date);
+            }
+        }
     };
 
-    const openMealModal = async (dateStr) => {
-        const menu = (await window.getDBData(STORE_NAME)).find(m => m.date === dateStr);
-        document.getElementById('meal-date').value = dateStr;
-        document.getElementById('meal-brunch').value = menu?.brunch || "";
-        document.getElementById('meal-breakfast').value = menu?.breakfast || "";
-        document.getElementById('meal-lunch').value = menu?.lunch || "";
-        document.getElementById('meal-dinner').value = menu?.dinner || "";
-        btnDeleteMeal.style.display = menu ? 'inline-block' : 'none';
-        mealModal.classList.remove('hidden');
-    };
-
-    btnAddMeal?.addEventListener('click', () => openMealModal(weekPicker.value));
-    closeModal?.addEventListener('click', () => mealModal.classList.add('hidden'));
-
-    mealForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            date: document.getElementById('meal-date').value,
-            brunch: document.getElementById('meal-brunch').value,
-            breakfast: document.getElementById('meal-breakfast').value,
-            lunch: document.getElementById('meal-lunch').value,
-            dinner: document.getElementById('meal-dinner').value
-        };
-        await window.putDBData(STORE_NAME, data);
-        mealModal.classList.add('hidden');
+    btnToggleEdit?.addEventListener('click', async () => {
+        if (isEditMode) {
+            await saveAllChanges();
+            isEditMode = false;
+            btnToggleEdit.innerText = '수정 모드 시작';
+            btnToggleEdit.classList.replace('btn-success', 'btn-primary');
+        } else {
+            isEditMode = true;
+            btnToggleEdit.innerText = '저장';
+            btnToggleEdit.classList.replace('btn-primary', 'btn-success');
+        }
         renderWeeklySchedule();
     });
 
-    btnDeleteMeal?.addEventListener('click', async () => {
-        if (confirm('정말 삭제하시겠습니까?')) {
-            await window.deleteDBData(STORE_NAME, document.getElementById('meal-date').value);
-            mealModal.classList.add('hidden');
-            renderWeeklySchedule();
-        }
-    });
-
-    weekPicker?.addEventListener('change', renderWeeklySchedule);
+    weekPicker?.addEventListener('change', () => { if(!isEditMode) renderWeeklySchedule(); });
     prevWeekBtn?.addEventListener('click', () => {
+        if(isEditMode) return;
         const d = new Date(weekPicker.value);
         d.setDate(d.getDate() - 7);
         weekPicker.value = formatDate(d);
         renderWeeklySchedule();
     });
     nextWeekBtn?.addEventListener('click', () => {
+        if(isEditMode) return;
         const d = new Date(weekPicker.value);
         d.setDate(d.getDate() + 7);
         weekPicker.value = formatDate(d);
