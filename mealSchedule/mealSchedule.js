@@ -15,44 +15,12 @@ function formatMealText(text) {
 async function initDashboardMeal() {
     const mealTypeEl = document.getElementById('meal-type');
     const mealDisplayEl = document.getElementById('meal-display');
-    const searchDateInput = document.getElementById('search-date');
-    const searchMealSelect = document.getElementById('search-meal');
-    const mealSearchUi = document.getElementById('meal-search-ui');
 
     if (!mealDisplayEl) return; 
 
     async function getMealData(dateStr) {
         const allMeals = await window.getDBData(STORE_NAME);
         return allMeals.find(m => m.date === dateStr) || null;
-    }
-
-    function updateMealOptions(dateStr) {
-        if (!searchMealSelect) return;
-        const date = new Date(dateStr);
-        const isSunday = date.getDay() === 0;
-        const currentVal = searchMealSelect.value;
-        searchMealSelect.innerHTML = '';
-        if (isSunday) {
-            searchMealSelect.add(new Option("브런치", "brunch"));
-            searchMealSelect.add(new Option("저녁", "dinner"));
-        } else {
-            searchMealSelect.add(new Option("아침", "breakfast"));
-            searchMealSelect.add(new Option("점심", "lunch"));
-            searchMealSelect.add(new Option("저녁", "dinner"));
-        }
-        if (Array.from(searchMealSelect.options).some(opt => opt.value === currentVal)) {
-            searchMealSelect.value = currentVal;
-        }
-    }
-
-    async function searchMeal() {
-        const dateStr = searchDateInput.value;
-        updateMealOptions(dateStr);
-        const mealKey = searchMealSelect.value;
-        const mealData = await getMealData(dateStr);
-        const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
-        if (mealTypeEl) mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
-        mealDisplayEl.innerText = formatMealText(mealData?.[mealKey]) || "식단 정보가 없습니다.";
     }
 
     async function setAutoMeal() {
@@ -88,31 +56,10 @@ async function initDashboardMeal() {
             }
         }
 
-        if (searchDateInput) {
-            searchDateInput.value = targetDateStr;
-            updateMealOptions(targetDateStr);
-        }
         const mealData = await getMealData(targetDateStr);
         if (mealTypeEl) mealTypeEl.innerText = mealData ? displayLabel : "정보 없음";
         mealDisplayEl.innerText = mealData ? (formatMealText(mealData[mealKey]) || "식단 정보가 없습니다.") : "식단 정보가 없습니다.";
-        if (searchMealSelect) searchMealSelect.value = mealKey;
     }
-
-    if (mealTypeEl) {
-        mealTypeEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            mealSearchUi?.classList.toggle('hidden');
-        });
-    }
-
-    document.addEventListener('click', (e) => {
-        if (mealSearchUi && !mealSearchUi.contains(e.target) && e.target !== mealTypeEl) {
-            mealSearchUi.classList.add('hidden');
-        }
-    });
-
-    if (searchDateInput) searchDateInput.addEventListener('change', searchMeal);
-    if (searchMealSelect) searchMealSelect.addEventListener('change', searchMeal);
 
     await setAutoMeal();
 }

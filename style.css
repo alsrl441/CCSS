@@ -325,7 +325,6 @@ main {
     font-size: 0.75rem;
     font-weight: 600;
     border-radius: 9999px;
-    cursor: pointer;
 }
 
 .more-btn {
@@ -376,22 +375,3 @@ main {
     gap: 8px;
 }
 
-.meal-search-pannel {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.meal-search-pannel.hidden {
-    display: none;
-}
-
-.clickable {
-    cursor: pointer;
-    user-select: none;
-}
-
-.clickable:hover {
-    filter: brightness(0.9);
-}
