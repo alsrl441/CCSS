@@ -8,7 +8,7 @@ const formatDate = (date) => {
 // 콤마를 줄바꿈으로 변환하는 헬퍼
 function formatMealText(text) {
     if (!text || text === "정보 없음") return "";
-    return text.split(',').map(item => item.trim()).join('\n');
+    return String(text).split(',').map(item => item.trim()).join('\n');
 }
 
 // --- 대시보드 로직 ---
