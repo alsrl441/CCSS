@@ -261,32 +261,6 @@ main {
     padding: 0.5rem 0;
 }
 
-/* Menu Specific */
-.menu-container {
-    background-color: var(--bs-gray-100);
-    border-radius: 0.75rem;
-    padding: 2rem;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#menu-display {
-    font-family: var(--font-family);
-    font-size: 1.25rem;
-    font-weight: 500;
-    line-height: 1.8;
-    white-space: pre-wrap;
-    text-align: center;
-    color: #374151;
-}
-
-/* Work Schedule Specific */
-#work-display {
-    font-size: 0.9375rem;
-}
-
 /* Footer */
 .footer {
     padding: 3rem 0;
@@ -342,36 +316,5 @@ main {
     .row {
         flex-direction: column;
     }
-}
-
-/* 식단표 대시보드 스타일 */
-.meal-container {
-    border: 1px solid var(--bs-gray-300);
-    border-radius: var(--bs-border-radius);
-    padding: 2rem;
-    background-color: var(--bs-white);
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-#meal-display {
-    margin: 0;
-    font-family: var(--font-family);
-    font-size: 1.25rem;
-    font-weight: 500;
-    line-height: 2;
-    white-space: pre-line;
-    text-align: center;
-    color: #374151;
-    width: 100%;
-}
-
-.meal-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
