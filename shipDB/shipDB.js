@@ -66,6 +66,7 @@ async function saveShipMainInfo(idx) {
 }
 
 async function loadShipsFromDB() {
+    await window.ensureStore(TARGET_STORE_NAME);
     return new Promise((resolve) => {
         const request = indexedDB.open(DB_NAME);
         request.onsuccess = (e) => {
@@ -149,6 +150,7 @@ async function loadShipsFromDB() {
 }
 
 async function updateShipInDB(key, updatedData) {
+    await window.ensureStore(TARGET_STORE_NAME);
     const dataToSave = { ...updatedData };
     delete dataToSave._dbKey;
     return new Promise((resolve) => {
@@ -416,6 +418,7 @@ async function deleteHistory(shipIdx, historyIdx) {
 }
 
 async function deleteShip(shipIdx) {
+    await window.ensureStore(TARGET_STORE_NAME);
     const ship = shipData[shipIdx];
     if (confirm(`'${ship.name}' 선박의 모든 정보를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
         const request = indexedDB.open(DB_NAME);
