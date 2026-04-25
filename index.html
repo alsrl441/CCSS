@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="menu/menu.css">
+    <link rel="stylesheet" href="mealSchedule/mealSchedule.css">
     <link rel="stylesheet" href="workSchedule/workSchedule.css">
 </head>
 <body>
@@ -51,9 +51,10 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">식단표</h2>
-                        <div class="menu-controls">
+                        <div class="meal-controls">
+                            <a href="mealSchedule/mealSchedule.html" class="more-btn" title="전체보기" style="margin-right: 10px;">+</a>
                             <span id="meal-type" class="badge-primary clickable" title="식단 검색"></span>
-                            <div id="menu-search-ui" class="menu-search-pannel hidden">
+                            <div id="meal-search-ui" class="meal-search-pannel hidden">
                                 <input type="date" id="search-date" class="form-control-sm">
                                 <select id="search-meal" class="form-control-sm">
                                     <option value="breakfast">아침</option>
@@ -62,13 +63,13 @@
                                     <option value="dinner">저녁</option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-                    <div class="section-body">
-                        <div class="menu-container">
-                            <pre id="menu-display">데이터 로딩 실패</pre>
-                        </div>
-                    </div>
+                            </div>
+                            </div>
+                            <div class="section-body">
+                            <div class="meal-container">
+                            <pre id="meal-display">데이터 로딩 실패</pre>
+                            </div>
+                            </div>
                 </section>
             </div>
 
@@ -99,7 +100,7 @@
     </footer>
 
     <script src="script.js"></script>
-    <script src="menu/menu.js"></script>
+    <script src="mealSchedule/mealScheduleDashboard.js"></script>
     <script src="workSchedule/workSchedule.js"></script>
 </body>
 </html>

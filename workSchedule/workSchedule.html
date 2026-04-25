@@ -48,8 +48,11 @@
         <section class="content-section">
             <div class="section-header">
                 <h2 class="section-title" id="month-title">근무표</h2>
-                <div class="month-selector">
-                    <input type="month" id="month-picker" class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit;">
+                <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                    <button id="btn-add-work" class="btn btn-primary btn-sm">근무 추가/수정</button>
+                    <div class="month-selector">
+                        <input type="month" id="month-picker" class="form-control" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit;">
+                    </div>
                 </div>
             </div>
             <div class="section-body">
@@ -58,6 +61,83 @@
                 </div>
             </div>
         </section>
+
+        <!-- 근무 추가/수정 모달 -->
+        <div id="work-modal" class="modal hidden">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>근무 추가/수정</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="work-form">
+                        <div class="form-group mb-3">
+                            <label for="work-date">날짜</label>
+                            <input type="date" id="work-date" class="form-control" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label><input type="checkbox" id="work-is-holiday"> 휴일 여부</label>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <h5>항포구 (CCTV)</h5>
+                                <div class="mb-2">
+                                    <label>06-14 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="cctv-0-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="cctv-0-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label>14-22 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="cctv-1-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="cctv-1-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label>22-06 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="cctv-2-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="cctv-2-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <h5>TOD</h5>
+                                <div class="mb-2">
+                                    <label>고하도 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="tod-0-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="tod-0-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label>외기 평시 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="tod-1-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="tod-1-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label>외기 핵취 (사수/부사수)</label>
+                                    <div style="display: flex; gap: 5px;">
+                                        <input type="text" id="tod-2-p1" class="form-control" placeholder="사수">
+                                        <input type="text" id="tod-2-p2" class="form-control" placeholder="부사수">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions text-right mt-3">
+                            <button type="button" id="btn-delete-work" class="btn btn-danger">삭제</button>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <section class="content-section">
             <div class="section-header">

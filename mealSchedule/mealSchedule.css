@@ -1,0 +1,131 @@
+.meal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    min-width: 1000px;
+}
+
+.meal-table th, .meal-table td {
+    border: 1px solid #dee2e6;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 13px;
+    vertical-align: top;
+    word-break: break-all;
+}
+
+.meal-table th {
+    background-color: #f8f9fa;
+    font-weight: 700;
+}
+
+.meal-table td {
+    height: 100px;
+    text-align: left;
+}
+
+.meal-table .date-num {
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.meal-table .meal-item {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.meal-table .meal-label {
+    font-weight: 700;
+    color: #6c757d;
+    margin-right: 4px;
+    font-size: 11px;
+}
+
+.meal-table .sunday { color: #dc3545; }
+.meal-table .saturday { color: #0d6efd; }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.close-modal {
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.clickable-cell {
+    cursor: pointer;
+}
+
+.clickable-cell:hover {
+    background-color: #f0f7ff;
+}
+
+.meal-text {
+    white-space: pre-line;
+}

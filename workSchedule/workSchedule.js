@@ -230,7 +230,7 @@ async function updateWorkSchedule() {
                 const isRedDay = (isSun || isHoliday);
                 const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
                 
-                headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
+                headerHtml += `<th class="${dayClass} table-light-bg clickable-cell" data-date="${dayData.date}" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
 
                 // CCTV 통계 계산
                 const cctvWeights = WORK_WEIGHTS[dayType].cctv;
@@ -387,6 +387,87 @@ async function updateWorkSchedule() {
 
         renderMonthlyView();
         monthPicker.addEventListener('change', renderMonthlyView);
+
+        // --- 근무 관리 로직 추가 ---
+        const workModal = document.getElementById('work-modal');
+        const btnAddWork = document.getElementById('btn-add-work');
+        const closeModal = workModal.querySelector('.close-modal');
+        const workForm = document.getElementById('work-form');
+        const btnDeleteWork = document.getElementById('btn-delete-work');
+
+        const openWorkModal = async (dateStr) => {
+            const allSchedules = await getAllSchedules();
+            const data = allSchedules.find(d => d.date === dateStr);
+            
+            document.getElementById('work-date').value = dateStr;
+            document.getElementById('work-is-holiday').checked = data?.isHoliday || false;
+            
+            // CCTV 데이터 채우기
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`cctv-${i}-p1`).value = data?.cctv?.[i]?.p1 || "";
+                document.getElementById(`cctv-${i}-p2`).value = data?.cctv?.[i]?.p2 || "";
+            }
+            
+            // TOD 데이터 채우기
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`tod-${i}-p1`).value = data?.tod?.[i]?.p1 || "";
+                document.getElementById(`tod-${i}-p2`).value = data?.tod?.[i]?.p2 || "";
+            }
+            
+            btnDeleteWork.style.display = data ? 'inline-block' : 'none';
+            workModal.classList.remove('hidden');
+        };
+
+        btnAddWork.addEventListener('click', () => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            openWorkModal(todayStr);
+        });
+
+        closeModal.addEventListener('click', () => {
+            workModal.classList.add('hidden');
+        });
+
+        // 테이블 헤더 클릭 이벤트 위임
+        monthlyDisplay.addEventListener('click', (e) => {
+            const th = e.target.closest('th.clickable-cell');
+            if (th) {
+                openWorkModal(th.dataset.date);
+            }
+        });
+
+        workForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const date = document.getElementById('work-date').value;
+            const isHoliday = document.getElementById('work-is-holiday').checked;
+            
+            const cctv = [
+                { shift: "06-14", p1: document.getElementById('cctv-0-p1').value, p2: document.getElementById('cctv-0-p2').value },
+                { shift: "14-22", p1: document.getElementById('cctv-1-p1').value, p2: document.getElementById('cctv-1-p2').value },
+                { shift: "22-06", p1: document.getElementById('cctv-2-p1').value, p2: document.getElementById('cctv-2-p2').value }
+            ];
+            
+            const tod = [
+                { location: "고하도", p1: document.getElementById('tod-0-p1').value, p2: document.getElementById('tod-0-p2').value },
+                { location: "외기 평시", p1: document.getElementById('tod-1-p1').value, p2: document.getElementById('tod-1-p2').value },
+                { location: "외기 핵취", p1: document.getElementById('tod-2-p1').value, p2: document.getElementById('tod-2-p2').value }
+            ];
+            
+            const data = { date, isHoliday, cctv, tod };
+            
+            await window.putDBData(STORE_NAME, data);
+            workModal.classList.add('hidden');
+            renderMonthlyView();
+            // 대시보드 업데이트를 위해 페이지 새로고침은 하지 않고 데이터만 갱신
+        });
+
+        btnDeleteWork.addEventListener('click', async () => {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                const date = document.getElementById('work-date').value;
+                await window.deleteDBData(STORE_NAME, date);
+                workModal.classList.add('hidden');
+                renderMonthlyView();
+            }
+        });
     }
 }
 

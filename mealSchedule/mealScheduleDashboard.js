@@ -1,7 +1,7 @@
-const STORE_NAME = "menu";
+const STORE_NAME = "mealSchedule";
 
 // 하위 로직에서 관리하는 데이터 양식
-const initialMenuTemplate = {
+const initialMealTemplate = {
     "date": "0000-00-00",
     "breakfast": "정보 없음",
     "lunch": "정보 없음",
@@ -10,7 +10,7 @@ const initialMenuTemplate = {
 };
 
 const mealTypeEl = document.getElementById('meal-type');
-const menuDisplayEl = document.getElementById('menu-display');
+const mealDisplayEl = document.getElementById('meal-display');
 const searchDateInput = document.getElementById('search-date');
 const searchMealSelect = document.getElementById('search-meal');
 
@@ -22,12 +22,12 @@ const getFormattedDate = (dateObj) => {
     return `${year}-${month}-${day}`;
 };
 
-async function getMenuData(dateStr) {
+async function getMealData(dateStr) {
     try {
-        const allMenus = await window.getDBData(STORE_NAME);
-        return allMenus.find(m => m.date === dateStr) || null;
+        const allMeals = await window.getDBData(STORE_NAME);
+        return allMeals.find(m => m.date === dateStr) || null;
     } catch (err) {
-        console.error("Menu fetch error:", err);
+        console.error("Meal fetch error:", err);
         return null;
     }
 }
@@ -53,7 +53,7 @@ function updateMealOptions(dateStr) {
     if (hasValue) searchMealSelect.value = currentVal;
 }
 
-async function setAutoMenu() {
+async function setAutoMeal() {
     const now = new Date();
     const timeVal = now.getHours() * 100 + now.getMinutes();
     const todayStr = getFormattedDate(now);
@@ -91,54 +91,54 @@ async function setAutoMenu() {
         updateMealOptions(targetDateStr);
     }
     
-    const menuData = await getMenuData(targetDateStr);
-    if (menuData) {
+    const mealData = await getMealData(targetDateStr);
+    if (mealData) {
         if (mealTypeEl) mealTypeEl.innerText = displayLabel;
-        if (menuDisplayEl) menuDisplayEl.innerText = menuData[mealKey] || "식단 정보가 없습니다.";
+        if (mealDisplayEl) mealDisplayEl.innerText = mealData[mealKey] || "식단 정보가 없습니다.";
     } else {
         if (mealTypeEl) mealTypeEl.innerText = "정보 없음";
-        if (menuDisplayEl) menuDisplayEl.innerText = "식단 정보가 없습니다.";
+        if (mealDisplayEl) mealDisplayEl.innerText = "식단 정보가 없습니다.";
     }
 
     if (searchMealSelect) searchMealSelect.value = mealKey;
 }
 
-async function searchMenu() {
+async function searchMeal() {
     if (!searchDateInput || !searchMealSelect) return;
     const dateStr = searchDateInput.value;
     updateMealOptions(dateStr);
     
     const mealKey = searchMealSelect.value;
-    const menuData = await getMenuData(dateStr);
+    const mealData = await getMealData(dateStr);
     
     const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
     if (mealTypeEl) mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
     
-    const menuText = menuData?.[mealKey] ? menuData[mealKey].replace(/, /g, '\n').replace(/,/g, '\n') : "식단 정보가 없습니다.";
-    if (menuDisplayEl) menuDisplayEl.innerText = menuText;
+    const mealText = mealData?.[mealKey] ? mealData[mealKey].replace(/, /g, '\n').replace(/,/g, '\n') : "식단 정보가 없습니다.";
+    if (mealDisplayEl) mealDisplayEl.innerText = mealText;
 }
 
-async function initMenu() {
+async function initMeal() {
     await window.ensureStore(STORE_NAME, "date");
     
     // 초기 템플릿 확인 및 삽입 로직 (데이터가 아예 없을 때만)
     const currentData = await window.getDBData(STORE_NAME);
     if (currentData.length === 0) {
-        await window.putDBData(STORE_NAME, initialMenuTemplate);
+        await window.putDBData(STORE_NAME, initialMealTemplate);
         console.log("초기 식단 템플릿 삽입됨.");
     }
 
     if (mealTypeEl) {
         mealTypeEl.addEventListener('click', () => {
-            const ui = document.getElementById('menu-search-ui');
+            const ui = document.getElementById('meal-search-ui');
             if (ui) ui.classList.toggle('hidden');
         });
     }
 
-    if (searchDateInput) searchDateInput.addEventListener('change', searchMenu);
-    if (searchMealSelect) searchMealSelect.addEventListener('change', searchMenu);
+    if (searchDateInput) searchDateInput.addEventListener('change', searchMeal);
+    if (searchMealSelect) searchMealSelect.addEventListener('change', searchMeal);
 
-    await setAutoMenu();
+    await setAutoMeal();
 }
 
-document.addEventListener('DOMContentLoaded', initMenu);
+document.addEventListener('DOMContentLoaded', initMeal);
