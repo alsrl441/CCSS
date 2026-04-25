@@ -167,8 +167,11 @@ async function updateWorkSchedule() {
     const monthlyDisplay = document.getElementById('monthly-work-display');
     const statsDisplay = document.getElementById('stats-display');
     const monthPicker = document.getElementById('month-picker');
+    const btnToggleEditWork = document.getElementById('btn-toggle-edit-work');
 
     if (monthlyDisplay && statsDisplay && monthPicker) {
+        let isEditMode = false;
+
         if (!monthPicker.value) {
             monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
@@ -189,8 +192,16 @@ async function updateWorkSchedule() {
                 } else {
                     currentMonthData.push({
                         date: dateStr,
-                        cctv: [{}, {}, {}],
-                        tod: [{}, {}, {}],
+                        cctv: [
+                            { shift: "06-14", p1: "", p2: "" },
+                            { shift: "14-22", p1: "", p2: "" },
+                            { shift: "22-06", p1: "", p2: "" }
+                        ],
+                        tod: [
+                            { location: "고하도", p1: "", p2: "" },
+                            { location: "외기 평시", p1: "", p2: "" },
+                            { location: "외기 핵취", p1: "", p2: "" }
+                        ],
                         isHoliday: false
                     });
                 }
@@ -230,7 +241,7 @@ async function updateWorkSchedule() {
                 const isRedDay = (isSun || isHoliday);
                 const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
                 
-                headerHtml += `<th class="${dayClass} table-light-bg clickable-cell" data-date="${dayData.date}" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
+                headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
 
                 // CCTV 통계 계산
                 const cctvWeights = WORK_WEIGHTS[dayType].cctv;
@@ -263,7 +274,7 @@ async function updateWorkSchedule() {
                 });
             });
 
-            // 점수 계산 (근무시간 + 뺏긴 시간)
+            // 점수 계산
             Object.keys(stats).forEach(name => {
                 stats[name].score = stats[name].totalHours + stats[name].totalLostTime;
             });
@@ -277,21 +288,35 @@ async function updateWorkSchedule() {
                     const s = day.cctv[idx];
                     const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
                     const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
-                    row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                    if (isEditMode) {
+                        row += `<td class="names-cell edit-mode">
+                            <input type="text" class="edit-work-input" data-date="${day.date}" data-group="cctv" data-idx="${idx}" data-p="p1" value="${p1}">
+                            <input type="text" class="edit-work-input" data-date="${day.date}" data-group="cctv" data-idx="${idx}" data-p="p2" value="${p2}">
+                        </td>`;
+                    } else {
+                        row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                    }
                 });
                 return row + `</tr>`;
             };
 
-            const renderTodRow = (type, label) => {
+            const renderTodRow = (idx, label) => {
                 let row = `<tr>`;
-                if (type === '고하도') row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>`;
+                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>`;
                 row += `<td class="sub-group table-fdfdfd-bg">${label}</td>`;
                 
                 currentMonthData.forEach(day => {
-                    let s = day.tod.find(item => item.location === label);
-                    const p1 = (s && s.p1 !== "-") ? s.p1 : "";
-                    const p2 = (s && s.p2 !== "-") ? s.p2 : "";
-                    row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                    const s = day.tod[idx];
+                    const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
+                    const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
+                    if (isEditMode) {
+                        row += `<td class="names-cell edit-mode">
+                            <input type="text" class="edit-work-input" data-date="${day.date}" data-group="tod" data-idx="${idx}" data-p="p1" value="${p1}">
+                            <input type="text" class="edit-work-input" data-date="${day.date}" data-group="tod" data-idx="${idx}" data-p="p2" value="${p2}">
+                        </td>`;
+                    } else {
+                        row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                    }
                 });
                 return row + `</tr>`;
             };
@@ -300,28 +325,26 @@ async function updateWorkSchedule() {
             bodyHtml += renderCctvRow(0, "06-14");
             bodyHtml += renderCctvRow(1, "14-22");
             bodyHtml += renderCctvRow(2, "22-06");
-            bodyHtml += renderTodRow('고하도', "고하도");
-            bodyHtml += renderTodRow('외기 평시', "외기 평시");
-            bodyHtml += renderTodRow('외기 핵취', "외기 핵취");
+            bodyHtml += renderTodRow(0, "고하도");
+            bodyHtml += renderTodRow(1, "외기 평시");
+            bodyHtml += renderTodRow(2, "외기 핵취");
 
             monthlyDisplay.innerHTML = `
-                <div class="monthly-table-wrapper">
+                <div class="monthly-table-wrapper ${isEditMode ? 'edit-mode' : ''}">
                     <table class="work-table table-bordered monthly-table">
                         <thead>${headerHtml}</tr></thead>
                         <tbody>${bodyHtml}</tbody>
                     </table>
                 </div>`;
 
+            // 통계 렌더링 (기존과 동일)
             const scoreList = Object.values(stats).map(s => s.score).sort((a, b) => a - b);
             const avgScore = scoreList.length ? (scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
-            
-            // 중앙값 계산
             let medianScore = 0;
             if (scoreList.length > 0) {
                 const mid = Math.floor(scoreList.length / 2);
                 medianScore = scoreList.length % 2 !== 0 ? scoreList[mid] : (scoreList[mid - 1] + scoreList[mid]) / 2;
             }
-
             const maxScore = scoreList.length ? Math.max(...scoreList) : 0;
             const minScore = scoreList.length ? Math.min(...scoreList) : 0;
             const maxUsers = Object.keys(stats).filter(n => stats[n].score === maxScore);
@@ -348,125 +371,81 @@ async function updateWorkSchedule() {
 
             statsDisplay.innerHTML = `
                 <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="summary-label">평균값</div>
-                        <div class="summary-value">${avgScore.toFixed(1)}h</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">중앙값</div>
-                        <div class="summary-value">${medianScore.toFixed(1)}h</div>
-                    </div>
-                    <div class="summary-item mvp">
-                        <div class="summary-label">이달의 MVP</div>
-                        <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
-                    </div>
-                    <div class="summary-item bee">
-                        <div class="summary-label">이달의 꿀벌</div>
-                        <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
-                    </div>
+                    <div class="summary-item"><div class="summary-label">평균값</div><div class="summary-value">${avgScore.toFixed(1)}h</div></div>
+                    <div class="summary-item"><div class="summary-label">중앙값</div><div class="summary-value">${medianScore.toFixed(1)}h</div></div>
+                    <div class="summary-item mvp"><div class="summary-label">이달의 MVP</div><div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div></div>
+                    <div class="summary-item bee"><div class="summary-label">이달의 꿀벌</div><div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div></div>
                 </div>
                 <div class="monthly-table-wrapper">
                     <table class="work-table table-bordered stats-table">
                         <thead>
-                            <tr>
-                                <th>성명</th>
-                                <th>평일 근무</th>
-                                <th>평일 비번</th>
-                                <th>휴일 근무</th>
-                                <th>휴일 비번</th>
-                                <th>근무시간</th>
-                                <th>뺏긴 시간</th>
-                                <th>총합</th>
-                                <th>평균 편차</th>
-                            </tr>
+                            <tr><th>성명</th><th>평일 근무</th><th>평일 비번</th><th>휴일 근무</th><th>휴일 비번</th><th>근무시간</th><th>뺏긴 시간</th><th>총합</th><th>평균 편차</th></tr>
                         </thead>
                         <tbody>${statsRows}</tbody>
                     </table>
                 </div>`;
         };
 
-        renderMonthlyView();
-        monthPicker.addEventListener('change', renderMonthlyView);
+        const saveAllWorkChanges = async () => {
+            const inputs = document.querySelectorAll('.edit-work-input');
+            const dataByDate = {};
 
-        // --- 근무 관리 로직 추가 ---
-        const workModal = document.getElementById('work-modal');
-        const btnAddWork = document.getElementById('btn-add-work');
-        const closeModal = workModal.querySelector('.close-modal');
-        const workForm = document.getElementById('work-form');
-        const btnDeleteWork = document.getElementById('btn-delete-work');
+            inputs.forEach(input => {
+                const date = input.dataset.date;
+                const group = input.dataset.group;
+                const idx = parseInt(input.dataset.idx);
+                const p = input.dataset.p;
+                const val = input.value.trim();
 
-        const openWorkModal = async (dateStr) => {
+                if (!dataByDate[date]) {
+                    dataByDate[date] = {
+                        date,
+                        isHoliday: false, // 휴일 정보는 기존 데이터 유지가 필요할 수 있음
+                        cctv: [
+                            { shift: "06-14", p1: "", p2: "" },
+                            { shift: "14-22", p1: "", p2: "" },
+                            { shift: "22-06", p1: "", p2: "" }
+                        ],
+                        tod: [
+                            { location: "고하도", p1: "", p2: "" },
+                            { location: "외기 평시", p1: "", p2: "" },
+                            { location: "외기 핵취", p1: "", p2: "" }
+                        ]
+                    };
+                }
+                dataByDate[date][group][idx][p] = val;
+            });
+
+            // 기존 휴일 정보 등을 덮어쓰지 않기 위해 기존 데이터를 먼저 가져와 병합할 수도 있으나,
+            // 여기서는 단순화를 위해 입력된 데이터 위주로 저장함.
+            // 실제 운영시에는 getAllSchedules() 결과와 병합하는 것이 안전함.
             const allSchedules = await getAllSchedules();
-            const data = allSchedules.find(d => d.date === dateStr);
-            
-            document.getElementById('work-date').value = dateStr;
-            document.getElementById('work-is-holiday').checked = data?.isHoliday || false;
-            
-            // CCTV 데이터 채우기
-            for (let i = 0; i < 3; i++) {
-                document.getElementById(`cctv-${i}-p1`).value = data?.cctv?.[i]?.p1 || "";
-                document.getElementById(`cctv-${i}-p2`).value = data?.cctv?.[i]?.p2 || "";
+            for (const date in dataByDate) {
+                const existing = allSchedules.find(d => d.date === date);
+                if (existing) {
+                    dataByDate[date].isHoliday = existing.isHoliday;
+                }
+                await window.putDBData(STORE_NAME, dataByDate[date]);
             }
-            
-            // TOD 데이터 채우기
-            for (let i = 0; i < 3; i++) {
-                document.getElementById(`tod-${i}-p1`).value = data?.tod?.[i]?.p1 || "";
-                document.getElementById(`tod-${i}-p2`).value = data?.tod?.[i]?.p2 || "";
-            }
-            
-            btnDeleteWork.style.display = data ? 'inline-block' : 'none';
-            workModal.classList.remove('hidden');
         };
 
-        btnAddWork.addEventListener('click', () => {
-            const todayStr = new Date().toISOString().split('T')[0];
-            openWorkModal(todayStr);
-        });
-
-        closeModal.addEventListener('click', () => {
-            workModal.classList.add('hidden');
-        });
-
-        // 테이블 헤더 클릭 이벤트 위임
-        monthlyDisplay.addEventListener('click', (e) => {
-            const th = e.target.closest('th.clickable-cell');
-            if (th) {
-                openWorkModal(th.dataset.date);
+        btnToggleEditWork?.addEventListener('click', async () => {
+            if (isEditMode) {
+                await saveAllWorkChanges();
+                isEditMode = false;
+                btnToggleEditWork.innerText = '수정';
+                btnToggleEditWork.classList.replace('btn-success', 'btn-primary');
+            } else {
+                isEditMode = true;
+                btnToggleEditWork.innerText = '저장';
+                btnToggleEditWork.classList.replace('btn-primary', 'btn-success');
             }
-        });
-
-        workForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const date = document.getElementById('work-date').value;
-            const isHoliday = document.getElementById('work-is-holiday').checked;
-            
-            const cctv = [
-                { shift: "06-14", p1: document.getElementById('cctv-0-p1').value, p2: document.getElementById('cctv-0-p2').value },
-                { shift: "14-22", p1: document.getElementById('cctv-1-p1').value, p2: document.getElementById('cctv-1-p2').value },
-                { shift: "22-06", p1: document.getElementById('cctv-2-p1').value, p2: document.getElementById('cctv-2-p2').value }
-            ];
-            
-            const tod = [
-                { location: "고하도", p1: document.getElementById('tod-0-p1').value, p2: document.getElementById('tod-0-p2').value },
-                { location: "외기 평시", p1: document.getElementById('tod-1-p1').value, p2: document.getElementById('tod-1-p2').value },
-                { location: "외기 핵취", p1: document.getElementById('tod-2-p1').value, p2: document.getElementById('tod-2-p2').value }
-            ];
-            
-            const data = { date, isHoliday, cctv, tod };
-            
-            await window.putDBData(STORE_NAME, data);
-            workModal.classList.add('hidden');
             renderMonthlyView();
-            // 대시보드 업데이트를 위해 페이지 새로고침은 하지 않고 데이터만 갱신
         });
 
-        btnDeleteWork.addEventListener('click', async () => {
-            if (confirm('정말 삭제하시겠습니까?')) {
-                const date = document.getElementById('work-date').value;
-                await window.deleteDBData(STORE_NAME, date);
-                workModal.classList.add('hidden');
-                renderMonthlyView();
-            }
+        renderMonthlyView();
+        monthPicker.addEventListener('change', () => {
+            if (!isEditMode) renderMonthlyView();
         });
     }
 }
